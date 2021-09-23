@@ -184,55 +184,6 @@ export function isColor(value) {
   );
 }
 
-export function walkDomSelector(dom, fn) {
-  if (!dom || !fn) return;
-  if (dom.attrs.id) {
-    fn('id', dom.attrs.id);
-  }
-  if (dom.attrs.class) {
-    selectorToArr(dom.attrs.class, /\s+/g).forEach((className) => fn('class', className));
-  }
-  fn('tagName', dom.tagName);
-}
-
-export function selectorToArr(selector, rex) {
-  if (!rex) return [selector];
-  return selector.split(rex).filter((s) => s != '');
-}
-
-export function isSelectorMatchDom(dom, selector) {
-  if (!dom || !selector) {
-    return false;
-  }
-  const tags = selector.match(/(^[^\.#]+)/g);
-  const ids = selector.match(/#[^\.#]+/g);
-  const classes = selector.match(/\.[^\.#]+/g);
-
-  const parts = [...(tags || []), ...(ids || []), ...(classes || [])];
-
-  const domSels = {};
-
-  walkDomSelector(dom, (key, sel) => {
-    switch (key) {
-      case 'id':
-        domSels[`#${sel}`] = 1;
-        break;
-      case 'class':
-        domSels[`.${sel}`] = 1;
-        break;
-      case 'tagName':
-        domSels[`${sel}`] = 1;
-        break;
-    }
-  });
-
-  for (const part of parts) {
-    // 对比dom的id/class等是否和selector匹配上的
-    if (!domSels[part]) return false;
-  }
-  return true;
-}
-
 export const reflowAttrs = {
   position: 1,
   display: 1,

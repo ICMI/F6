@@ -7,19 +7,18 @@ export default class UIDivNode extends UINode {
     if (!this.gNode) {
       this.gNode = parentGNode.addGroup({
         id: this.attributes?.id,
-        className: this.styleNode.dom.attrs.class,
+        className: this.dom.attrs.class,
       });
     }
     const gNode = this.gNode;
 
-    const styleNode = this.styleNode;
     gNode.resetMatrix();
     this.backgroudNode?.remove();
     const backgroudNode = (this.backgroudNode = gNode.addGroup());
 
     gNode.translate(this.left, this.top);
 
-    const style = styleNode.style;
+    const style = this.style;
 
     // zIndex
     typeof style.zIndex === 'number' && gNode.setZIndex(style.zIndex);

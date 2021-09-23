@@ -3,14 +3,14 @@ import UINode from './base';
 export default class UIImageNode extends UINode {
   draw(parentGNode) {
     const attrs = {
-      x: this.styleNode.layout.left,
-      y: this.styleNode.layout.top,
-      img: this.styleNode.dom.attrs.src,
-      width: this.styleNode.layout.width || 0,
-      height: this.styleNode.layout.height || 0,
+      x: this.left,
+      y: this.top,
+      img: this.dom.attrs.src,
+      width: this.width || 0,
+      height: this.height || 0,
     };
 
-    const isCapture = this.styleNode.style.pointerEvents === 'none' ? false : true;
+    const isCapture = this.style.pointerEvents === 'none' ? false : true;
     if (!this.gNode) {
       this.gNode = parentGNode.addShape('image', {
         type: 'image',
@@ -27,14 +27,14 @@ export default class UIImageNode extends UINode {
 
     shape.attr(attrs);
     // zIndex
-    typeof this.styleNode.style.zIndex === 'number' && shape.setZIndex(this.styleNode.style.zIndex);
+    typeof this.style.zIndex === 'number' && shape.setZIndex(this.style.zIndex);
 
-    switch (this.styleNode.style.textAlign) {
+    switch (this.style.textAlign) {
       case 'center':
-        shape.translate(this.styleNode.layout.width / 2);
+        shape.translate(this.width / 2);
         break;
       case 'right':
-        shape.translate(this.styleNode.layout.width);
+        shape.translate(this.width);
         break;
       default:
         break;

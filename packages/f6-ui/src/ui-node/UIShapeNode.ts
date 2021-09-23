@@ -2,32 +2,30 @@ import UINode from './base';
 
 export default class UIShapeNode extends UINode {
   getAttrs() {
-    const styleNode = this.styleNode;
-    const style = styleNode.style;
-    const layout = styleNode.layout;
-    const dom = styleNode.dom;
+    const style = this.style;
+    const dom = this.dom;
     return {
       fill: style.backgroundColor,
       lineWidth: style.borderWidth,
       fillOpacity: style.backgroundOpacity,
       stroke: style.borderColor,
-      width: layout.width - (style.borderWidth || 0),
-      height: layout.height - (style.borderWidth || 0),
+      width: this.width - (style.borderWidth || 0),
+      height: this.height - (style.borderWidth || 0),
       ...dom.attrs,
     };
   }
 
   draw(parentGNode) {
-    const styleNode = this.styleNode;
     const attrs = this.getAttrs();
-    const dom = styleNode.dom;
+
+    const dom = this.dom;
     if (!this.gNode) this.gNode = parentGNode.addShape(dom.attrs.type, { attrs });
     this.update();
   }
   update() {
     const attrs = this.getAttrs();
     let shape = this.gNode;
-    const isCapture = this.styleNode.style.pointerEvents === 'none' ? false : true;
+    const isCapture = this.style.pointerEvents === 'none' ? false : true;
     shape.attr(attrs);
     shape.set('capture', isCapture);
     shape.resetMatrix();

@@ -3,15 +3,15 @@ import { assembleFont, ShapeAttrs } from '@antv/g-base';
 
 export default class UITextNode extends UINode {
   getAttrs() {
-    const style = this.styleNode.style;
+    const style = this.style;
     const attrs: ShapeAttrs = {
-      x: this.styleNode.layout.left,
-      y: this.styleNode.layout.top,
-      textAlign: style.textAlign,
-      fill: style.color,
-      fontSize: style.fontSize || 12,
-      fontStyle: style.fontStyle,
-      fontFamily: style.fontFamily,
+      x: this.left,
+      y: this.top,
+      textAlign: this.getStyle('textAlign'),
+      fill: this.getStyle('color'),
+      fontSize: this.getStyle('fontSize'),
+      fontStyle: this.getStyle('fontStyle'),
+      fontFamily: this.getStyle('fontFamily'),
       lineHeight: style.lineHeight || 0,
       fontVariant: style.fontVariant,
       fontWeight: style.fontWeight,
@@ -56,28 +56,25 @@ export default class UITextNode extends UINode {
     return s;
   }
   update() {
-    const style = this.styleNode.style;
+    const style = this.style;
     const attrs: ShapeAttrs = this.getAttrs();
     let shape = this.gNode;
     shape.attr(attrs);
     shape.resetMatrix();
-    switch (style.textAlign) {
+    switch (this.getStyle('textAlign')) {
       case 'center':
-        shape.translate(this.styleNode.layout.width / 2);
+        shape.translate(this.width / 2);
         break;
       case 'right':
-        shape.translate(this.styleNode.layout.width);
+        shape.translate(this.width);
         break;
       default:
         break;
     }
     if (style.whiteSpace === 'nowrap') {
-      shape.attr('text', String(this.styleNode.dom.text));
+      shape.attr('text', String(this.dom.text));
     } else {
-      shape.attr(
-        'text',
-        this.getMultiLineText(String(this.styleNode.dom.text), attrs, this.styleNode.layout.width),
-      );
+      shape.attr('text', this.getMultiLineText(String(this.dom.text), attrs, this.width));
     }
   }
 }

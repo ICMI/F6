@@ -1,10 +1,20 @@
-import { isSelectorMatchDom, reflowAttrs } from '../utils/index';
-import { computeLayout } from '../utils/ui';
-export default abstract class UIBaseNode {
-  styleNode = null;
+import { isSelectorMatchDom, reflowAttrs, computeCSS } from '../utils/index';
+import computeLayout from 'css-layout';
+import isEqual from '@antv/util/lib/is-equal';
+import EE from '@antv/event-emitter';
+import { traverseTree } from '../utils';
+
+export default abstract class UIBaseNode extends EE {
+  dom = null;
+  style = null;
+  layoutNode = null;
+
   gNode = null;
+
   parent = null;
   children = [];
+
+  ownerUI = null;
 
   isMounted = false;
   isDisplay = true;
@@ -13,41 +23,32 @@ export default abstract class UIBaseNode {
   private _prevAttrs = null;
   private _prevStyle = null;
   private _prevLayout = null;
-  private events = {};
-
-  constructor(styleNode?) {
-    this.styleNode = styleNode;
-  }
 
   get top() {
-    return this.styleNode?.layout?.top;
+    return this.layoutNode?.layout?.top;
   }
 
   get left() {
-    return this.styleNode?.layout?.left;
+    return this.layoutNode?.layout?.left;
   }
 
   get width() {
-    return this.styleNode?.layout?.width;
+    return this.layoutNode?.layout?.width;
   }
   get height() {
-    return this.styleNode?.layout?.height;
+    return this.layoutNode?.layout?.height;
   }
 
   get tagName() {
-    return this.styleNode?.dom?.tagName;
-  }
-
-  get style() {
-    return this.styleNode?.style;
+    return this?.dom?.tagName;
   }
 
   get attributes() {
-    return this.styleNode?.dom?.attrs;
+    return this?.dom?.attrs;
   }
 
   private get _layout() {
-    return this.styleNode?._layout;
+    return this.layoutNode?.layout;
   }
 
   set parentGNode(gNode) {
@@ -63,15 +64,23 @@ export default abstract class UIBaseNode {
   }
 
   appendChild(...list) {
+    let isNeedRootUpdate = false;
     list.forEach((child) => {
       child.setParent(this);
       this.children.push(child);
-      child.styleNode &&
-        this.styleNode &&
-        !this.styleNode.originChildren.includes(child.styleNode) &&
-        this.styleNode.originChildren.push(child.styleNode);
+      traverseTree(child, (node) => {
+        if (node.tagName === 'style') isNeedRootUpdate = true;
+        node.didAppend?.(this);
+      });
     });
-    this.reflow();
+
+    if (isNeedRootUpdate) {
+      this.ownerUI.attachStyle();
+      this.ownerUI.layout();
+      this.ownerUI.render();
+    } else {
+      this.updateStyleAndLayoutAndRender();
+    }
   }
 
   removeChild(child) {
@@ -84,7 +93,7 @@ export default abstract class UIBaseNode {
     this.gNode?.remove();
     if (parent) {
       parent.children.splice(1, parent.children.indexOf(this));
-      parent.styleNode?.children.splice(1, parent.children.indexOf(this.styleNode));
+      // parent.styleNode?.children.splice(1, parent.children.indexOf(this.styleNode));
       if (this.isMounted) parent.reflow();
     }
     if (this.isMounted) this.unmount();
@@ -98,7 +107,7 @@ export default abstract class UIBaseNode {
       const [uiNode, selectorArr] = stack.shift();
       for (const child of uiNode.children) {
         let rest = [];
-        if (child.styleNode && isSelectorMatchDom(child.styleNode.dom, selectorArr[0])) {
+        if (isSelectorMatchDom(child.dom, selectorArr[0])) {
           if (selectorArr.slice(1).length === 0) {
             return child;
           } else {
@@ -121,7 +130,7 @@ export default abstract class UIBaseNode {
       const [uiNode, selectorArr, result] = stack.shift();
       for (const child of uiNode.children) {
         let rest = [];
-        if (child.styleNode && isSelectorMatchDom(child.styleNode.dom, selectorArr[0])) {
+        if (isSelectorMatchDom(child.dom, selectorArr[0])) {
           if (selectorArr.slice(1).length === 0) {
             result.push(child);
             rest = [selectorArr[0]];
@@ -137,11 +146,12 @@ export default abstract class UIBaseNode {
     return result;
   }
 
-  // 手动挂载G节点
-  private manualMount(parentGNode) {
-    this.parentGNode = parentGNode;
-    this.layout();
-    this.mount();
+  updateStyleAndLayoutAndRender() {
+    // 节点没有挂载到G上
+    if (!this.parentGNode) return;
+
+    this.attachStyle();
+    this.reflow();
   }
 
   reflow() {
@@ -159,14 +169,50 @@ export default abstract class UIBaseNode {
     this.render();
   }
 
-  // 计算布局
+  attachStyle() {
+    const stack = [[this, [], this.parent]];
+    while (stack.length) {
+      const [node, path, parent] = stack.pop();
+      node.style = computeCSS(node, path, parent?.style, this.ownerUI.ruleHashs);
+      // dom 查找样式并合并
+      for (let child of node.children) {
+        stack.push([child, [...path, node], node]);
+      }
+    }
+  }
+
+  genLayoutTree() {
+    const stack = [[this, this.parent.layoutNode || null]];
+    while (stack.length) {
+      const [node, parent] = stack.shift();
+      const layoutNode = {
+        style: {},
+        children: [],
+      };
+      if (node.style.display === 'none' || node.tagName === 'style') {
+        continue;
+      } else {
+        layoutNode.style = { ...node.style };
+        parent?.children?.push(layoutNode);
+        node.layoutNode = layoutNode;
+      }
+
+      for (let child of Object.values(node.children)) {
+        stack.push([child, layoutNode]);
+      }
+    }
+  }
+
+  // 子树布局
   layout() {
     this._prevLayout = { ...(this._layout || {}) };
+    this.genLayoutTree();
     this.clearLayout();
-    computeLayout(this.styleNode);
+    computeLayout(this.layoutNode);
     return;
   }
 
+  // 初次绘制， 绑定一些事件之类
   mount() {
     if (this.isMounted) {
       return;
@@ -182,8 +228,8 @@ export default abstract class UIBaseNode {
 
     this.draw(this.parentGNode);
     this.isMounted = true;
-    this.gNode.set('uiNode', this);
-    this.gNode.on('*', this.trigger);
+    this.gNode?.set('uiNode', this);
+    this.gNode?.on('*', this.trigger);
 
     this.children.forEach((child) => child.mount());
     this.didMount();
@@ -199,7 +245,10 @@ export default abstract class UIBaseNode {
   }
   didUnmount() {}
 
-  private render() {
+  // 绘制子树
+  render() {
+    if (this.tagName === 'style') return;
+
     if (!this.isMounted) {
       this.mount();
       return;
@@ -233,25 +282,26 @@ export default abstract class UIBaseNode {
   animate() {}
 
   private clearLayout() {
-    this.styleNode.isDirty = true;
+    if (!this.layoutNode) return;
+    this.layoutNode.isDirty = true;
     this.children.forEach((child) => {
       child.clearLayout();
     });
   }
 
   setAttribute(key, value) {
-    if (this.styleNode && this.styleNode.dom) {
-      this._prevAttrs = { ...this.styleNode.dom.attrs };
-      this.styleNode.dom.attrs[key] = value;
+    if (this.dom) {
+      this._prevAttrs = { ...this.dom.attrs };
+      this.dom.attrs[key] = value;
       if (!this.parent?.isMounted) return;
       this.render();
     }
   }
 
   setStyle(key, value) {
-    if (this.styleNode && this.styleNode.style) {
-      this._prevStyle = { ...this.styleNode.dom.style };
-      this.styleNode.style[key] = value;
+    if (this.style) {
+      this._prevStyle = { ...this.style };
+      this.style[key] = value;
       if (this.parent && !this.parent.isMounted) return;
       if (reflowAttrs[key]) {
         this.reflow();
@@ -262,17 +312,17 @@ export default abstract class UIBaseNode {
   }
 
   getAttribute(key) {
-    return this.styleNode?.dom?.attrs[key];
+    return this.dom?.attrs[key];
   }
 
   getStyle(key) {
-    return this.styleNode?.layout[key] ?? this.styleNode?.style[key];
+    return this.layoutNode?.layout[key] ?? this.style?.inherits[key] ?? this.style?.[key];
   }
 
   setText(text) {
     const textNode = this.query('text');
-    if (textNode && textNode.styleNode && textNode.styleNode.dom) {
-      textNode.styleNode.dom.text = text;
+    if (textNode && textNode.styleNode.dom) {
+      textNode.dom.text = text;
       textNode.render();
     }
   }
@@ -284,19 +334,6 @@ export default abstract class UIBaseNode {
     }
     e.targetGNode = shape || null;
     e.uiNode = shape?.get('uiNode') ?? null;
-    this.events[e.type]?.forEach((fn) => fn(e, this));
+    this.getEvents()[e.type]?.forEach((event) => event.callback(e, this));
   };
-
-  on(eventName, fn) {
-    this.events[eventName] = [...(this.events[eventName] || []), fn];
-  }
-  off(eventName, fn) {
-    if (!fn) {
-      delete this.events[eventName];
-      return;
-    }
-    const events = this.events[eventName];
-    const index = events?.indexOf(fn);
-    if (index && index !== -1) events?.splice(index, 1);
-  }
 }
