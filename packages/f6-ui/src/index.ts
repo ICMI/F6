@@ -4,7 +4,7 @@ import styleParse from './om/style';
 import { createUINode, UITree } from './uiNode';
 import { registerUINode } from './uiNode';
 import { registerAttr } from './parser/attrParser';
-import UIBaseNode from './uiNode/base';
+import UIBaseNode from './uiNode/UIBaseNode';
 
 function createUI(htmlString, cssString, group) {
   const tree = new UITree(htmlString, cssString, group);

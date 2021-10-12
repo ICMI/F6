@@ -1,4 +1,4 @@
-import UINode from './base';
+import UINode from './UIBaseNode';
 import { assembleFont, ShapeAttrs } from '@antv/g-base';
 
 export default class UITextNode extends UINode {

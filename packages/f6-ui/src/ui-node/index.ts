@@ -5,7 +5,7 @@ import UIShapeNode from './UIShapeNode';
 import UIImageNode from './UIImageNode';
 import UIStyleNode from './UIStyleNode';
 import UIRootNode from './UIRootNode';
-import UITree from './UITree';
+import UIDocument from './UIDocument';
 
 registerUINode('div', UIDivNode);
 registerUINode('text', UITextNode);
@@ -14,4 +14,4 @@ registerUINode('image', UIImageNode);
 registerUINode('root', UIRootNode);
 registerUINode('style', UIStyleNode);
 
-export { createUINode, registerUINode, UITree };
+export { createUINode, registerUINode, UIDocument };
