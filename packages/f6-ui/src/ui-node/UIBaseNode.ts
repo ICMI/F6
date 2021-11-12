@@ -3,7 +3,7 @@ import computeLayout from 'css-layout';
 import isEqual from '@antv/util/lib/is-equal';
 import EE from '@antv/event-emitter';
 import { traverseTree } from '../utils';
-import ContainerNode from './containerNode';
+import ContainerNode from './container';
 
 export default abstract class UIBaseNode extends ContainerNode {
   dom = null;

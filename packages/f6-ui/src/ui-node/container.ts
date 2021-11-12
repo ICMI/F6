@@ -3,13 +3,12 @@ import { traverseTree } from '../utils';
 import BaseNode from './baseNode';
 
 class ContainerNode extends BaseNode {
-  parent = null;
   children = [];
+  parent = null;
 
   setParent(parent) {
     this.parent = parent;
   }
-
   /**
    * append 普通节点，增量节点更新
    * append style节点，需要全量更新
@@ -19,7 +18,7 @@ class ContainerNode extends BaseNode {
 
     // 如果是挂在其他树上的，卸了
     if (node.parent) {
-      node.remove();
+      node.parent.removeChild(node)
     }
 
     node.setParent(this);
@@ -30,7 +29,7 @@ class ContainerNode extends BaseNode {
       // append style节点，需要全量更新
       if (node.tagName === 'style') isNeedRootUpdate = true;
       // 触发append后的操作
-      node.afterAppend?.(this);
+      node.onAppend?.(this);
     });
 
     if (isNeedRootUpdate) {
@@ -46,17 +45,8 @@ class ContainerNode extends BaseNode {
 
   removeChild(node) {
     if (!node) return;
-    node.remove();
-  }
-
-  remove() {
-    const parent = this.parent;
-    this.gNode?.remove();
-    if (parent) {
-      parent.children.splice(1, parent.children.indexOf(this));
-      if (this.isMounted) parent.reflow();
-    }
-    if (this.isMounted) this.unmount();
+    this.children.splice(1, this.children.indexOf(this));
+    node.onRemove?.()
   }
 
   query(selector) {

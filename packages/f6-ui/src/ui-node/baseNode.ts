@@ -6,5 +6,6 @@ export default class BaseNode extends EE {
   isMounted: boolean;
   gNode: Element;
   ownerDocument: UIDocument;
+
   updateStyleAndLayout() {}
 }
