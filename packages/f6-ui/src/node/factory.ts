@@ -1,6 +1,6 @@
 const Node_Map = {};
 
-export function registerUINode(tagName, nodeConstruct) {
+export function registerNode(tagName, nodeConstruct) {
   Node_Map[tagName] = nodeConstruct;
 }
 

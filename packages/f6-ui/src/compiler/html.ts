@@ -1,4 +1,4 @@
-import { parseAttr } from '../parser/attr-parser';
+import { parseAttr } from './valueParser';
 
 class Node {
   type = '';
@@ -162,7 +162,7 @@ class HtmlParser {
   }
 }
 
-export default function parser(html, isNeedRoot = true) {
+export function parseHtml(html, isNeedRoot = true) {
   const nodes = new HtmlParser(html).parse();
   let rootNode = nodes[0];
   if (nodes[0]?.tagName !== 'root' && isNeedRoot) {

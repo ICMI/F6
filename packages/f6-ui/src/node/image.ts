@@ -1,4 +1,4 @@
-import UINode from './UIBaseNode';
+import UINode from './node';
 
 export default class UIImageNode extends UINode {
   draw(parentGNode) {

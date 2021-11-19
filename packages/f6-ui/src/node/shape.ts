@@ -1,4 +1,4 @@
-import UINode from './UIBaseNode';
+import UINode from './node';
 
 export default class UIShapeNode extends UINode {
   getAttrs() {

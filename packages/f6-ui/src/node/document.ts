@@ -1,19 +1,22 @@
 // html, css -> uiNode
 
-import UIBaseNode from './UIBaseNode';
 import { createUINode } from '.';
+import { parseHtml, parseRulesHash } from '../compiler';
+import { Pipe } from '../flow';
+import Base from './base';
 
-import htmlParse from '../om/dom';
-import { computeCSS, parseRulesHash } from '../utils';
-
-class UIDocument extends UIBaseNode {
+class Document extends Base {
   ruleHashs = [];
+  children = [];
+  pipe = null;
 
   constructor(htmlString, cssString, group) {
     super();
+    this.pipe = new Pipe();
     this.genDomTree(htmlString);
     this.addRules(cssString);
     this.attachStyle();
+
     this.manualMount(group);
   }
 
@@ -28,11 +31,21 @@ class UIDocument extends UIBaseNode {
     this.mount();
   }
 
+  updateLayout(node?) {
+    this.pipe.run('computeLayout', node || this.root);
+    this.pipe.run('render', node || this.root);
+  }
+  updateStyleAndLayout(node?) {
+    this.pipe.run('computeCss', node || this.root, this.ruleHashs);
+    this.pipe.run('computeLayout', node || this.root);
+    this.pipe.run('render', node || this.root);
+  }
+
   // 重新渲染
 
   // html -> dom -> uiNode
   genDomTree(htmlString) {
-    const dom = htmlParse(htmlString, true);
+    const dom = parseHtml(htmlString, true);
     const tree = this.createElement(dom.tagName);
     tree.dom = dom;
     // 创建ui节点
@@ -58,22 +71,18 @@ class UIDocument extends UIBaseNode {
   }
 
   //-> layout -> attach
-  attachStyle() {
+  attachStyle(node?) {
     // 遍历doms
-    const stack = [[this.root, []]];
-    while (stack.length) {
-      const [node, path, parent] = stack.pop();
-      node.style = computeCSS(node, path, parent?.style, this.ruleHashs);
-      // dom 查找样式并合并
-      for (let child of node.children) {
-        stack.push([child, [...path, node], node]);
-      }
-    }
+    attachStyle(node || this.root, this.ruleHashs);
   }
 
   // -> paint
-  layout() {
-    this.root.layout();
+  layout(node?) {
+    computeLayout(node || this.root);
+  }
+
+  run(key, node) {
+    this.pipe.run(key, node);
   }
 
   // mount() {
@@ -91,6 +100,8 @@ class UIDocument extends UIBaseNode {
     return this.root.height;
   }
 
+  setViewPort() {}
+
   createElement(type, ...args) {
     const node = createUINode.call(null, type, args);
     node.ownerUI = this;
@@ -101,7 +112,7 @@ class UIDocument extends UIBaseNode {
     if (cssString) {
       htmlString += `<style>${cssString}</style>`;
     }
-    const dom = htmlParse(htmlString, true);
+    const dom = parseHtml(htmlString, true);
     const tree = this.createElement(dom.tagName);
     // 创建ui节点
     const stack = [[dom, tree]];
@@ -123,4 +134,4 @@ class UIDocument extends UIBaseNode {
   }
 }
 
-export default UIDocument;
+export default Document;

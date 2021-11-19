@@ -1,6 +1,5 @@
-import htmlParse from './om/dom';
-import cssParse from './om/css';
-import styleParse from './om/style';
+import htmlParse from './compiler/html';
+import cssParse from './compiler/css';
 import { createUINode, UITree } from './uiNode';
 import { registerUINode } from './uiNode';
 import { registerAttr } from './parser/attrParser';

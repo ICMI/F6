@@ -1,5 +1,5 @@
 import { ShapeCfg } from '@antv/g-base';
-import UINode from './UIBaseNode';
+import UINode from './node';
 export default class UIDivNode extends UINode {
   backgroudNode = null;
 

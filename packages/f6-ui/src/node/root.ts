@@ -1,3 +1,3 @@
-import UIDivNode from './UIDivNode';
+import UIDivNode from './div';
 
 export default class UIRootNode extends UIDivNode {}

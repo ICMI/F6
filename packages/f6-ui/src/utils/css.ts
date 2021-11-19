@@ -1,119 +1,232 @@
-import cssParse from '../om/css';
-import { parseAttr } from '../parser/attrParser';
+export function typeParser(value) {
+  if (/^[-\+\.\d]+$/.test(value)) {
+    return Number(value);
+  }
 
-const defaultStyle = {
-  'font-family': 'serif',
-};
+  if (/true|false/.test(value)) {
+    return Boolean(value);
+  }
 
-const inheritAttr = [
-  'font',
-  'fontFamily',
-  'fontWeight',
-  'fontSize',
-  'fontVariant',
-  'fontStretch',
-  'textIndent',
-  'textAlign',
-  'textShadow',
-  'lineHeight',
-  'color',
-  'direction',
-  'wordSpacing',
-  'letterSpacing',
-  'textTransform',
-  'captionSide',
-  'borderCollapse',
-  'emptyCells',
-  'listStyleType',
-  'listStyleImage',
-  'listStylePosition',
-  'listStyle',
-  'visibility',
-  'cursor',
-];
-
-// 生成特殊性
-function genSpecificity(selector) {
-  const idCount = selector.match(/#\w+/g)?.length || 0;
-  const classCount = selector.match(/\.\w+/g)?.length || 0;
-  const arr = selector.split(/\s+|#|\./).filter((s) => s !== '');
-  const tagCount = arr.length - idCount - classCount;
-  return idCount * 100 + classCount * 10 + tagCount;
-}
-
-// rule转对象
-function genStyleFromRule(rule) {
-  const style = {};
-  rule?.declarations.forEach((dn) => {
-    let value = dn.value;
-    style[dn.property] = String(value).toLocaleLowerCase();
-  });
-  return style;
-}
-
-// css -> rulehash
-export function parseRulesHash(cssString) {
-  const rules = cssParse(cssString);
-  const rulesHash = {
-    ids: {},
-    classes: {},
-    tagNames: {},
-  };
-  for (let rule of rules.stylesheet.rules) {
-    // 处理keyframe等
-    if (rule.type !== 'rule') continue;
-    for (let selector of rule.selectors) {
-      const keySeletor = genKeySelector(selector);
-      switch (keySeletor[0]) {
-        case '#':
-          const key = keySeletor.slice(1);
-          rulesHash.ids[key] = [
-            ...(rulesHash.ids[key] || []),
-            {
-              selector,
-              specificity: genSpecificity(selector),
-              style: genStyleFromRule(rule),
-            },
-          ];
-          break;
-        case '.':
-          const classKey = keySeletor.slice(1);
-          rulesHash.classes[classKey] = [
-            ...(rulesHash.classes[classKey] || []),
-            {
-              selector,
-              specificity: genSpecificity(selector),
-              style: genStyleFromRule(rule),
-            },
-          ];
-          break;
-        default:
-          rulesHash.tagNames[keySeletor] = [
-            ...(rulesHash.tagNames[keySeletor] || []),
-            {
-              selector,
-              specificity: genSpecificity(selector),
-              style: genStyleFromRule(rule),
-            },
-          ];
-          break;
-      }
+  if (/^\s*\[/.test(value)) {
+    try {
+      return JSON.parse(value);
+    } catch (e) {
+      throw new Error(`解析数组${value}失败`);
     }
   }
-  return rulesHash;
+
+  if (/^\s*\{/.test(value)) {
+    try {
+      return JSON.parse(value);
+    } catch (e) {
+      throw new Error(`解析对象${value}失败`);
+    }
+  }
+  return value;
 }
 
-// 遍历dom
-export function walkDomSelector(dom, fn) {
-  if (!dom || !fn) return;
-  if (dom.attrs.id) {
-    fn('id', dom.attrs.id);
-  }
-  if (dom.attrs.class) {
-    selectorToArr(dom.attrs.class, /\s+/g).forEach((className) => fn('class', className));
-  }
-  fn('tagName', dom.tagName);
+enum colors {
+  'aliceblue',
+  'antiquewhite',
+  'aqua',
+  'aquamarine',
+  'azure',
+  'beige',
+  'bisque',
+  'black',
+  'blanchedalmond',
+  'blue',
+  'blueviolet',
+  'brown',
+  'burlywood',
+  'cadetblue',
+  'chartreuse',
+  'chocolate',
+  'coral',
+  'cornflowerblue',
+  'cornsilk',
+  'crimson',
+  'cyan',
+  'darkblue',
+  'darkcyan',
+  'darkgoldenrod',
+  'darkgray',
+  'darkgreen',
+  'darkgrey',
+  'darkkhaki',
+  'darkmagenta',
+  'darkolivegreen',
+  'darkorange',
+  'darkorchid',
+  'darkred',
+  'darksalmon',
+  'darkseagreen',
+  'darkslateblue',
+  'darkslategray',
+  'darkslategrey',
+  'darkturquoise',
+  'darkviolet',
+  'deeppink',
+  'deepskyblue',
+  'dimgray',
+  'dimgrey',
+  'dodgerblue',
+  'firebrick',
+  'floralwhite',
+  'forestgreen',
+  'fuchsia',
+  'gainsboro',
+  'ghostwhite',
+  'gold',
+  'goldenrod',
+  'gray',
+  'green',
+  'greenyellow',
+  'grey',
+  'honeydew',
+  'hotpink',
+  'indianred',
+  'indigo',
+  'ivory',
+  'khaki',
+  'lavender',
+  'lavenderblush',
+  'lawngreen',
+  'lemonchiffon',
+  'lightblue',
+  'lightcoral',
+  'lightcyan',
+  'lightgoldenrodyellow',
+  'lightgray',
+  'lightgreen',
+  'lightgrey',
+  'lightpink',
+  'lightsalmon',
+  'lightseagreen',
+  'lightskyblue',
+  'lightslategray',
+  'lightslategrey',
+  'lightsteelblue',
+  'lightyellow',
+  'lime',
+  'limegreen',
+  'linen',
+  'magenta',
+  'maroon',
+  'mediumaquamarine',
+  'mediumblue',
+  'mediumorchid',
+  'mediumpurple',
+  'mediumseagreen',
+  'mediumslateblue',
+  'mediumspringgreen',
+  'mediumturquoise',
+  'mediumvioletred',
+  'midnightblue',
+  'mintcream',
+  'mistyrose',
+  'moccasin',
+  'navajowhite',
+  'navy',
+  'oldlace',
+  'olive',
+  'olivedrab',
+  'orange',
+  'orangered',
+  'orchid',
+  'palegoldenrod',
+  'palegreen',
+  'paleturquoise',
+  'palevioletred',
+  'papayawhip',
+  'peachpuff',
+  'peru',
+  'pink',
+  'plum',
+  'powderblue',
+  'purple',
+  'red',
+  'rosybrown',
+  'royalblue',
+  'saddlebrown',
+  'salmon',
+  'sandybrown',
+  'seagreen',
+  'seashell',
+  'sienna',
+  'silver',
+  'skyblue',
+  'slateblue',
+  'slategray',
+  'slategrey',
+  'snow',
+  'springgreen',
+  'steelblue',
+  'tan',
+  'teal',
+  'thistle',
+  'tomato',
+  'turquoise',
+  'violet',
+  'wheat',
+  'white',
+  'whitesmoke',
+  'yellow',
+  'yellowgreen',
 }
+
+export function isColor(value) {
+  return (
+    colors[value] ||
+    value.startsWith('rgb(') ||
+    value.startsWith('rgba(') ||
+    (value.startsWith('#') && !isNaN(Number(`0x${value.slice(1)}`)))
+  );
+}
+
+export const reflowAttrs = {
+  position: 1,
+  display: 1,
+  width: 1,
+  height: 1,
+  minWidth: 1,
+  minHeight: 1,
+  top: 1,
+  left: 1,
+  right: 1,
+  bottom: 1,
+  flex: 1,
+  margin: 1,
+  marginLeft: 1,
+  marginRight: 1,
+  marginTop: 1,
+  marginBottom: 1,
+  padding: 1,
+  paddingLeft: 1,
+  paddingRight: 1,
+  paddingTop: 1,
+  paddingBottom: 1,
+  borderWidth: 1,
+  borderLeftWidth: 1,
+  borderRightWidth: 1,
+  borderTopWidth: 1,
+  borderBottomWidth: 1,
+  flexDirection: 1,
+  justifyContent: 1,
+  alignItems: 1,
+  alignSelf: 1,
+  flexWrap: 1,
+};
+
+export const layoutAttrs = {
+  left: 1,
+  top: 1,
+  right: 1,
+  bottom: 1,
+  width: 1,
+  height: 1,
+  direction: 1,
+};
 
 export function selectorToArr(selector, rex) {
   if (!rex) return [selector];
@@ -153,108 +266,14 @@ export function isSelectorMatchDom(dom, selector) {
   return true;
 }
 
-function genKeySelector(ruleSel) {
-  const selector = selectorToArr(ruleSel, /\s/).pop();
-
-  let matchs = selector.match(/(#[^\.#]+)/);
-  if (matchs?.length > 0) return matchs[0];
-
-  matchs = selector.match(/\.[^\.#]+/);
-  if (matchs?.length > 0) return matchs[0];
-
-  return selector;
-}
-
-export function computeCSS(uiNode, path, parentStyle, ruleHashs) {
-  // 从hash表中拿到匹配的rules
-  const filteredRules = [];
-  ruleHashs.forEach((rulesHash) => {
-    walkDomSelector(uiNode.dom, (keyName, selector) => {
-      switch (keyName) {
-        case 'id':
-          filteredRules.push(...(rulesHash.ids[selector] || []));
-          break;
-        case 'class':
-          filteredRules.push(...(rulesHash.classes[selector] || []));
-          break;
-        case 'tagName':
-          filteredRules.push(...(rulesHash.tagNames[selector] || []));
-        default:
-          break;
-      }
-    });
-  });
-
-  // 再根据路径筛选一次, 每条rule和dom的path去对比
-  const finaleRules = filteredRules.filter((rule) => {
-    // 判断selector是否和路径匹配，
-    const ruleSelectors = selectorToArr(rule.selector, /\s+/g);
-    // 逆序判断每个子选择器
-    let lastSelMatch = ruleSelectors.length - 2;
-    let lastDomMatch = path.length - 1;
-
-    let result = true;
-    for (; lastSelMatch > -1; lastSelMatch--) {
-      let isMatch = false;
-      for (; lastDomMatch > -1; lastDomMatch--) {
-        // 不断取节点去匹配选择器
-        const dom = path[lastDomMatch].dom;
-        // 路径中该节点匹配命中，准备匹配下个
-        if (isSelectorMatchDom(dom, ruleSelectors[lastSelMatch])) {
-          isMatch = true;
-          break;
-        }
-      }
-      if (!isMatch) {
-        result = false;
-        break;
-      }
-    }
-    return result;
-  });
-
-  // 根据优先级排序
-  finaleRules.sort((a, b) => a.specificity - b.specificity);
-
-  // 按顺序合并style，高优先级覆盖
-  const finalStyle = finaleRules.reduce((prev, cur) => Object.assign(prev, cur.style), {
-    ...defaultStyle,
-  });
-
-  // 解析属性值/属性转驼峰
-  let jsStyle = {};
-  for (let [key, value] of Object.entries(finalStyle)) {
-    const camel = key
-      .split('-')
-      .map((s, index) => {
-        if (index > 0) {
-          return `${s[0].toUpperCase()}${s.slice(1)}`;
-        }
-        return s;
-      })
-      .join('');
-
-    const parsedValue = parseAttr(key, value);
-    if (typeof parsedValue === 'object') {
-      jsStyle = { ...jsStyle, ...parsedValue };
-    } else {
-      jsStyle[camel] = parsedValue;
-    }
+// 遍历dom
+export function walkDomSelector(dom, fn) {
+  if (!dom || !fn) return;
+  if (dom.attrs.id) {
+    fn('id', dom.attrs.id);
   }
-  const inherits = {};
-  const other = {};
-  if (parentStyle) {
-    for (let [key, value] of Object.entries(jsStyle)) {
-      if (value !== 'inherit' && inheritAttr.includes(key)) {
-        inherits[key] = value;
-        continue;
-      }
-      if (value !== 'inherit') {
-        other[key] = value;
-      }
-    }
-    Object.setPrototypeOf(inherits, parentStyle.inherits);
+  if (dom.attrs.class) {
+    selectorToArr(dom.attrs.class, /\s+/g).forEach((className) => fn('class', className));
   }
-
-  return { ...other, inherits };
+  fn('tagName', dom.tagName);
 }

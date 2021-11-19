@@ -1,14 +1,9 @@
-import { isSelectorMatchDom } from '../utils/index';
+import { isSelectorMatchDom } from '../utils';
 import { traverseTree } from '../utils';
-import BaseNode from './baseNode';
+import Base from './base';
 
-class ContainerNode extends BaseNode {
+class Container extends Base {
   children = [];
-  parent = null;
-
-  setParent(parent) {
-    this.parent = parent;
-  }
   /**
    * append 普通节点，增量节点更新
    * append style节点，需要全量更新
@@ -18,7 +13,7 @@ class ContainerNode extends BaseNode {
 
     // 如果是挂在其他树上的，卸了
     if (node.parent) {
-      node.parent.removeChild(node)
+      node.parent.removeChild(node);
     }
 
     node.setParent(this);
@@ -46,7 +41,7 @@ class ContainerNode extends BaseNode {
   removeChild(node) {
     if (!node) return;
     this.children.splice(1, this.children.indexOf(this));
-    node.onRemove?.()
+    node.onRemove?.();
   }
 
   query(selector) {
@@ -95,16 +90,6 @@ class ContainerNode extends BaseNode {
     }
     return result;
   }
-
-  trigger = (e) => {
-    let shape = e.target;
-    while (shape && !shape.get('uiNode')) {
-      shape = shape.get('parent');
-    }
-    e.targetGNode = shape || null;
-    e.uiNode = shape?.get('uiNode') ?? null;
-    this.getEvents()[e.type]?.forEach((event) => event.callback(e, this));
-  };
 }
 
-export default ContainerNode;
+export default Container;

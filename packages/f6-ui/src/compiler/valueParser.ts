@@ -1,4 +1,4 @@
-import { isColor, typeParser } from '../utils/parser';
+import { isColor, typeParser } from '../utils/css';
 
 const attributesMap = {};
 export function registerAttr(attr, parser: Function) {

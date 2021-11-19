@@ -1,11 +1,11 @@
 import { registerUINode, createUINode } from './factory';
-import UIDivNode from './UIDivNode';
-import UITextNode from './UITextNode';
-import UIShapeNode from './UIShapeNode';
-import UIImageNode from './UIImageNode';
-import UIStyleNode from './UIStyleNode';
-import UIRootNode from './UIRootNode';
-import UIDocument from './UIDocument';
+import UIDivNode from './div';
+import UITextNode from './text';
+import UIShapeNode from './shape';
+import UIImageNode from './image';
+import UIStyleNode from './style';
+import UIRootNode from './root';
+import UIDocument from './document';
 
 registerUINode('div', UIDivNode);
 registerUINode('text', UITextNode);
