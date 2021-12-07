@@ -1,13 +1,16 @@
-import { computeLayout, render } from '.';
+import { attachCss, computeLayout, render, computeInherit } from '.';
 
 export class Pipe {
   run(key, ...args) {
     switch (key) {
+      case 'reAttach':
+        attachCss.apply(null, args);
       case 'reflow':
         computeLayout.apply(null, args);
-        render.apply(null, args);
+      case 'reInherit':
+        computeInherit.apply(null, args);
       case 'render':
-        render.call(null, args);
+        render.apply(null, args);
     }
   }
 }

@@ -1,47 +1,67 @@
 // html, css -> uiNode
 
-import { createUINode } from '.';
+import { createNode } from './factory';
 import { parseHtml, parseRulesHash } from '../compiler';
 import { Pipe } from '../flow';
+import { RenderNode } from '../render';
 import Base from './base';
+
+const defaultCssSet = `
+  root {
+    font-family: serif;
+    color: black;
+  }
+`;
 
 class Document extends Base {
   ruleHashs = [];
   children = [];
-  pipe = null;
+  private pipe = null;
 
   constructor(htmlString, cssString, group) {
     super();
     this.pipe = new Pipe();
+    this.addRules(defaultCssSet);
     this.genDomTree(htmlString);
     this.addRules(cssString);
-    this.attachStyle();
+    this.addRenderNode(new RenderNode(group));
+    this.updateStyleAndLayout();
+  }
 
-    this.manualMount(group);
+  addRenderNode(renderNode: RenderNode) {
+    if (!renderNode) return;
+    this.renderNode = renderNode;
+    this.renderNode.onEventEmit = this.trigger.bind(this);
   }
 
   get root() {
     return this.children[0];
   }
 
-  // 手动挂载G节点
-  manualMount(parentGNode) {
-    this.gNode = parentGNode;
-    this.layout();
-    this.mount();
+  updateRener(node) {
+    this.pipe.run('render', node || this.root);
+  }
+
+  updateInherit(node) {
+    this.pipe.run('reInherit', node || this.root);
   }
 
   updateLayout(node?) {
-    this.pipe.run('computeLayout', node || this.root);
-    this.pipe.run('render', node || this.root);
-  }
-  updateStyleAndLayout(node?) {
-    this.pipe.run('computeCss', node || this.root, this.ruleHashs);
-    this.pipe.run('computeLayout', node || this.root);
-    this.pipe.run('render', node || this.root);
+    let layoutRoot = node;
+
+    if (layoutRoot) {
+      // 上浮到absolute或根节点
+      while (layoutRoot?.style?.position !== 'absolute' && layoutRoot.parent) {
+        layoutRoot = node.parent;
+      }
+    }
+
+    this.pipe.run('reflow', layoutRoot || this.root);
   }
 
-  // 重新渲染
+  updateStyleAndLayout(node?) {
+    this.pipe.run('reAttach', node || this.root, this.ruleHashs);
+  }
 
   // html -> dom -> uiNode
   genDomTree(htmlString) {
@@ -68,29 +88,23 @@ class Document extends Base {
   addRules(cssString) {
     const rulehash = parseRulesHash(cssString);
     this.ruleHashs.push(rulehash);
+    return rulehash;
   }
 
-  //-> layout -> attach
-  attachStyle(node?) {
-    // 遍历doms
-    attachStyle(node || this.root, this.ruleHashs);
+  setUserCssSet(cssString: String) {
+    const rulehash = parseRulesHash(cssString);
+    this.ruleHashs.splice(1, 0, rulehash);
   }
 
-  // -> paint
-  layout(node?) {
-    computeLayout(node || this.root);
+  removeRules(rules) {
+    const index = this.ruleHashs.indexOf(rules);
+    if (index !== -1) {
+      this.ruleHashs.splice(index, 1);
+    }
   }
 
   run(key, node) {
     this.pipe.run(key, node);
-  }
-
-  // mount() {
-  // this.root.mount();
-  // }
-
-  render() {
-    return this.root.render();
   }
 
   get width() {
@@ -103,7 +117,7 @@ class Document extends Base {
   setViewPort() {}
 
   createElement(type, ...args) {
-    const node = createUINode.call(null, type, args);
+    const node = createNode.call(null, type, args);
     node.ownerUI = this;
     return node;
   }
@@ -129,8 +143,8 @@ class Document extends Base {
     return tree.children;
   }
 
-  delegateFunc(func) {
-    this.root[func]();
+  getG6Node() {
+    return this.renderNode.cacheNode;
   }
 }
 

@@ -1,3 +1,7 @@
+import { traverseTree } from '../utils';
+
 export function render(node) {
-  node.render();
+  traverseTree(node, ({ node }) => {
+    node.draw();
+  });
 }

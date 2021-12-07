@@ -1,12 +1,7 @@
-import htmlParse from './compiler/html';
-import cssParse from './compiler/css';
-import { createUINode, UITree } from './uiNode';
-import { registerUINode } from './uiNode';
-import { registerAttr } from './parser/attrParser';
-import UIBaseNode from './uiNode/UIBaseNode';
+import { registerNode, Node, Document } from './node';
 
 function createUI(htmlString, cssString, group) {
-  const tree = new UITree(htmlString, cssString, group);
+  const tree = new Document(htmlString, cssString, group);
   return tree;
 }
 
@@ -36,7 +31,5 @@ function createUI(htmlString, cssString, group) {
 //   }
 //   return tree;
 // }
-
-const plugin = { UIBaseNode, createUI, registerUINode, registerAttr };
-export { UIBaseNode, createUI, registerUINode, registerAttr };
-export default plugin;
+export { registerNode, Node, createUI };
+export default { registerNode, Node, createUI };

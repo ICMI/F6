@@ -1,9 +1,32 @@
-abstract class RenderNode {
-  init() {}
+export default class RenderNode {
+  cacheNode = null;
 
-  dispatch() {}
+  constructor(gNode?) {
+    this.cacheNode = gNode;
+  }
 
-  update() {}
+  onEventEmit(e) {}
 
-  destroy() {}
+  private addEvent() {
+    this.cacheNode.on('*', () => {
+      this.onEventEmit?.(this.cacheNode);
+    });
+  }
+
+  startDraw(parentRenderNode, attributes, style, layout) {
+    if (this.cacheNode) {
+      this.draw(parentRenderNode.cacheNode, attributes, style, layout);
+    } else {
+      this.draw(parentRenderNode.cacheNode, attributes, style, layout);
+      this.addEvent();
+    }
+  }
+
+  draw(parentRenderNode, attributes, style, layout) {}
+
+  remove() {
+    this.cacheNode?.remove();
+    this.cacheNode = null;
+    this.onEventEmit = null;
+  }
 }

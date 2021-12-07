@@ -12,7 +12,6 @@ module.exports = {
   output: {
     library: 'f6ui',
     libraryTarget: 'umd',
-    libraryExport: 'default',
     globalObject: 'this',
   },
   resolve: {

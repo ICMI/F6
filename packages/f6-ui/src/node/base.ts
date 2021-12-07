@@ -1,16 +1,18 @@
 import EE from '@antv/event-emitter';
-import Element from '@antv/g-base/lib/abstract/element';
-import { UIDocument } from '.';
+import { getMergedStyle } from '../compiler';
+import { RenderNode } from '../render';
+import Document from './document';
 
-export default class BaseNode extends EE {
-  isMounted: boolean;
-  ownerDocument: UIDocument;
+export default class Base extends EE {
+  isOnline: boolean; // 是否添加到document上了， 如果不加到document上，不用计算layout等
+  ownerDocument: Document;
+  isNeedRenderAll: boolean = false;
   parent = null;
 
-  dom = null;
-  style = null;
-  layoutNode = null;
-  renderNode: Element;
+  protected dom = null;
+  protected style = null;
+  protected layoutNode = null;
+  protected renderNode: RenderNode;
 
   get top() {
     return this.layoutNode?.layout?.top;
@@ -35,13 +37,31 @@ export default class BaseNode extends EE {
     return this?.dom?.attrs;
   }
 
-  private get _layout() {
+  get layout() {
     return this.layoutNode?.layout;
   }
+
+  get computedStyle() {
+    return Object.assign({}, getMergedStyle(this.style), this.layout);
+  }
+
+  onAppend() {}
+
+  onRemove() {}
+
+  addRenderNode(renderNode: RenderNode) {
+    if (!renderNode) return;
+    renderNode.remove();
+    this.renderNode = renderNode;
+    this.renderNode.onEventEmit = this.trigger.bind(this);
+  }
+
+  trigger = (e) => {
+    e.set('uiNode', this);
+    this.getEvents()[e.type]?.forEach((event) => event.callback(e, this));
+  };
 
   setParent(parent) {
     this.parent = parent;
   }
-
-  updateStyleAndLayout() {}
 }

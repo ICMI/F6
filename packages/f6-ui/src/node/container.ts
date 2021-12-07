@@ -19,29 +19,43 @@ class Container extends Base {
     node.setParent(this);
     this.children.push(node);
 
+    if (!this.isOnline) {
+      return;
+    }
+
     let isNeedRootUpdate = false;
-    traverseTree(node, (node) => {
+    traverseTree(node, ({ node }) => {
       // append style节点，需要全量更新
-      if (node.tagName === 'style') isNeedRootUpdate = true;
+      if (node.isNeedRenderAll) isNeedRootUpdate = true;
       // 触发append后的操作
-      node.onAppend?.(this);
+      node.onAppend?.();
+      this.isOnline = true;
     });
 
     if (isNeedRootUpdate) {
       this.ownerDocument.updateStyleAndLayout();
     } else {
-      this.updateStyleAndLayout();
+      this.ownerDocument.updateLayout(this);
     }
-
-    // this.ownerDocument.attachStyle();
-    // this.ownerDocument.layout();
-    // this.ownerDocument.render();
   }
 
   removeChild(node) {
     if (!node) return;
     this.children.splice(1, this.children.indexOf(this));
-    node.onRemove?.();
+    this.renderNode.remove();
+    let isNeedRootUpdate = false;
+    traverseTree(node, ({ node }) => {
+      // append style节点，需要全量更新
+      if (node.isNeedRenderAll) isNeedRootUpdate = true;
+      // 触发append后的操作
+      node.onRemove?.();
+      this.isOnline = false;
+    });
+    if (isNeedRootUpdate) {
+      this.ownerDocument.updateStyleAndLayout();
+    } else {
+      this.ownerDocument.updateLayout(this);
+    }
   }
 
   query(selector) {

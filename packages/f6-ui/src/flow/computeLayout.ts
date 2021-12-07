@@ -1,4 +1,12 @@
 import computeLayoutFn from 'css-layout';
+import { traverseTree } from '../utils';
+
+function clearLayout(node) {
+  traverseTree(node, ({ node }) => {
+    if (!node.layoutNode) return;
+    node.layoutNode.isDirty = true;
+  });
+}
 
 function genLayoutTree(node) {
   const stack = [[node, node.parent.layoutNode || null]];
@@ -25,7 +33,7 @@ function genLayoutTree(node) {
 export function computeLayout(node) {
   genLayoutTree(node);
 
-  node.clearLayout();
+  clearLayout(node);
 
-  computeLayoutFn(this.layoutNode);
+  computeLayoutFn(node.layoutNode);
 }

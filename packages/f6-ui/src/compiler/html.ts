@@ -3,9 +3,8 @@ import { parseAttr } from './valueParser';
 class Node {
   type = '';
   tagName = '';
-  attrs = {};
+  attrs: any = {};
   children = [];
-  text = '';
 }
 
 class Helper {
@@ -120,7 +119,7 @@ class HtmlParser {
     const text = this.helper.stepWhile((s) => /[^<]/.test(s));
     node.type = 'text';
     node.tagName = 'text';
-    node.text = text;
+    node.attrs.innerText = text;
     return node;
   }
 
