@@ -3,7 +3,7 @@ import RenderNode from './base';
 
 export default class RenderNodeContainer extends RenderNode {
   backgroudNode = null;
-  draw(parentGNode, attributes, style, layout) {
+  draw(parentGNode, attributes, style) {
     if (!this.cacheNode) {
       this.cacheNode = parentGNode.addGroup({
         id: attributes?.id,
@@ -16,7 +16,7 @@ export default class RenderNodeContainer extends RenderNode {
     this.backgroudNode?.remove();
     const backgroudNode = (this.backgroudNode = gNode.addGroup());
 
-    gNode.translate(layout.left, layout.top);
+    gNode.translate(style.left, style.top);
 
     // zIndex
     typeof style.zIndex === 'number' && gNode.setZIndex(style.zIndex);
@@ -29,8 +29,8 @@ export default class RenderNodeContainer extends RenderNode {
         fill: style.backgroundColor || '#fff',
         fillOpacity: style.backgroundOpacity,
         opacity: style.opacity,
-        width: layout.width,
-        height: layout.height,
+        width: style.width,
+        height: style.height,
         radius: [
           style.borderTopLeftRadius || 0,
           style.borderTopRightRadius || 0,
@@ -51,8 +51,8 @@ export default class RenderNodeContainer extends RenderNode {
           x: 0, // line绘制的时候是沿着两边扩
           y: 0,
           img: style.url,
-          width: layout.width,
-          height: layout.height,
+          width: style.width,
+          height: style.height,
         },
         capture: false,
       });
@@ -65,17 +65,17 @@ export default class RenderNodeContainer extends RenderNode {
         y: (style.borderWidth || 0) / 2,
         lineWidth: style.borderWidth,
         stroke: style.borderColor,
-        width: layout.width - (style.borderWidth || 0),
-        height: layout.height - (style.borderWidth || 0),
+        width: style.width - (style.borderWidth || 0),
+        height: style.height - (style.borderWidth || 0),
         radius: [
           (style.borderTopLeftRadius || 0) *
-            ((layout.width - (style.borderWidth || 0)) / layout.width),
+            ((style.width - (style.borderWidth || 0)) / style.width),
           (style.borderTopRightRadius || 0) *
-            ((layout.width - (style.borderWidth || 0)) / layout.width),
+            ((style.width - (style.borderWidth || 0)) / style.width),
           (style.borderBottomLeftRadius || 0) *
-            ((layout.width - (style.borderWidth || 0)) / layout.width),
+            ((style.width - (style.borderWidth || 0)) / style.width),
           (style.borderBottomLeftRadius || 0) *
-            ((layout.width - (style.borderWidth || 0)) / layout.width),
+            ((style.width - (style.borderWidth || 0)) / style.width),
         ],
       },
       capture: false,
@@ -90,8 +90,8 @@ export default class RenderNodeContainer extends RenderNode {
       gNode.setClip({
         type: 'rect',
         attrs: {
-          width: layout.width,
-          height: layout.height,
+          width: style.width,
+          height: style.height,
           radius: [
             style.borderTopLeftRadius || 0,
             style.borderTopRightRadius || 0,

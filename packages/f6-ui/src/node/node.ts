@@ -7,65 +7,77 @@ import Container from './container';
 import { isReflow, isInherit, getMergedStyle } from '../compiler';
 
 export default class Node extends Container {
-  isDisplay = true;
+  // isDisplay = true;
 
-  reflow() {
-    // 开始重排
-    this.ownerDocument.updateLayout(this);
-  }
+  // reflow() {
+  //   // 开始重排
+  //   this.ownerDocument.updateLayout(this);
+  // }
 
   // 初次绘制， 绑定一些事件之类
-  mount() {
-    // if (this.isMounted) {
-    //   return;
-    // }
-    // if (this.style?.display === 'none') {
-    //   this.isDisplay = false;
-    //   return;
-    // }
-    // this.draw(this.parentGNode);
-    // this.isMounted = true;
-    // this.gNode?.set('uiNode', this);
-    // this.gNode?.on('*', this.trigger);
-    // this.children.forEach((child) => child.mount());
-    // this.didMount();
-  }
+  // mount() {
+  // if (this.isMounted) {
+  //   return;
+  // }
+  // if (this.style?.display === 'none') {
+  //   this.isDisplay = false;
+  //   return;
+  // }
+  // this.draw(this.parentGNode);
+  // this.isMounted = true;
+  // this.gNode?.set('uiNode', this);
+  // this.gNode?.on('*', this.trigger);
+  // this.children.forEach((child) => child.mount());
+  // this.didMount();
+  // }
   // 全部draw一遍后触发下
-  didMount() {}
+  // didMount() {}
 
-  unmount() {
-    // if (!this.isMounted) return;
-    // this.isMounted = false;
-    // this.children.forEach((child) => child.unmount());
-    // this.didUnmount();
-  }
-  didUnmount() {}
+  // unmount() {
+  //   // if (!this.isMounted) return;
+  //   // this.isMounted = false;
+  //   // this.children.forEach((child) => child.unmount());
+  //   // this.didUnmount();
+  // }
+  // didUnmount() {}
 
   // 绘制子树
-  render() {
-    this.ownerDocument.updateRener(this);
-    // if (!isTagNeedRener(this.dom.tagName)) {
-    //   return;
-    // }
+  // render() {
+  //   this.ownerDocument.updateRener(this);
+  //   // if (!isTagNeedRener(this.dom.tagName)) {
+  //   //   return;
+  //   // }
 
-    // if (!this.isMounted) {
-    //   this.mount();
-    //   return;
-    // }
-    // // if (!this.shouldUpdate(this._prevAttrs, this._prevStyle)) return;
-    // // 处理display的情况
-    // if (this.style?.display === 'none') {
-    //   this.isDisplay = false;
-    //   this.gNode?.remove(false);
-    //   return false;
-    // }
+  //   // if (!this.isMounted) {
+  //   //   this.mount();
+  //   //   return;
+  //   // }
+  //   // // if (!this.shouldUpdate(this._prevAttrs, this._prevStyle)) return;
+  //   // // 处理display的情况
+  //   // if (this.style?.display === 'none') {
+  //   //   this.isDisplay = false;
+  //   //   this.gNode?.remove(false);
+  //   //   return false;
+  //   // }
 
-    // if (this.isDisplay === false) {
-    //   this.isDisplay = true;
-    //   this.parentGNode?.add(this.gNode);
-    // }
-    // this.draw();
-    // this.children.forEach((child) => child.render());
+  //   // if (this.isDisplay === false) {
+  //   //   this.isDisplay = true;
+  //   //   this.parentGNode?.add(this.gNode);
+  //   // }
+  //   // this.draw();
+  //   // this.children.forEach((child) => child.render());
+  // }
+
+  addRenderNode(renderNode) {
+    if (!renderNode) return;
+    renderNode.remove();
+    this.renderNode = renderNode;
+    this.renderNode.onEventEmit = this.trigger.bind(this);
+    this.renderNode.onBBoxChange = ({ width, height }) => {
+      this.style['width'] = width;
+      this.style['height'] = height;
+      this.ownerDocument.updateLayout(this);
+    };
   }
 
   draw() {
@@ -73,7 +85,7 @@ export default class Node extends Container {
       this.parent.renderNode,
       this.attributes,
       this.computedStyle,
-      this.layoutNode.layout,
+      this.parent?.computedStyle,
     );
   }
 
@@ -83,7 +95,7 @@ export default class Node extends Container {
     if (this.dom) {
       this.dom.attrs[key] = value;
       if (!this.isOnline) return;
-      this.render();
+      this.ownerDocument.updateRener(this);
     }
   }
 
@@ -113,7 +125,7 @@ export default class Node extends Container {
     const textNode = this.query('text');
     if (textNode && textNode.styleNode.dom) {
       textNode.dom.text = text;
-      this.ownerDocument.run('render', this);
+      this.ownerDocument.updateRener(this);
     }
   }
 }

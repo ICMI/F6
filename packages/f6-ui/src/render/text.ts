@@ -1,12 +1,11 @@
-import { assembleFont, ShapeAttrs } from '@antv/g-base';
+import { assembleFont, getTextHeight, ShapeAttrs } from '@antv/g-base';
 import RenderNode from './base';
 
 export default class RenderNodeText extends RenderNode {
-  getAttrs(attributes, style, layout) {
-    console.log('text: ', layout);
+  getAttrs(attributes, style) {
     const attrs: ShapeAttrs = {
-      x: layout.left,
-      y: layout.top,
+      x: style.left,
+      y: style.top,
       textAlign: style.textAlign,
       fill: style.color,
       fontSize: style.fontSize,
@@ -18,12 +17,13 @@ export default class RenderNodeText extends RenderNode {
       textBaseline: 'top',
       opacity: style.opacity,
       fillOpacity: style.backgroundOpacity,
+      textOverflow: 'normal',
     };
     return attrs;
   }
 
-  draw(parentGNode, attributes, style, layout) {
-    const attrs: ShapeAttrs = this.getAttrs(attributes, style, layout);
+  draw(parentGNode, attributes, style, parentStyle) {
+    const attrs: ShapeAttrs = this.getAttrs(attributes, style);
     if (!this.cacheNode) {
       this.cacheNode = parentGNode.addShape('text', {
         type: 'text',
@@ -31,9 +31,11 @@ export default class RenderNodeText extends RenderNode {
         capture: false,
       });
     }
-    this.update(attributes, style, layout);
+    this.update(attributes, style, parentStyle);
+    this.reCalcBBox({ width: style.width, height: style.height });
   }
-  getMultiLineText(text, attrs, width) {
+
+  getMultiLineText(text, attrs, width, height) {
     const ctx = this.cacheNode.get('canvas')?.get('context');
     if (!ctx) return text;
     ctx.save();
@@ -42,38 +44,61 @@ export default class RenderNodeText extends RenderNode {
     if (ctx.measureText(text).width < width) return text;
     let s = '';
     let lineWidth = 0;
+    const heightPerLine = getTextHeight(attrs.fontSize, attrs.lineHeight);
+    let lineHeight = heightPerLine;
+    const ellipseWidth = ctx.measureText('...');
+
     for (let value of text) {
       const valueW = ctx.measureText(value).width;
       lineWidth += valueW;
       if (lineWidth >= width) {
+        lineHeight += heightPerLine;
+        if (lineHeight >= height) {
+          // 
+          if (attrs.textOverflow === 'ellipsis') {
+           
+          break;
+        }
+
         lineWidth = valueW;
         s += `\n${value}`;
       } else {
         s += value;
       }
     }
+
     ctx.restore();
     return s;
   }
-  update(attributes, style, layout) {
-    const attrs: ShapeAttrs = this.getAttrs(attributes, style, layout);
+  update(attributes, style, parentStyle) {
+    const attrs: ShapeAttrs = this.getAttrs(attributes, style);
     let shape = this.cacheNode;
     shape.attr(attrs);
     shape.resetMatrix();
+
     switch (style.textAlign) {
       case 'center':
-        shape.translate(layout.width / 2);
+        shape.translate(parentStyle.width / 2);
         break;
       case 'right':
-        shape.translate(layout.width);
+        shape.translate(parentStyle.width);
         break;
       default:
         break;
     }
+
     if (style.whiteSpace === 'nowrap') {
       shape.attr('text', String(attributes.innerText));
     } else {
-      shape.attr('text', this.getMultiLineText(String(attributes.innerText), attrs, layout.width));
+      shape.attr(
+        'text',
+        this.getMultiLineText(
+          String(attributes.innerText),
+          attrs,
+          parentStyle.width,
+          parentStyle.height,
+        ),
+      );
     }
   }
 }

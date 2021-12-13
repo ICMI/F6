@@ -1,13 +1,13 @@
 import RenderNode from './base';
 
 export default class RenderNodeImage extends RenderNode {
-  draw(parentGNode, attributes, style, layout) {
+  draw(parentGNode, attributes, style) {
     const attrs = {
-      x: layout.left,
-      y: layout.top,
+      x: style.left,
+      y: style.top,
       img: attributes.src,
-      width: layout.width || 0,
-      height: layout.height || 0,
+      width: style.width || 0,
+      height: style.height || 0,
     };
 
     const isCapture = style.pointerEvents === 'none' ? false : true;
@@ -31,10 +31,10 @@ export default class RenderNodeImage extends RenderNode {
 
     switch (style.textAlign) {
       case 'center':
-        shape.translate(layout.width / 2);
+        shape.translate(style.width / 2);
         break;
       case 'right':
-        shape.translate(layout.width);
+        shape.translate(style.width);
         break;
       default:
         break;

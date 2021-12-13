@@ -13,16 +13,26 @@ export default class RenderNode {
     });
   }
 
-  startDraw(parentRenderNode, attributes, style, layout) {
+  startDraw(parentRenderNode, attributes, style, parentStyle) {
     if (this.cacheNode) {
-      this.draw(parentRenderNode.cacheNode, attributes, style, layout);
+      this.draw(parentRenderNode.cacheNode, attributes, style, parentStyle);
     } else {
-      this.draw(parentRenderNode.cacheNode, attributes, style, layout);
+      this.draw(parentRenderNode.cacheNode, attributes, style, parentStyle);
       this.addEvent();
     }
   }
 
   draw(parentRenderNode, attributes, style, layout) {}
+
+  // 部分渲染完后，会改变节点大小，外部注册重新布局
+  onBBoxChange(obj: Record<'width' | 'height', number>) {}
+
+  reCalcBBox({ width, height }) {
+    const bbox = this.cacheNode.getBBox();
+    if (width !== bbox.width || height !== bbox.height) {
+      this.onBBoxChange({ width: bbox.width, height: bbox.height });
+    }
+  }
 
   remove() {
     this.cacheNode?.remove();

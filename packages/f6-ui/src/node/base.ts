@@ -49,12 +49,7 @@ export default class Base extends EE {
 
   onRemove() {}
 
-  addRenderNode(renderNode: RenderNode) {
-    if (!renderNode) return;
-    renderNode.remove();
-    this.renderNode = renderNode;
-    this.renderNode.onEventEmit = this.trigger.bind(this);
-  }
+  addRenderNode(renderNode: RenderNode) {}
 
   trigger = (e) => {
     e.set('uiNode', this);

@@ -5,6 +5,7 @@ import { parseHtml, parseRulesHash } from '../compiler';
 import { Pipe } from '../flow';
 import { RenderNode } from '../render';
 import Base from './base';
+import { traverseTree } from '../utils';
 
 const defaultCssSet = `
   root {
@@ -20,6 +21,7 @@ class Document extends Base {
 
   constructor(htmlString, cssString, group) {
     super();
+    this.ownerDocument = this;
     this.pipe = new Pipe();
     this.addRules(defaultCssSet);
     this.genDomTree(htmlString);
@@ -51,8 +53,8 @@ class Document extends Base {
 
     if (layoutRoot) {
       // 上浮到absolute或根节点
-      while (layoutRoot?.style?.position !== 'absolute' && layoutRoot.parent) {
-        layoutRoot = node.parent;
+      while (layoutRoot?.style?.position !== 'absolute' && layoutRoot) {
+        layoutRoot = layoutRoot.parent;
       }
     }
 
@@ -74,12 +76,14 @@ class Document extends Base {
       const [node, parent] = stack.pop();
       for (let child of node.children) {
         const uiNode = this.createElement(child.tagName);
-        parent?.children.push(uiNode);
         uiNode.dom = child;
-        uiNode.setParent(parent);
+        parent.appendChild(uiNode);
         stack.push([child, uiNode]);
       }
     }
+    traverseTree(tree, ({ node }) => {
+      node.isOnline = true;
+    });
     tree.setParent(this);
     this.children = [tree];
   }
@@ -118,7 +122,7 @@ class Document extends Base {
 
   createElement(type, ...args) {
     const node = createNode.call(null, type, args);
-    node.ownerUI = this;
+    node.ownerDocument = this;
     return node;
   }
 
