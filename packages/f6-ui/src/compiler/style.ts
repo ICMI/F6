@@ -293,13 +293,16 @@ const defaultStyle = {
   textIndent: 0,
   textAlign: 'left',
   textShadow: 'none',
-  lineHeight: 1.2,
+  lineHeight: 12,
   color: '#000000',
   wordSpacing: 0,
   letterSpacing: 0,
   visibility: 'visible',
   cursor: 0,
   pointerEvents: 'none',
+  textOverflow: 'normal',
+  fillOpacity: 1,
+  opacity: 1,
 };
 
 export function getMergedStyle(style) {
