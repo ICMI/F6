@@ -20,7 +20,6 @@ export default class RenderNodeContainer extends RenderNode {
 
     // zIndex
     typeof style.zIndex === 'number' && gNode.setZIndex(style.zIndex);
-
     // 绘制background
     backgroudNode.addShape('rect', {
       attrs: {

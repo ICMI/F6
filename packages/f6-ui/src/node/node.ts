@@ -1,78 +1,12 @@
-import { isSelectorMatchDom, reflowAttrs } from '../utils/index';
-import computeLayout from 'css-layout';
-import isEqual from '@antv/util/lib/is-equal';
-import EE from '@antv/event-emitter';
-import { traverseTree } from '../utils';
 import Container from './container';
-import { isReflow, isInherit, getMergedStyle } from '../compiler';
+import { isReflow, isInherit } from '../compiler';
 
 export default class Node extends Container {
-  // isDisplay = true;
-
-  // reflow() {
-  //   // 开始重排
-  //   this.ownerDocument.updateLayout(this);
-  // }
-
-  // 初次绘制， 绑定一些事件之类
-  // mount() {
-  // if (this.isMounted) {
-  //   return;
-  // }
-  // if (this.style?.display === 'none') {
-  //   this.isDisplay = false;
-  //   return;
-  // }
-  // this.draw(this.parentGNode);
-  // this.isMounted = true;
-  // this.gNode?.set('uiNode', this);
-  // this.gNode?.on('*', this.trigger);
-  // this.children.forEach((child) => child.mount());
-  // this.didMount();
-  // }
-  // 全部draw一遍后触发下
-  // didMount() {}
-
-  // unmount() {
-  //   // if (!this.isMounted) return;
-  //   // this.isMounted = false;
-  //   // this.children.forEach((child) => child.unmount());
-  //   // this.didUnmount();
-  // }
-  // didUnmount() {}
-
-  // 绘制子树
-  // render() {
-  //   this.ownerDocument.updateRener(this);
-  //   // if (!isTagNeedRener(this.dom.tagName)) {
-  //   //   return;
-  //   // }
-
-  //   // if (!this.isMounted) {
-  //   //   this.mount();
-  //   //   return;
-  //   // }
-  //   // // if (!this.shouldUpdate(this._prevAttrs, this._prevStyle)) return;
-  //   // // 处理display的情况
-  //   // if (this.style?.display === 'none') {
-  //   //   this.isDisplay = false;
-  //   //   this.gNode?.remove(false);
-  //   //   return false;
-  //   // }
-
-  //   // if (this.isDisplay === false) {
-  //   //   this.isDisplay = true;
-  //   //   this.parentGNode?.add(this.gNode);
-  //   // }
-  //   // this.draw();
-  //   // this.children.forEach((child) => child.render());
-  // }
-
   addRenderNode(renderNode) {
     if (!renderNode) return;
     renderNode.remove();
     this.renderNode = renderNode;
-    this.renderNode.onEventEmit = this.trigger.bind(this);
+    this.renderNode.onEventEmit = this.trigger;
     this.renderNode.onBBoxChange = ({ width, height }) => {
       this.style['width'] = width;
       this.style['height'] = height;
@@ -90,6 +24,48 @@ export default class Node extends Container {
   }
 
   animate() {}
+
+  attr(key, value) {
+    if (arguments.length === 0 || !this.attributes) {
+      return;
+    }
+
+    if (arguments.length === 1 && typeof key === 'string') {
+      return this.attributes[key];
+    }
+
+    if (arguments.length === 2) {
+      this.attributes[key] = value;
+      if (!this.isOnline) return;
+      if (key === 'style' || key === 'class' || key === 'id') {
+        this.ownerDocument.updateStyleAndLayout(this);
+      } else {
+        this.ownerDocument.updateRener(this);
+      }
+    }
+  }
+
+  css(key, value) {
+    if (arguments.length === 0 || !this.style) {
+      return;
+    }
+
+    if (arguments.length === 1 && typeof key === 'string') {
+      return this.computedStyle[key];
+    }
+
+    if (arguments.length === 2 && typeof key === 'string') {
+      this.style[key] = value;
+      if (!this.isOnline) return;
+      if (isReflow(key)) {
+        this.ownerDocument.updateLayout(this);
+      } else if (isInherit(key)) {
+        this.ownerDocument.updateInherit(this);
+      } else {
+        this.ownerDocument.updateRener(this);
+      }
+    }
+  }
 
   setAttribute(key, value) {
     if (this.dom) {
@@ -118,7 +94,7 @@ export default class Node extends Container {
   }
 
   getStyle(key) {
-    return this.layoutNode?.layout[key] ?? this.style?.inherits[key] ?? this.style?.[key];
+    return this.computedStyle[key];
   }
 
   setText(text) {

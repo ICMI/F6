@@ -8,8 +8,9 @@ export default class RenderNode {
   onEventEmit(e) {}
 
   private addEvent() {
-    this.cacheNode.on('*', () => {
-      this.onEventEmit?.(this.cacheNode);
+    this.cacheNode.on('*', (e) => {
+      e.renderNode = this;
+      this.onEventEmit?.(e);
     });
   }
 
@@ -18,8 +19,18 @@ export default class RenderNode {
       this.draw(parentRenderNode.cacheNode, attributes, style, parentStyle);
     } else {
       this.draw(parentRenderNode.cacheNode, attributes, style, parentStyle);
+      this.cacheNode.set('renderNode', this);
       this.addEvent();
     }
+  }
+
+  hide() {
+    this.cacheNode?.set('visible', false);
+    this.cacheNode?.attr('visible', false);
+  }
+  show() {
+    this.cacheNode?.set('visible', true);
+    this.cacheNode?.attr('visible', true);
   }
 
   draw(parentRenderNode, attributes, style, layout) {}

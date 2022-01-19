@@ -165,6 +165,18 @@ export function parseRulesHash(cssString) {
   return rulesHash;
 }
 
+function parseInlineRule(uiNode) {
+  const text = uiNode?.dom?.attrs?.style;
+  if (!text || !text.trim()) {
+    return;
+  }
+  const sheet = cssParse(`
+   inline {
+    ${text}
+   }`);
+  return genStyleFromRule(sheet.stylesheet.rules[0]);
+}
+
 export function computeCSS(uiNode, path, parentStyle, ruleHashs) {
   // 从hash表中拿到匹配的rules
   const filteredRules = [];
@@ -215,6 +227,10 @@ export function computeCSS(uiNode, path, parentStyle, ruleHashs) {
 
   // 根据优先级排序
   finaleRules.sort((a, b) => a.specificity - b.specificity);
+
+  // 内嵌样式塞进去
+  const inlineStyle = parseInlineRule(uiNode);
+  inlineStyle && finaleRules.push({ style: inlineStyle });
 
   // 按顺序合并style，高优先级覆盖
   const finalStyle = finaleRules.reduce((prev, cur) => Object.assign({}, prev, cur.style), {});
@@ -299,7 +315,7 @@ const defaultStyle = {
   letterSpacing: 0,
   visibility: 'visible',
   cursor: 0,
-  pointerEvents: 'none',
+  pointerEvents: 'normal',
   textOverflow: 'normal',
   fillOpacity: 1,
   opacity: 1,

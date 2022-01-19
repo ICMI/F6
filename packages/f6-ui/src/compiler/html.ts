@@ -1,5 +1,3 @@
-import { parseAttr } from './valueParser';
-
 class Node {
   type = '';
   tagName = '';
@@ -143,7 +141,7 @@ class HtmlParser {
       } else {
         value = this.helper.stepWhile((letter) => /[^\s</>/]/.test(letter));
       }
-      attrs[name] = parseAttr(name, value);
+      attrs[name] = value;
       this.helper.skipWhiteSpace();
     }
     return attrs;

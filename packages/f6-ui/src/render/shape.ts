@@ -1,4 +1,6 @@
 import RenderNode from './base';
+import { typeParser } from '../utils';
+
 export default class RenderNodeShape extends RenderNode {
   getAttrs(attributes, style) {
     return {
@@ -13,9 +15,17 @@ export default class RenderNodeShape extends RenderNode {
   }
 
   draw(parentGNode, attributes, style) {
-    const attrs = this.getAttrs(attributes, style);
+    const transfomAttrs: any = {};
 
-    if (!this.cacheNode) this.cacheNode = parentGNode.addShape(attributes.type, { attrs });
+    for (const [key, value] of Object.entries(attributes)) {
+      console.log(key, value);
+      transfomAttrs[key] = typeParser(value);
+    }
+
+    const attrs = this.getAttrs(transfomAttrs, style);
+
+    if (!this.cacheNode) this.cacheNode = parentGNode.addShape(transfomAttrs.type, { attrs });
+
     let shape = this.cacheNode;
     const isCapture = style.pointerEvents === 'none' ? false : true;
     shape.attr(attrs);

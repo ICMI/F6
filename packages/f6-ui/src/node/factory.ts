@@ -44,7 +44,10 @@ function createStyle() {
 
 registerNode('div', createContainer);
 registerNode('root', createContainer);
+registerNode('img', createImage);
+// 兼容旧版本
 registerNode('image', createImage);
+
 registerNode('style', createStyle);
 registerNode('text', createText);
 registerNode('shape', createShape);

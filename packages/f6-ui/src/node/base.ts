@@ -52,7 +52,7 @@ export default class Base extends EE {
   addRenderNode(renderNode: RenderNode) {}
 
   trigger = (e) => {
-    e.set('uiNode', this);
+    e.uiNode = this;
     this.getEvents()[e.type]?.forEach((event) => event.callback(e, this));
   };
 
