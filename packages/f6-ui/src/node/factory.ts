@@ -33,7 +33,7 @@ function createStyle() {
   node.isNeedRenderAll = true;
   node.onAppend = () => {
     const textNode = node.query('text');
-    const cssString = textNode.dom.innerText;
+    const cssString = textNode.attrs.innerText;
     rules = node.ownerDocument.addRules(cssString);
   };
   node.onRemove = () => {
@@ -60,7 +60,7 @@ export function createNode(tagName, ...args) {
   let nodeCreateFn = Node_Map[tagName];
   if (!nodeCreateFn) {
     nodeCreateFn = createContainer;
-    console.error(`找不到标签${tagName}的创建函数`);
+    console.warn(`找不到标签${tagName}的创建函数`);
   }
   const uiNode = nodeCreateFn(...args);
   return uiNode;

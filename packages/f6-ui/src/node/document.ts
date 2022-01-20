@@ -53,12 +53,12 @@ class Document extends Base {
 
     if (layoutRoot) {
       // 上浮到absolute或根节点
-      while (layoutRoot?.style?.position !== 'absolute' && layoutRoot) {
+      while (layoutRoot && layoutRoot?.style?.position !== 'absolute') {
         layoutRoot = layoutRoot.parent;
       }
     }
 
-    this.pipe.run('reflow', layoutRoot || this.root);
+    this.pipe.run('reflow', layoutRoot?.parent || this.root);
   }
 
   updateStyleAndLayout(node?) {
@@ -122,6 +122,7 @@ class Document extends Base {
 
   createElement(type, ...args) {
     const node = createNode.call(null, type, args);
+    node.dom = {};
     node.ownerDocument = this;
     return node;
   }

@@ -32,11 +32,7 @@ class Container extends Base {
       this.isOnline = true;
     });
 
-    if (isNeedRootUpdate) {
-      this.ownerDocument.updateStyleAndLayout();
-    } else {
-      this.ownerDocument.updateLayout(this);
-    }
+    this.ownerDocument.updateStyleAndLayout(isNeedRootUpdate ? undefined : this);
   }
 
   removeChild(node) {

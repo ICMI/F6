@@ -39,10 +39,15 @@ export default class RenderNode {
   onBBoxChange(obj: Record<'width' | 'height', number>) {}
 
   reCalcBBox({ width, height }) {
+    // 已经定义了width和height，没有必要计算
+    if (width && height) return;
     const bbox = this.cacheNode.getBBox();
-    if (width !== bbox.width || height !== bbox.height) {
-      this.onBBoxChange({ width: bbox.width, height: bbox.height });
-    }
+    const finalWidth = width || bbox.width;
+    const finalHeight = height || bbox.height;
+    if (finalWidth === width && finalHeight === height) return;
+
+    // 重新更新下width或height
+    this.onBBoxChange({ width: finalWidth, height: finalHeight });
   }
 
   remove() {

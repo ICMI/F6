@@ -255,6 +255,10 @@ export function computeCSS(uiNode, path, parentStyle, ruleHashs) {
       jsStyle[camel] = parsedValue;
     }
   }
+  // hack 目前文本布局依赖容器宽度，强制硬编码个flex属性
+  if (uiNode.dom.tagName === 'text') {
+    jsStyle['flex'] = 1;
+  }
   return jsStyle;
 }
 
@@ -314,7 +318,6 @@ const defaultStyle = {
   wordSpacing: 0,
   letterSpacing: 0,
   visibility: 'visible',
-  cursor: 0,
   pointerEvents: 'normal',
   textOverflow: 'normal',
   fillOpacity: 1,

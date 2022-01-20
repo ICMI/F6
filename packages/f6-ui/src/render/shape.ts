@@ -18,7 +18,6 @@ export default class RenderNodeShape extends RenderNode {
     const transfomAttrs: any = {};
 
     for (const [key, value] of Object.entries(attributes)) {
-      console.log(key, value);
       transfomAttrs[key] = typeParser(value);
     }
 

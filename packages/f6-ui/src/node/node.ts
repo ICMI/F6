@@ -99,8 +99,8 @@ export default class Node extends Container {
 
   setText(text) {
     const textNode = this.query('text');
-    if (textNode && textNode.styleNode.dom) {
-      textNode.dom.text = text;
+    if (textNode && textNode.dom) {
+      textNode.dom.attrs.innerText = text;
       this.ownerDocument.updateRener(this);
     }
   }

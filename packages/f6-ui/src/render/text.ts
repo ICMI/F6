@@ -106,11 +106,21 @@ export default class RenderNodeText extends RenderNode {
         this.getMultiLineText(
           text,
           attrs,
-          parentStyle.width,
-          parentStyle.height,
+          style.width,
+          style.height,
           parentStyle.textOverflow === 'ellipsis',
         ),
       );
+    }
+    switch (style.textAlign) {
+      case 'center':
+        shape.translate(style.width / 2);
+        break;
+      case 'right':
+        shape.translate(style.width);
+        break;
+      default:
+        break;
     }
   }
 
