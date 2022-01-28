@@ -17,12 +17,9 @@ export default () => {
     const bg = 'black';
     const html = `
     <root class="f6_ui_node">
-      <div class="test_div" style="color: blue;">
-      我是div我是div我是div我是div我是div我是div我是div我是div我是div我是div我是div我是div
+      <div class="test_div_1">
+        我是
       </div>
-      <div class="test_div_1">我是div </div>
-      <img src="https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*Q_FQT6nwEC8AAAAAAAAAAABkARQnAQ" alt="" />
-      <shape class="" type="rect" width="30" height="30" > </shape>
     </root>
   `;
 
@@ -39,17 +36,24 @@ export default () => {
       margin-left: 10;
       background: red;
       line-height: 12;
-      text-align: left;
+      text-align: center;
       text-overflow: ellipsis;
+      justify-content: center;
+      align-items: center;
       width: 100;
       height: 30;
     }
     .test_div_1{
+      flex-direction: row;
+      margin-left: 100;
+      flex-wrap: wrap;
       width: 100;
       height: 100;
       background: blue;
-      display: none;
+      padding: 10;
+      align-items: center;
     }
+    
     shape{
       background: yellow;
     }
@@ -69,22 +73,27 @@ export default () => {
       console.log(e.uiNode === node);
     });
 
-    setTimeout(() => {
-      // display 测试
-      node.css('display', 'flex');
-      node.attr('class', 'test_div');
-    }, 2000);
-    setTimeout(() => {
-      // class 切换测试
-      node.attr('class', 'test_div_1');
-      node.css('display', 'flex');
-    }, 4000);
+    // setTimeout(() => {
+    //   // display 测试
+    //   node.css('display', 'flex');
+    //   node.attr('class', 'test_div');
+    // }, 2000);
+    // setTimeout(() => {
+    //   // class 切换测试
+    //   node.attr('class', 'test_div_1');
+    //   node.css('display', 'flex');
+    // }, 4000);
 
-    setTimeout(() => {
-      // append 测试
-      const testNode = node.appendChild(ui.createElement('div'));
-      testNode.attr('innerText', 'ahhfahfh');
-    }, 6000);
+    // setTimeout(() => {
+    // append 测试
+    // const testNode = node.appendChild(
+    //   ui.createElement('div', {
+    //     style: `width:100; height: 100; background: red; font-size: 10;color: black;`,
+    //   }),
+    // );
+    // testNode.appendChild(ui.createTextNode('fajksdjfaksd'));
+
+    // }, 6000);
     console.log('ui', ui);
   }
 
@@ -93,7 +102,7 @@ export default () => {
     if (!graph) {
       // debugger
       F6.registerNode('EQUITY_GRAPH_NODE_TYPE_COMPANY', equityCompanyNode, 'rect');
-      F6.registerNode('EQUITY_GRAPH_NODE_TYPE_COMPANY_F6UI', equityCompanyNodeF6UI, 'rect');
+      // F6.registerNode('EQUITY_GRAPH_NODE_TYPE_COMPANY_F6UI', equityCompanyNodeF6UI, 'rect');
       F6.registerGraph('TreeGraph', TreeGraph);
       graph = new F6.TreeGraph({
         container: ref.current,

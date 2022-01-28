@@ -8,11 +8,12 @@ export default class Base extends EE {
   ownerDocument: Document;
   isNeedRenderAll: boolean = false;
   parent = null;
+  cachePath = [];
 
-  protected dom = null;
-  protected style = null;
-  protected layoutNode = null;
-  protected renderNode: RenderNode;
+  dom = null;
+  style = null;
+  renderNode: RenderNode;
+  private layoutNode = null;
 
   get top() {
     return this.layoutNode?.layout?.top;
@@ -42,7 +43,9 @@ export default class Base extends EE {
   }
 
   get computedStyle() {
-    return Object.assign({}, getMergedStyle(this.style), this.layout);
+    return Object.assign({}, getMergedStyle(this.style), this.layout, {
+      parentMaxWidth: this.layoutNode?.lastLayout?.parentMaxWidth,
+    });
   }
 
   onAppend() {}

@@ -14,11 +14,11 @@ export default class RenderNode {
     });
   }
 
-  startDraw(parentRenderNode, attributes, style, parentStyle) {
+  startDraw(parentRenderNode, attributes, computeStyle, parentStyle, style) {
     if (this.cacheNode) {
-      this.draw(parentRenderNode.cacheNode, attributes, style, parentStyle);
+      this.draw(parentRenderNode.cacheNode, attributes, computeStyle, parentStyle, style);
     } else {
-      this.draw(parentRenderNode.cacheNode, attributes, style, parentStyle);
+      this.draw(parentRenderNode.cacheNode, attributes, computeStyle, parentStyle, style);
       this.cacheNode.set('renderNode', this);
       this.addEvent();
     }
@@ -33,7 +33,7 @@ export default class RenderNode {
     this.cacheNode?.attr('visible', true);
   }
 
-  draw(parentRenderNode, attributes, style, layout) {}
+  draw(parentRenderNode, attributes, originStyle, layout, style) {}
 
   // 部分渲染完后，会改变节点大小，外部注册重新布局
   onBBoxChange(obj: Record<'width' | 'height', number>) {}

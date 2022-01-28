@@ -7,11 +7,6 @@ export default class Node extends Container {
     renderNode.remove();
     this.renderNode = renderNode;
     this.renderNode.onEventEmit = this.trigger;
-    this.renderNode.onBBoxChange = ({ width, height }) => {
-      this.style['width'] = width;
-      this.style['height'] = height;
-      this.ownerDocument.updateLayout(this);
-    };
   }
 
   draw() {
@@ -20,6 +15,7 @@ export default class Node extends Container {
       this.attributes,
       this.computedStyle,
       this.parent?.computedStyle,
+      this.style,
     );
   }
 

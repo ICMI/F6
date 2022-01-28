@@ -41,6 +41,7 @@ export default {
         flex-direction: row;
         align-items:center;
         pointer-events: none;
+        text-align: center;
       }
       
       .tip {

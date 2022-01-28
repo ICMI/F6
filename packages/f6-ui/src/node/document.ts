@@ -1,7 +1,7 @@
 // html, css -> uiNode
 
 import { createNode } from './factory';
-import { parseHtml, parseRulesHash } from '../compiler';
+import { HtmlNode, parseHtml, parseRulesHash } from '../compiler';
 import { Pipe } from '../flow';
 import { RenderNode } from '../render';
 import Base from './base';
@@ -49,16 +49,7 @@ class Document extends Base {
   }
 
   updateLayout(node?) {
-    let layoutRoot = node;
-
-    if (layoutRoot) {
-      // 上浮到absolute或根节点
-      while (layoutRoot && layoutRoot?.style?.position !== 'absolute') {
-        layoutRoot = layoutRoot.parent;
-      }
-    }
-
-    this.pipe.run('reflow', layoutRoot?.parent || this.root);
+    this.pipe.run('reflow', node || this.root);
   }
 
   updateStyleAndLayout(node?) {
@@ -68,15 +59,14 @@ class Document extends Base {
   // html -> dom -> uiNode
   genDomTree(htmlString) {
     const dom = parseHtml(htmlString, true);
-    const tree = this.createElement(dom.tagName);
-    tree.dom = dom;
+    const tree = this.createElementWithHtmlNode(dom);
+    // tree.dom = dom;
     // 创建ui节点
     const stack = [[dom, tree]];
     while (stack.length) {
       const [node, parent] = stack.pop();
       for (let child of node.children) {
-        const uiNode = this.createElement(child.tagName);
-        uiNode.dom = child;
+        const uiNode = this.createElementWithHtmlNode(child);
         parent.appendChild(uiNode);
         stack.push([child, uiNode]);
       }
@@ -120,9 +110,24 @@ class Document extends Base {
 
   setViewPort() {}
 
-  createElement(type, ...args) {
-    const node = createNode.call(null, type, args);
-    node.dom = {};
+  createElement(tag, attrs) {
+    const htmlNode = new HtmlNode();
+    htmlNode.tagName = tag;
+    htmlNode.type = 'element';
+    htmlNode.attrs = attrs || {};
+    return this.createElementWithHtmlNode(htmlNode);
+  }
+
+  createTextNode(text) {
+    const htmlNode = new HtmlNode();
+    htmlNode.tagName = 'text';
+    htmlNode.type = 'text';
+    htmlNode.attrs.innerText = text;
+    return this.createElementWithHtmlNode(htmlNode);
+  }
+
+  private createElementWithHtmlNode(htmlNode) {
+    const node = createNode.call(null, htmlNode);
     node.ownerDocument = this;
     return node;
   }
@@ -132,15 +137,14 @@ class Document extends Base {
       htmlString += `<style>${cssString}</style>`;
     }
     const dom = parseHtml(htmlString, true);
-    const tree = this.createElement(dom.tagName);
+    const tree = this.createElementWithHtmlNode(dom);
     // 创建ui节点
     const stack = [[dom, tree]];
     while (stack.length) {
       const [node, parent] = stack.pop();
       for (let child of node.children) {
-        const uiNode = this.createElement(child.tagName);
+        const uiNode = this.createElementWithHtmlNode(child);
         parent?.children.push(uiNode);
-        uiNode.dom = child;
         uiNode.setParent(parent);
         stack.push([child, uiNode]);
       }

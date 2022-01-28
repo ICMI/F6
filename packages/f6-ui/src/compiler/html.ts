@@ -1,4 +1,4 @@
-class Node {
+export class HtmlNode {
   type = '';
   tagName = '';
   attrs: any = {};
@@ -76,7 +76,7 @@ class HtmlParser {
   }
 
   parseElement() {
-    const node = new Node();
+    const node = new HtmlNode();
     node.type = 'element';
     this.helper.stepNext();
     const startTag = this.helper.getText();
@@ -113,7 +113,7 @@ class HtmlParser {
   }
 
   parseTextNode() {
-    const node = new Node();
+    const node = new HtmlNode();
     const text = this.helper.stepWhile((s) => /[^<]/.test(s));
     node.type = 'text';
     node.tagName = 'text';
@@ -163,7 +163,7 @@ export function parseHtml(html, isNeedRoot = true) {
   const nodes = new HtmlParser(html).parse();
   let rootNode = nodes[0];
   if (nodes[0]?.tagName !== 'root' && isNeedRoot) {
-    rootNode = new Node();
+    rootNode = new HtmlNode();
     rootNode.tagName = 'root';
     rootNode.children = nodes;
   }

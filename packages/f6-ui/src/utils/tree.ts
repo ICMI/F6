@@ -1,5 +1,6 @@
-export function traverseTree(tree, fn) {
-  const stack = [[tree, [], null]];
+export function traverseTree(tree, fn, from: Record<'parent' | 'path' | string, any> = {}) {
+  const { path = [], parent = null } = from;
+  const stack = [[tree, path, parent]];
   while (stack.length) {
     const [node, path, parent] = stack.shift();
     const isContinue = fn({ node, path, parent });

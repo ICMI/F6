@@ -1,16 +1,17 @@
 import { attachCss, computeLayout, render, computeInherit } from '.';
 
 export class Pipe {
-  run(key, ...args) {
+  run(key, node, rules) {
+    let resultNode = node;
     switch (key) {
       case 'reAttach':
-        attachCss.apply(null, args);
+        attachCss.call(null, resultNode, rules);
       case 'reflow':
-        computeLayout.apply(null, args);
+        resultNode = computeLayout.call(null, resultNode);
       case 'reInherit':
-        computeInherit.apply(null, args);
+        computeInherit.call(null, resultNode);
       case 'render':
-        render.apply(null, args);
+        render.call(null, resultNode);
     }
   }
 }

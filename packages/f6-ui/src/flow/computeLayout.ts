@@ -30,10 +30,25 @@ function genLayoutTree(node) {
   }
 }
 
+function getLayoutRoot(node) {
+  let layoutRoot = node;
+  if (layoutRoot) {
+    // 上浮到absolute或根节点
+    while (layoutRoot && layoutRoot?.style?.position !== 'absolute') {
+      layoutRoot = layoutRoot.parent;
+    }
+  }
+  return layoutRoot ? layoutRoot : node.ownerDocument.root;
+}
+
 export function computeLayout(node) {
-  genLayoutTree(node);
+  const layoutRoot = getLayoutRoot(node);
 
-  clearLayout(node);
+  genLayoutTree(layoutRoot);
 
-  computeLayoutFn(node.layoutNode);
+  clearLayout(layoutRoot);
+
+  computeLayoutFn(layoutRoot.layoutNode);
+
+  return layoutRoot;
 }

@@ -29,10 +29,10 @@ class Container extends Base {
       if (node.isNeedRenderAll) isNeedRootUpdate = true;
       // 触发append后的操作
       node.onAppend?.();
-      this.isOnline = true;
+      node.isOnline = true;
     });
-
     this.ownerDocument.updateStyleAndLayout(isNeedRootUpdate ? undefined : this);
+    return node;
   }
 
   removeChild(node) {
