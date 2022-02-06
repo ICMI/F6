@@ -18,8 +18,8 @@ export default () => {
     const html = `
     <root class="f6_ui_node">
       <div class="test_div_1">
-        我是
-      </div>
+      123
+      </div>  
     </root>
   `;
 
@@ -44,14 +44,15 @@ export default () => {
       height: 30;
     }
     .test_div_1{
-      flex-direction: row;
       margin-left: 100;
-      flex-wrap: wrap;
       width: 100;
       height: 100;
       background: blue;
       padding: 10;
+      white-space: normal;
+      justify-content: center;
       align-items: center;
+      text-align: right;
     }
     
     shape{

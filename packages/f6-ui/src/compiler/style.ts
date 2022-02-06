@@ -255,10 +255,7 @@ export function computeCSS(uiNode, path, parentStyle, ruleHashs) {
       jsStyle[camel] = parsedValue;
     }
   }
-  // hack 目前文本布局依赖容器宽度，强制硬编码个flex属性
-  if (uiNode.dom.tagName === 'text') {
-    jsStyle['flex'] = 1;
-  }
+
   return jsStyle;
 }
 
@@ -322,6 +319,7 @@ const defaultStyle = {
   textOverflow: 'normal',
   fillOpacity: 1,
   opacity: 1,
+  whiteSpace: 'normal',
 };
 
 export function getMergedStyle(style) {

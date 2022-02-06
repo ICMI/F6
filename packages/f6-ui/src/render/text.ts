@@ -31,25 +31,28 @@ export default class RenderNodeText extends RenderNode {
         height: computeStyle.height,
       };
     }
-    debugger;
     return {
-      width:
+      width: Math.max(
         computeStyle.parentMaxWidth ||
-        (computeStyle.width === 0
-          ? 0
-          : computeStyle.width -
-            computeStyle.borderLeftWidth -
-            computeStyle.borderRightWidth -
-            computeStyle.paddingLeft -
-            computeStyle.paddingRight),
-      height:
+          (computeStyle.width === 0
+            ? 0
+            : computeStyle.width -
+              computeStyle.borderLeftWidth -
+              computeStyle.borderRightWidth -
+              computeStyle.paddingLeft -
+              computeStyle.paddingRight),
+        0,
+      ),
+      height: Math.max(
         computeStyle.height === 0
           ? 0
           : computeStyle.height -
-            computeStyle.borderTopWidth -
-            computeStyle.borderBottomWidth -
-            computeStyle.paddingTop -
-            computeStyle.paddingBottom,
+              computeStyle.borderTopWidth -
+              computeStyle.borderBottomWidth -
+              computeStyle.paddingTop -
+              computeStyle.paddingBottom,
+        0,
+      ),
     };
   }
 
@@ -63,7 +66,8 @@ export default class RenderNodeText extends RenderNode {
       });
     }
     this.update(attributes, computeStyle, parentStyle);
-    // this.reCalcBBox({ width: style.width, height: style.height });
+    // 此处style是原始的style，外部一般无法定义文本节点的宽高
+    this.reCalcBBox({ width: style.width, height: style.height });
   }
 
   getMultiLineText(text, attrs, width, height, isTextOverflow) {
@@ -122,22 +126,27 @@ export default class RenderNodeText extends RenderNode {
     return s;
   }
 
-  update(attributes, style, parentStyle) {
-    console.log('style: ', style.width, style.height);
-    const width = Math.max(style.width, parentStyle.width);
-
+  update(attributes, computeStyle, parentStyle) {
     const contentBox = this.getContentBox(parentStyle);
-    console.log(contentBox);
 
-    const attrs: ShapeAttrs = this.getAttrs(attributes, style);
+    const width = computeStyle.width || contentBox.width;
+    const height = computeStyle.heihgt || contentBox.height;
+    const attrs: ShapeAttrs = this.getAttrs(attributes, computeStyle);
     let shape = this.cacheNode;
     shape.attr(attrs);
     shape.resetMatrix();
 
     const text = String(attributes.innerText?.trim());
     // 是否换行
-    if (style.whiteSpace === 'nowrap') {
-      shape.attr('text', text);
+    if (parentStyle.whiteSpace === 'nowrap') {
+      if (parentStyle.overflow === 'hidden') {
+        shape.attr(
+          'text',
+          this.getMultiLineText(text, attrs, width, 0, parentStyle.textOverflow === 'ellipsis'),
+        );
+      } else {
+        shape.attr('text', text);
+      }
     } else {
       shape.attr(
         'text',
@@ -145,13 +154,12 @@ export default class RenderNodeText extends RenderNode {
           text,
           attrs,
           width,
-          style.height,
+          parentStyle.overflow === 'hidden' ? height : Infinity,
           parentStyle.textOverflow === 'ellipsis',
         ),
       );
     }
-    console.log(style.textAlign);
-    switch (style.textAlign) {
+    switch (computeStyle.textAlign) {
       case 'center':
         shape.translate(width / 2);
         break;

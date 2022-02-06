@@ -18,7 +18,11 @@ const boxParser = function (type, value) {
   const style = {};
   const arr = value.split(/\s/g).filter((s) => s !== '');
   if (arr.length === 1 && !isNaN(arr[0])) {
-    style[`${type}`] = Number(arr[0]);
+    style[`${type}Bottom`] =
+      style[`${type}Top`] =
+      style[`${type}Left`] =
+      style[`${type}Right`] =
+        Number(arr[0]);
   }
   if (arr.length === 2) {
     !isNaN(Number(arr[0])) && (style[`${type}Bottom`] = style[`${type}Top`] = Number(arr[0]));
@@ -90,7 +94,11 @@ const borderParser = function (value) {
   const arr = value.split(/\s/g).filter((s) => s !== '');
   for (const value of arr) {
     if (!isNaN(Number(value))) {
-      style['borderWidth'] = Number(value);
+      style['borderLeftWidth'] =
+        style['borderRightWidth'] =
+        style['borderTopWidth'] =
+        style['borderBottomWidth'] =
+          Number(value);
     } else if (isColor(value)) {
       style['borderColor'] = value;
     } else if (borders.includes(value)) {
