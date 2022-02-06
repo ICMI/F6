@@ -17,9 +17,10 @@ export default () => {
     const bg = 'black';
     const html = `
     <root class="f6_ui_node">
-      <div class="test_div_1">
-      123
-      </div>  
+      <div class="test_div_1">123123</div> 
+      <div class="test_div_2">123123123123123123123123123123123123123123123</div> 
+      <imgs src="https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*Q_FQT6nwEC8AAAAAAAAAAABkARQnAQ" alt="" />
+      <shape class="" type="rect" width="30" height="30" > </shape>
     </root>
   `;
 
@@ -27,32 +28,37 @@ export default () => {
     root {
       background: black;
       width: 300;
-      height: 300;
-      color: yellow;
-      flex-direction: row;
+      height: 500;
+      color: red;
       overflow: hidden;
-    }
-    .test_div {
-      margin-left: 10;
-      background: red;
-      line-height: 12;
-      text-align: center;
-      text-overflow: ellipsis;
-      justify-content: center;
       align-items: center;
-      width: 100;
-      height: 30;
     }
+   
     .test_div_1{
-      margin-left: 100;
+      color: yellow;
       width: 100;
-      height: 100;
+      height: 50;
       background: blue;
       padding: 10;
+      border: 5 solid #fff;
       white-space: normal;
       justify-content: center;
       align-items: center;
-      text-align: right;
+      text-align: left;
+    }
+
+    .test_div_2{
+      color: yellow;
+      width: 100;
+      height: 50;
+      background: blue;
+      padding: 10;
+      overflow: hidden;
+      white-space: normal;
+      justify-content: center;
+      align-items: flex-start;
+      text-align: left;
+      text-overflow: ellipsis;
     }
     
     shape{

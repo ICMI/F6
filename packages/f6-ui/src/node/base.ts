@@ -43,9 +43,7 @@ export default class Base extends EE {
   }
 
   get computedStyle() {
-    return Object.assign({}, getMergedStyle(this.style), this.layout, {
-      parentMaxWidth: this.layoutNode?.lastLayout?.parentMaxWidth,
-    });
+    return Object.assign({}, getMergedStyle(this.style), this.layout);
   }
 
   onAppend() {}

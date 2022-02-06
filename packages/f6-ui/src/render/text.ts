@@ -27,20 +27,19 @@ export default class RenderNodeText extends RenderNode {
   getContentBox(computeStyle) {
     if (computeStyle.boxSizing === 'content-box') {
       return {
-        width: computeStyle.parentMaxWidth || computeStyle.width,
+        width: computeStyle.width,
         height: computeStyle.height,
       };
     }
     return {
       width: Math.max(
-        computeStyle.parentMaxWidth ||
-          (computeStyle.width === 0
-            ? 0
-            : computeStyle.width -
+        computeStyle.width === 0
+          ? 0
+          : computeStyle.width -
               computeStyle.borderLeftWidth -
               computeStyle.borderRightWidth -
               computeStyle.paddingLeft -
-              computeStyle.paddingRight),
+              computeStyle.paddingRight,
         0,
       ),
       height: Math.max(
@@ -130,7 +129,7 @@ export default class RenderNodeText extends RenderNode {
     const contentBox = this.getContentBox(parentStyle);
 
     const width = computeStyle.width || contentBox.width;
-    const height = computeStyle.heihgt || contentBox.height;
+    const height = computeStyle.height || contentBox.height;
     const attrs: ShapeAttrs = this.getAttrs(attributes, computeStyle);
     let shape = this.cacheNode;
     shape.attr(attrs);

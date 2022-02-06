@@ -94,7 +94,8 @@ const borderParser = function (value) {
   const arr = value.split(/\s/g).filter((s) => s !== '');
   for (const value of arr) {
     if (!isNaN(Number(value))) {
-      style['borderLeftWidth'] =
+      style['borderWidth'] =
+        style['borderLeftWidth'] =
         style['borderRightWidth'] =
         style['borderTopWidth'] =
         style['borderBottomWidth'] =
