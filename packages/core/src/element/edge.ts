@@ -169,7 +169,8 @@ const singleEdge: ShapeOptions = {
       },
       cfg.style,
     );
-
+    delete style.x;
+    delete style.y;
     if (shape) {
       shape.attr(style);
     }

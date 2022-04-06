@@ -60,7 +60,6 @@ export default class UITextNode extends UINode {
     const attrs: ShapeAttrs = this.getAttrs();
     let shape = this.gNode;
     shape.attr(attrs);
-    shape.resetMatrix();
     switch (style.textAlign) {
       case 'center':
         shape.translate(this.styleNode.layout.width / 2);

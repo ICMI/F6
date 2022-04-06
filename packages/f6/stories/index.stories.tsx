@@ -17,7 +17,7 @@ import PluginMniMapDemo from './pluginMiniMap';
 import PluginBundlingDemo from './pluginBundling';
 import MenuDemo from './pluginMenu';
 import NodeDemo from './nodeDemo';
-
+import FEngineTest from './fengineTest';
 
 export default {
   title: 'Example',
@@ -41,11 +41,12 @@ export const PluginEdgeFilter = (args) => <PluginEdgeFilterDemo {...args} />;
 export const PluginFisheye = (args) => <PluginFisheyeDemo {...args} />;
 
 // mini map
-export const PluginMniMap = (args) => <PluginMniMapDemo { ...args }/>
+export const PluginMniMap = (args) => <PluginMniMapDemo {...args} />;
 
-export const PluginBundling = (args) => <PluginBundlingDemo { ...args }/>
+export const PluginBundling = (args) => <PluginBundlingDemo {...args} />;
 
-export const PluginMenu = (args) => <MenuDemo { ...args }/>
+export const PluginMenu = (args) => <MenuDemo {...args} />;
 
-export const nodeDemo = (args) => <NodeDemo { ...args }/>
+export const nodeDemo = (args) => <NodeDemo {...args} />;
 
+export const FEngineTestDemo = (args) => <FEngineTest {...args} />;

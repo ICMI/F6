@@ -1,6 +1,6 @@
 import { Canvas as GCanvas, Group } from '@antv/g-canvas';
 import { Event as GraphEvent, Point } from '@antv/g-base';
-import { isNil, each, debounce } from '@antv/util';
+import { isNil, each, debounce, clone } from '@antv/util';
 import { Matrix, ShapeStyle, IAbstractGraph as IGraph } from '@antv/f6-core';
 import { ext } from '@antv/matrix-util';
 import Base, { IPluginBaseConfig } from '../base';
@@ -97,6 +97,7 @@ export default class MiniMap extends Base {
 
     // 拖拽start事件
     handleUI.on('panstart', (e: GraphEvent) => {
+      console.log('panstart');
       cfgs.refresh = false;
 
       // 如果视口已经最大了，不需要拖拽
@@ -121,6 +122,7 @@ export default class MiniMap extends Base {
     handleUI.on(
       'panmove',
       (e: GraphEvent) => {
+        console.log('panmove');
         if (!dragging || isNil(e.x) || isNil(e.y)) {
           return;
         }
@@ -153,6 +155,7 @@ export default class MiniMap extends Base {
     handleUI.on(
       'panend',
       () => {
+        console.log('panend!!');
         dragging = false;
         cfgs.refresh = true;
       },
@@ -584,11 +587,11 @@ export default class MiniMap extends Base {
 
     const group = this.get('groupCanvas'); // canvas.get('children')[0];
     if (!group) return;
-
+    // group.setMatrix([1, 0, 0, 0, 1, 0, 0, 0, 1]);
     group.resetMatrix();
     // 重新计算所有子节点的matrix，从group开始重新计算totalmatrix，重置传递下来的matrix，保证计算canvasBBox的时候，相对左上角
-    group.applyMatrix([1, 0, 0, 0, 1, 0, 0, 0, 1]);
     const bbox = group.getCanvasBBox();
+    const totalMatrix = group.getTotalMatrix();
 
     const graphBBox = graph.get('group').getCanvasBBox(); // 主图的 bbox
     const graphZoom = graph.getZoom() || 1;
@@ -612,16 +615,15 @@ export default class MiniMap extends Base {
     let minY = 0;
     // 平移到左上角
     if (Number.isFinite(bbox.minX)) {
-      minX = -bbox.minX;
+      minX = -(bbox.minX - totalMatrix[6]);
     }
     if (Number.isFinite(bbox.minY)) {
-      minY = -bbox.minY;
+      minY = -(bbox.minY - totalMatrix[7]);
     }
 
     // 缩放到适合视口后, 平移到画布中心
     const dx = (size[0] - (width - 2 * padding) * ratio) / 2;
     const dy = (size[1] - (height - 2 * padding) * ratio) / 2;
-
     matrix = transform(matrix, [
       ['t', minX, minY], // 平移到左上角
       ['s', ratio, ratio], // 缩放到正好撑着 minimap

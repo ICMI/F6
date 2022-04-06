@@ -65,6 +65,9 @@ export default class Edge extends Item implements IEdge {
       if (!isNil(point.index)) {
         this.set(`${name}AnchorIndex`, point.index);
       }
+
+      point.x = isNaN(point.x) ? 0 : point.x;
+      point.y = isNaN(point.y) ? 0 : point.y;
     }
     return point;
   }

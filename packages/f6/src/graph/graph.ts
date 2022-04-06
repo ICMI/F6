@@ -1,4 +1,5 @@
-import { Canvas as GMobileCanvas } from '@antv/g-mobile';
+import { CanvasAdapter as GMobileCanvas } from '@antv/f-engine';
+// import { Canvas as GMobileCanvas } from '@antv/g-mobile';
 import { IGroup } from '@antv/g-base';
 import { mat3 } from '@antv/matrix-util';
 import { clone, deepMix, each, isString, isNumber } from '@antv/util';
@@ -10,6 +11,7 @@ import Global from '../global';
 import { LayoutController, EventController } from './controller';
 import PluginBase from '../plugin/base';
 import { createDom } from '@antv/dom-util';
+import { genCanvasCfg } from '../util/platform';
 
 export const registerGraph = (graphName: string, GraphFunction: any, G6: Object): Object => {
   if (G6[graphName]) {
@@ -26,11 +28,6 @@ export default class Graph extends AbstractGraph implements IGraph {
   constructor(cfg: GraphOptions) {
     super(cfg);
 
-    if (this.get('renderer').startsWith('mini')) {
-      this.set('context', (cfg as any).context);
-    }
-
-    super.init();
     const defaultNode = this.get('defaultNode');
     if (!defaultNode) {
       this.set('defaultNode', { type: 'circle' });
@@ -41,9 +38,6 @@ export default class Graph extends AbstractGraph implements IGraph {
     }
     this.destroyed = false;
   }
-
-  // 这里是为了规避基类那个deepmix，等待架构调整
-  protected init() {}
 
   public emitEvent(event) {
     const canvas: GMobileCanvas = this.get('canvas');
@@ -64,51 +58,27 @@ export default class Graph extends AbstractGraph implements IGraph {
       eventController,
     });
 
-    if (this.get('renderer').startsWith('mini')) {
-      return;
-    }
-
     const canvas: GMobileCanvas = this.get('canvas');
-    const canvasDom = canvas.get('el');
-    'touchstart touchmove touchend touchcancel'.split(' ').forEach((key) => {
-      canvasDom.addEventListener(key, canvas.registerEventCallback.bind(canvas), false);
-    });
+    // const canvasDom = canvas.get('el');
+    // 'touchstart touchmove touchend touchcancel'.split(' ').forEach((key) => {
+    //   canvasDom.addEventListener(key, canvas.registerEventCallback.bind(canvas), false);
+    // });
   }
 
   protected initCanvas() {
     let container: string | HTMLElement | Element | null = this.get('container');
-    if (container !== null && typeof container === 'string') {
-      container = document.getElementById(container);
-      this.set('container', container);
-    }
-
-    const renderer: string = this.get('renderer');
-
-    if (!container && !renderer.startsWith('mini')) {
-      throw new Error('invalid container');
-    }
-
-    const width: number = this.get('width');
-    const height: number = this.get('height');
-    const context: string = this.get('context');
-    const fitView: boolean = this.get('fitView');
-
-    const canvasCfg: any = {
-      container, // native canvas 会传递 requestAnimationFrame, clearAnimationFrame 等函数进来
-      context,
-      width,
-      height,
-      renderer,
-      fitView,
-    };
+    const canvasConfig = genCanvasCfg(this.cfg);
+    const { context } = canvasConfig;
+    this.set('context', context);
+    this.set('container', container);
 
     const pixelRatio = this.get('pixelRatio');
-
     if (pixelRatio) {
-      canvasCfg.pixelRatio = pixelRatio;
+      canvasConfig.pixelRatio = pixelRatio;
     }
-
-    const canvas = new GMobileCanvas(canvasCfg);
+    // canvasConfig.renderer = 'canvas';
+    // canvasConfig.container = container;
+    const canvas = new GMobileCanvas(canvasConfig);
 
     this.set('canvas', canvas);
   }
@@ -455,18 +425,6 @@ export default class Graph extends AbstractGraph implements IGraph {
     }
   }
 
-  private isMiniNative() {
-    return this.get('renderer') === 'mini-native';
-  }
-
-  private isMini() {
-    return this.get('renderer').startsWith('mini');
-  }
-
-  private isBrowser() {
-    return this.get('renderer') === 'canvas';
-  }
-
   /**
    * 设置图片水印
    * @param {string} imgURL 图片水印的url地址
@@ -478,19 +436,16 @@ export default class Graph extends AbstractGraph implements IGraph {
     const waterMarkerConfig = deepMix({}, Global.imageWaterMarkerConfig, config);
     const { width, height, image } = waterMarkerConfig;
     const { rotate, x, y, width: imgWidth, height: imgHeight } = image;
-    //mini
-    if (this.isMini() && !this.isMiniNative()) {
-      //设置属性为背景图
-    }
+
     //mini-native
-    if (this.isMiniNative()) {
+    if (waterCanvas && waterCanvas.createImage) {
       //设定水印canvas的宽高
       waterCanvas.width = width ? width : this.get('width');
       waterCanvas.height = height ? height : this.get('height');
       //获取context
       const waterCanvasContext = waterCanvas.getContext('2d');
 
-      const { createImage } = this.get('extra');
+      const { createImage } = waterCanvas.createImage;
 
       const img = createImage();
       img.crossOrigin = 'anonymous';
@@ -518,12 +473,15 @@ export default class Graph extends AbstractGraph implements IGraph {
         this.get('waterGroup').addShape('image', {
           attrs: {
             img: waterCanvas,
+            width: this.get('width'),
+            height: this.get('height'),
           },
+          capture: false,
         });
       };
     }
     //render
-    if (this.isBrowser()) {
+    if (window && document && document.createElement) {
       const waterCanvas = document.createElement('canvas');
 
       //获取整个画布的宽高，以确定水印层的宽高
@@ -558,7 +516,10 @@ export default class Graph extends AbstractGraph implements IGraph {
         this.get('waterGroup').addShape('image', {
           attrs: {
             img: water_img_url,
+            width: this.get('width'),
+            height: this.get('height'),
           },
+          capture: false,
         });
       };
     }
@@ -684,28 +645,28 @@ export default class Graph extends AbstractGraph implements IGraph {
   protected initGroups(): void {
     const canvas: GMobileCanvas = this.get('canvas');
 
-    const group: IGroup = canvas.addGroup({
+    const group = canvas.addGroup({
       id: 'root',
       className: Global.rootContainerClassName,
     });
 
-    const waterGroup: IGroup = canvas.addGroup({
+    const waterGroup = canvas.addGroup({
       id: 'water',
       className: Global.waterContainerClassName,
     });
 
     if (this.get('groupByTypes')) {
-      const edgeGroup: IGroup = group.addGroup({
+      const edgeGroup = group.addGroup({
         id: 'edge',
         className: Global.edgeContainerClassName,
       });
 
-      const nodeGroup: IGroup = group.addGroup({
+      const nodeGroup = group.addGroup({
         id: 'node',
         className: Global.nodeContainerClassName,
       });
 
-      const comboGroup: IGroup = group.addGroup({
+      const comboGroup = group.addGroup({
         id: 'combo',
         className: Global.comboContainerClassName,
       });
@@ -716,12 +677,12 @@ export default class Graph extends AbstractGraph implements IGraph {
       this.set({ nodeGroup, edgeGroup, comboGroup });
     }
 
-    const uiGroup: IGroup = canvas.addGroup({
+    const uiGroup = canvas.addGroup({
       id: 'uiGroup',
       className: Global.uiContainerClassName,
     });
 
-    const delegateGroup: IGroup = group.addGroup({
+    const delegateGroup = group.addGroup({
       id: 'delegate',
       className: Global.delegateContainerClassName,
     });

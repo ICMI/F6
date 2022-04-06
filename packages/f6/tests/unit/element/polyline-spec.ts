@@ -68,15 +68,15 @@ describe('polyline edge', () => {
       defaultEdge: {
         type: 'polyline',
         style: {
-          offset: 5
-        }
+          offset: 5,
+        },
       },
       defaultNode: {
         type: 'rect',
         size: [10, 10],
         style: {
-          opacity: 0.1
-        }
+          opacity: 0.1,
+        },
       },
       // fitCenter: true,
     });
@@ -86,15 +86,21 @@ describe('polyline edge', () => {
           id: '1',
           x: 100,
           y: 300,
-          anchorPoints: [[0.5, 1], [1, 0.5]],
-          label: '1'
+          anchorPoints: [
+            [0.5, 1],
+            [1, 0.5],
+          ],
+          label: '1',
         },
         {
           id: '2',
           x: 122,
           y: 300,
-          anchorPoints: [[0.5, 1], [0.5, 0]],
-          label: '2'
+          anchorPoints: [
+            [0.5, 1],
+            [0.5, 0],
+          ],
+          label: '2',
         },
       ],
       edges: [
@@ -102,7 +108,7 @@ describe('polyline edge', () => {
           source: '1',
           target: '2',
           sourceAnchor: 1,
-          targetAnchor: 1
+          targetAnchor: 1,
         },
       ],
     };
@@ -111,12 +117,8 @@ describe('polyline edge', () => {
     const edge = graph.getEdges()[0];
     const keyShape = edge.getKeyShape();
     const path = keyShape.attr('path');
-    expect(path[0][1]).toBe(105.5);
-    expect(path[0][2]).toBe(300);
-    expect(path[2][1]).toBe(110.5);
-    expect(path[2][2]).toBe(289.5);
-    expect(path[4][1]).toBe(122);
-    expect(path[4][2]).toBe(294.5);
+    // fengine 之后，获取到的 path 属性，会从原来的二维数组，变为字符串
+    expect(path).toBe('M105.5 300L110.5 300L110.5 289.5L122 289.5L122 294.5');
 
     graph.destroy();
   });

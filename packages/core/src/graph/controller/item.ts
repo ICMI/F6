@@ -347,7 +347,7 @@ export default class ItemController {
         edge.set('keyShape', keyShape);
         keyShape.set('isKeyShape', true);
         keyShape.set('draggable', true);
-        edge.setOriginStyle()
+        edge.setOriginStyle();
       }
     }
   }

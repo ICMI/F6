@@ -193,7 +193,8 @@ export default class EdgeFilterLens extends Base {
         const shapeType = shape.get('type');
         const vShape = group.addShape(shapeType, {
           attrs: shape.attr(),
-          capture: false
+          capture: false,
+          zIndex: 10001,
         });
         vShapes.push(vShape);
         if (showNodeLabel && shapeType === 'text') {
@@ -205,7 +206,8 @@ export default class EdgeFilterLens extends Base {
     Object.keys(hitNodesMap).forEach((key) => {
       const node = hitNodesMap[key];
       const clonedGroup = node.get('group').clone();
-      clonedGroup.set('capture', false)
+      clonedGroup.set('capture', false);
+      clonedGroup.set('zIndex', 10001);
       group.add(clonedGroup);
       vShapes.push(clonedGroup);
       if (showEdgeLabel) {
@@ -277,7 +279,7 @@ export default class EdgeFilterLens extends Base {
         },
         name: 'lens-shape',
         draggable: true,
-        zIndex: 1000
+        zIndex: 1000,
       });
     } else {
       lensDelegate.attr({

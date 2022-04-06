@@ -156,10 +156,6 @@ export default class Legend extends Base {
     containerCSS.top += offsetY;
     containerCSS.left += offsetX;
 
-    Object.keys(containerCSS).forEach((key) => {
-      containerCSS[key] = `${containerCSS[key]}`;
-    });
-
     return containerCSS;
   }
 

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import F6 from '../../src';
-import { MiniMap } from "@antv/f6-plugin/src"
+import { MiniMap } from '@antv/f6-plugin/src';
 import data from './data';
 
 const miniMap = new MiniMap();
@@ -40,7 +40,7 @@ export default () => {
           },
         },
         modes: {
-          default: ['drag-canvas', 'zoom-canvas'],
+          default: ['drag-node', 'drag-canvas', 'zoom-canvas'],
         },
         plugins: [miniMap],
       });
@@ -55,9 +55,9 @@ export default () => {
     ref.current.addEventListener('wheel', handleZoom);
 
     return () => {
-      ref.current.removeEventListener('wheel', handleZoom)
+      ref.current.removeEventListener('wheel', handleZoom);
     };
   }, []);
 
-  return <div ref={ref} ></div>;
-}
+  return <div ref={ref}></div>;
+};
