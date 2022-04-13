@@ -458,7 +458,8 @@ export default () => {
 
       graph.get('canvas').set('localRefresh', false);
       graph.data(data);
-      const waterURL = 'https://gw.alipayobjects.com/zos/bmw-prod/8088a9d7-e5b0-42f2-b6b2-27c823043993.svg'
+      const waterURL =
+        'https://gw.alipayobjects.com/zos/bmw-prod/8088a9d7-e5b0-42f2-b6b2-27c823043993.svg';
       const waterConfig = {
         image: {
           x: -15, //图片在水印画布的开始位置
@@ -467,10 +468,10 @@ export default () => {
           height: 34, //图片的大小
           rotate: 30, //图片的旋转角度
         },
-      }
+      };
       graph.render();
       graph.fitView();
-      graph.setImageWaterMarker(waterURL, waterConfig, null)
+      graph.setImageWaterMarker(waterURL, waterConfig, null);
     }
   }, []);
 

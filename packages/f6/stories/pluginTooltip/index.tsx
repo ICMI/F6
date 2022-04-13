@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import F6 from '../../src';
 import data from './data';
-import {Tooltip} from '@antv/f6-plugin'
+import { Tooltip } from '@antv/f6-plugin';
 
 const tooltip = new Tooltip({
-  trigger:'press',
+  trigger: 'press',
   offsetX: 0,
   offsetY: 0,
   // the types of items that allow the tooltip show up
@@ -48,7 +48,6 @@ const tooltip = new Tooltip({
   `,
 });
 
-
 export default () => {
   const ref = React.useRef(null);
   const height = window.innerHeight - 32; // demos padding
@@ -77,4 +76,4 @@ export default () => {
   }, []);
 
   return <div ref={ref}></div>;
-}
+};

@@ -11,14 +11,18 @@ function createCanvas(container, width, height) {
 
 // todo：待验证这几个判定函数是否生效
 function isCanvas2DContext(context) {
-  return context instanceof CanvasRenderingContext2D;
+  return context instanceof CanvasRenderingContext2D || typeof context.fill !== 'undefined';
 }
 
 function isWebglContext(context) {
-  return context instanceof WebGLRenderingContext;
+  return context instanceof WebGLRenderingContext || typeof context.drawElements !== 'undefined';
 }
+
 function isWebgl2Context(context) {
-  return context instanceof WebGL2RenderingContext;
+  return (
+    context instanceof WebGL2RenderingContext ||
+    typeof context.drawElementsInstanced !== 'undefined'
+  );
 }
 
 function genRendererByContext(context) {
@@ -38,6 +42,13 @@ function genRendererByContext(context) {
 export function genCanvasCfg(cfg) {
   const { container, width, height, context, pixelRatio, renderer } = cfg || {};
   const canvasCfg = { width, height, context, pixelRatio };
+
+  if (context) {
+    return {
+      ...canvasCfg,
+      renderer: genRendererByContext(context),
+    };
+  }
 
   if (window && document) {
     let containerEl = container;
@@ -78,9 +89,4 @@ export function genCanvasCfg(cfg) {
   if (!context) {
     throw new Error('invalid context');
   }
-
-  return {
-    ...canvasCfg,
-    renderer: genRendererByContext(context),
-  };
 }

@@ -348,6 +348,66 @@ function createFegine(width, height, container) {
   return new CanvasAdapter(cfg);
 }
 
+function testRotate(group) {
+  group = group.addGroup({
+    id: 'testGroup',
+    attrs: {
+      x: 100,
+      y: 100,
+    },
+  });
+
+  group.addShape('rect', {
+    className: 'circle-keyShape',
+    attrs: {
+      opacity: 1,
+      width: 161,
+      height: 42,
+      stroke: '#096dd9',
+      radius: 4,
+      key: 'root -0 ',
+      x: 0,
+      y: 0,
+      lineWidth: 10,
+    },
+  });
+  group.rotate(Math.PI / 4);
+}
+
+function testPan(group) {
+  group = group.addGroup({
+    id: 'testGroup',
+    attrs: {
+      x: 100,
+      y: 100,
+    },
+  });
+
+  group.addShape('rect', {
+    className: 'circle-keyShape',
+    attrs: {
+      opacity: 1,
+      width: 161,
+      height: 42,
+      stroke: '#096dd9',
+      radius: 4,
+      key: 'root -0 ',
+      x: 0,
+      y: 0,
+      lineWidth: 10,
+    },
+  });
+  group.on('panstart', () => {
+    console.log('panstart');
+  });
+  group.on('panmove', () => {
+    console.log('panmove');
+  });
+  group.on('panend', () => {
+    console.log('panend');
+  });
+}
+
 export default () => {
   const GMobileref = React.useRef(null);
   const FEngineref = React.useRef(null);
@@ -359,8 +419,8 @@ export default () => {
 
     const group4 = canvas4.addGroup();
     const group5 = canvas5.addGroup();
-    testPath(group4);
-    testPath(group5);
+    testPan(group4);
+    testPan(group5);
   });
 
   return (

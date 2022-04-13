@@ -61,7 +61,7 @@ F6.registerBehavior('collapse-slibing', {
       }
     }
     if (!count) return;
-    aggregateNode.label = count + 1;
+    aggregateNode.label = String(count + 1);
     aggregateNode.size = 16 + (count + 1) * 4;
 
     this.graph.removeChild(model.id);
