@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { CanvasAdapter } from '@antv/f-engine';
-import { Canvas } from '@antv/g-mobile';
-import { CanvasRender, WebglRender, SvgRender } from '@antv/f-engine';
+import React, { useEffect, useState } from 'react';
+import { CanvasAdapter, Canvas, Component } from '@antv/f-engine';
+import { Canvas as Canvas4 } from '@antv/g-mobile';
+import { CanvasRenderer, WebglRenderer, SvgRenderer } from '@antv/f-engine';
 import F6 from '@antv/f6';
 
 function createCanvas(container, width, height) {
@@ -9,6 +9,8 @@ function createCanvas(container, width, height) {
   canvasEl.style.display = 'block';
   canvasEl.style.width = width;
   canvasEl.style.height = height;
+  canvasEl.width = width;
+  canvasEl.height = height;
   container.appendChild(canvasEl);
   return canvasEl;
 }
@@ -27,11 +29,11 @@ function isWebgl2Context(context) {
 
 function genRendererByContext(context) {
   if (isCanvas2DContext(context)) {
-    return new CanvasRender();
+    return new CanvasRenderer();
   }
 
   if (isWebglContext(context) || isWebgl2Context(context)) {
-    return new WebglRender();
+    return new WebglRenderer();
   }
 }
 
@@ -52,24 +54,27 @@ export function genCanvasCfg(cfg) {
     if (!containerEl || !(container instanceof HTMLDivElement)) {
       throw new Error('invalid container');
     }
-    const canvas = createCanvas(container, width, height);
+    let canvas;
+    if (renderer !== 'svg') {
+      canvas = createCanvas(container, width, height);
+    }
 
     let renderInstance;
     let context;
     switch (renderer) {
       case 'svg':
-        renderInstance = new SvgRender();
+        renderInstance = new SvgRenderer();
         break;
       case 'webgl':
-        renderInstance = new WebglRender();
+        renderInstance = new WebglRenderer();
         context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
         break;
       case 'webgl2':
-        renderInstance = new WebglRender();
+        renderInstance = new WebglRenderer();
         context = canvas.getContext('webgl2') || canvas.getContext('experimental-webgl2');
         break;
       default:
-        renderInstance = new CanvasRender();
+        renderInstance = new CanvasRenderer();
         context = canvas.getContext('2d');
     }
     return {
@@ -334,7 +339,7 @@ function createGmobile(width, height, container) {
     height,
     container,
   };
-  return new Canvas(cfg);
+  return new Canvas4(cfg);
 }
 
 function createFegine(width, height, container) {
@@ -408,19 +413,157 @@ function testPan(group) {
   });
 }
 
+function testTextWidth(group) {
+  const shape = group.addShape('text', {
+    attrs: {
+      fontFamily: 'PingFang SC',
+      text: '0.123',
+      fill: '#1890FF',
+      textBaseline: 'top',
+      lineWidth: 1,
+      fontSize: 12,
+    },
+  });
+  console.log(shape.getBBox());
+}
+
+function testMassG5(container, width, height, count = 500) {
+  const canvas5 = createFegine(width, height, container);
+  const group = canvas5.addGroup();
+  const groups = Array(count)
+    .fill(1)
+    .map(() => {
+      const gg = group.addGroup();
+      gg.addShape('text', {
+        attrs: {
+          x: 100,
+          y: 100,
+          fontFamily: 'PingFang SC',
+          text: '这是测试文本This is text',
+          fontSize: 15,
+          fill: '#1890FF',
+          stroke: '#F04864',
+          lineWidth: 5,
+        },
+      });
+      gg.addShape('circle', {
+        attrs: {
+          r: 20,
+          fill: '#000',
+        },
+      });
+      return gg;
+    });
+
+  const loop = () => {
+    groups.forEach((group) =>
+      group.adapteredEle.attr({
+        x: Math.random() * width,
+        y: Math.random() * height,
+      }),
+    );
+    setTimeout(loop, 100);
+  };
+  loop();
+}
+
+function testJSX(container, width, height, count = 500) {
+  class View1 extends Component {
+    state = {
+      x: 0,
+      y: 0,
+    };
+
+    didMount() {
+      const loop = () => {
+        this.setState({
+          x: Math.random() * width,
+          y: Math.random() * height,
+        });
+        setTimeout(loop, 100);
+      };
+      loop();
+    }
+
+    render() {
+      const { x, y } = this.state;
+      return (
+        <group style={{ x, y }}>
+          <circle
+            style={{
+              r: 20,
+              fill: '#000',
+            }}
+            // animation={{
+            //   appear: {
+            //     // easing: 'linear',
+            //     duration: 400,
+            //     // delay: 0,
+            //     // property: ['fillOpacity'],
+            //     start: {
+            //       r: 0,
+            //     },
+            //     end: {
+            //       r: 20,
+            //     },
+            //   },
+            // }}
+          />
+          <text
+            style={{
+              x: 100,
+              y: 100,
+              fontFamily: 'PingFang SC',
+              text: '这是测试文本This is text',
+              fontSize: 15,
+              fill: '#1890FF',
+              stroke: '#F04864',
+              lineWidth: 5,
+            }}
+            onClick={() => {
+              console.log('click text');
+            }}
+          />
+        </group>
+      );
+    }
+  }
+
+  const cfg = genCanvasCfg({
+    width: width * 2,
+    height: height * 2,
+    renderer: 'canvas',
+    devicePixelRatio: 2,
+    container,
+  });
+
+  const { props } = (
+    <Canvas renderer={cfg.renderer} context={cfg.context} devicePixelRatio={2}>
+      {Array(count)
+        .fill(1)
+        .map(() => (
+          <View1 />
+        ))}
+    </Canvas>
+  );
+  const canvas = new Canvas(props);
+  canvas.render();
+}
+
 export default () => {
   const GMobileref = React.useRef(null);
   const FEngineref = React.useRef(null);
   const height = window.innerHeight - 32; // demos padding
   const width = window.innerWidth - 32;
   useEffect(() => {
-    const canvas4 = createGmobile(width / 2, height, GMobileref.current);
-    const canvas5 = createFegine(width / 2, height, FEngineref.current);
-
-    const group4 = canvas4.addGroup();
-    const group5 = canvas5.addGroup();
-    testPan(group4);
-    testPan(group5);
+    // const canvas4 = createGmobile(width / 2, height, GMobileref.current);
+    // const canvas5 = createFegine(width/2, height/2, FEngineref.current);
+    // const group5 = canvas5.addGroup();
+    // const group4 = canvas4.addGroup();
+    // testTextWidth(group4);
+    // testTextWidth(group5);
+    // testMassG5(FEngineref.current, width, height, 100);
+    testJSX(FEngineref.current, width, height, 100);
   });
 
   return (

@@ -1,4 +1,4 @@
-import { CanvasRender, WebglRender, SvgRender } from '@antv/f-engine';
+import { CanvasRenderer, WebglRenderer, SvgRenderer } from '@antv/f-engine';
 
 function createCanvas(container, width, height) {
   const canvasEl = document.createElement('canvas');
@@ -27,11 +27,11 @@ function isWebgl2Context(context) {
 
 function genRendererByContext(context) {
   if (isCanvas2DContext(context)) {
-    return new CanvasRender();
+    return new CanvasRenderer();
   }
 
   if (isWebglContext(context) || isWebgl2Context(context)) {
-    return new WebglRender();
+    return new WebglRenderer();
   }
 }
 
@@ -65,18 +65,18 @@ export function genCanvasCfg(cfg) {
     let context;
     switch (renderer) {
       case 'svg':
-        renderInstance = new SvgRender();
+        renderInstance = new SvgRenderer();
         break;
       case 'webgl':
-        renderInstance = new WebglRender();
+        renderInstance = new WebglRenderer();
         context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
         break;
       case 'webgl2':
-        renderInstance = new WebglRender();
+        renderInstance = new WebglRenderer();
         context = canvas.getContext('webgl2') || canvas.getContext('experimental-webgl2');
         break;
       default:
-        renderInstance = new CanvasRender();
+        renderInstance = new CanvasRenderer();
         context = canvas.getContext('2d');
     }
     return {
