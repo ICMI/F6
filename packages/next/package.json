@@ -41,7 +41,7 @@
     "lint:src": "eslint --ext .ts --format=pretty \"./src\"",
     "prettier": "prettier -c --write \"**/*\"",
     "test": "jest",
-    "test-live": "DEBUG_MODE=1 jest --watch ./tests/unit/layout/combo-force-spec.ts",
+    "test-live": "DEBUG_MODE=1 jest --watch ./tests/graph-spec.tsx",
     "lint-staged:js": "eslint --ext .js,.jsx,.ts,.tsx",
     "watch": "father build -w",
     "cdn": "antv-bin upload -n @antv/f6"
@@ -72,7 +72,9 @@
     "@antv/util": "~2.0.5",
     "color": "^3.1.3",
     "redux": "*",
-    "@reduxjs/toolkit": "*"
+    "@reduxjs/toolkit": "*",
+    "uuid": "*",
+    "reduce-reducers": "*"
   },
   "devDependencies": {
     "@antv/f6-plugin": "^1.0.1",
@@ -109,6 +111,8 @@
     "webpack": "^4.41.4",
     "webpack-bundle-analyzer": "^4.4.0",
     "webpack-cli": "^3.3.10",
-    "webpack-visualizer-plugin": "^0.1.11"
+    "webpack-visualizer-plugin": "^0.1.11",
+    "jest-image-snapshot": "*",
+    "canvas-to-buffer":"*"
   }
 }

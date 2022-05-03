@@ -3,17 +3,9 @@ module.exports = {
   testEnvironment: 'jest-electron/environment',
   preset: 'ts-jest',
   collectCoverage: false,
-  collectCoverageFrom: ['src/**/*.{ts,js}', '!**/node_modules/**', '!**/vendor/**'],
-  testRegex: '/tests/.*-spec\\.ts?$',
-  moduleDirectories: ['node_modules', 'src'],
-  moduleFileExtensions: ['js', 'ts', 'json'],
-  moduleNameMapper: {
-    '@g6/types': '<rootDir>/types',
-    '@g6/(.*)': '<rootDir>/src/$1',
-  },
-  globals: {
-    'ts-jest': {
-      diagnostics: false,
-    },
-  },
+  collectCoverageFrom: ['packages/*/src/**/*.{ts,tsx,js}', '!**/node_modules/**'],
+  modulePathIgnorePatterns: ['packages/*/dist'],
+  testPathIgnorePatterns: [],
+  testRegex: '/tests/.*\\-spec\\.tsx?$',
+  setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],
 };

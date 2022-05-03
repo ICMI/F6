@@ -33,8 +33,8 @@ function genRendererByContext(context) {
 }
 
 export const genCanvasCfg = (cfg) => {
-  const { container, width, height, context, pixelRatio, renderer } = cfg || {};
-  const canvasCfg = { width, height, context, pixelRatio };
+  const { container, width, height, context, devicePixelRatio, renderer } = cfg || {};
+  const canvasCfg = { width, height, context, devicePixelRatio };
 
   if (window && document) {
     let containerEl = container;
