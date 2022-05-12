@@ -6,6 +6,8 @@ const nodesSlice = createSlice({
   initialState: edges.getInitState(),
   reducers: {
     initEdges: edges.initEdges,
+    updateEdge: edges.updateEdge,
+    updateManyEdge: edges.updateManyEdge,
   },
 });
 

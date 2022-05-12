@@ -1,4 +1,5 @@
 import { jsx, Component } from '@antv/f-engine';
+import { isEqualWith } from '@antv/util';
 import { store } from '../../store';
 
 export function connector(mapStatetoProps?, mapActionstoProps?) {
@@ -34,7 +35,8 @@ export function connector(mapStatetoProps?, mapActionstoProps?) {
           });
       };
       render() {
-        return <WrapperComponent {...this.state.allProps} />;
+        const { forwardRef } = this.props;
+        return <WrapperComponent {...this.state.allProps} ref={forwardRef} />;
       }
     };
   };

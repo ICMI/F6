@@ -6,7 +6,6 @@ import {
   createAction,
 } from '@reduxjs/toolkit';
 import { nodes } from '../application';
-import { getGlobalContext } from '../service';
 
 const nodesSlice = createSlice({
   name: 'nodes',

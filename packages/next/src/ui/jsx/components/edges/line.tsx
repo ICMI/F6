@@ -1,7 +1,7 @@
 import { jsx } from '@antv/f-engine';
 import { Global } from '../../../../const';
-import { BaseNode } from './base';
-export class SimpleCircle extends BaseNode {
+import { BaseEdge } from './base';
+export class Line extends BaseEdge {
   static getOptions() {
     return {
       size: Global.defaultNode.size,
@@ -23,24 +23,32 @@ export class SimpleCircle extends BaseNode {
       },
     };
   }
-
   render() {
-    const { node } = this.props;
+    const { edge } = this.props;
+    const { startPoint, endPoint } = edge;
     return (
-      <group style={{ x: node?.x || 0, y: node?.y || 0 }}>
-        <circle
+      <group>
+        <line
           style={{
             r: 20,
-            ...node.style,
+            fill: '#000',
+            stroke: '#000',
+            x1: startPoint?.x,
+            y1: startPoint?.y,
+            x2: endPoint?.x,
+            y2: endPoint?.y,
+            points: [
+              {
+                x: 0,
+                y: 0,
+              },
+              {
+                x: 100,
+                y: 100,
+              },
+            ],
           }}
-          ref={this.keyShapeRef}
-        />
-        <text
-          style={{
-            text: node?.label,
-            ...node.labelCfg?.style,
-          }}
-        ></text>
+        ></line>
       </group>
     );
   }

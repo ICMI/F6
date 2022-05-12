@@ -83,7 +83,9 @@ export class Node {
     const data = action.payload;
     data?.forEach((node) => {
       node.id = node.id || uuid();
+      node.type = node.type || 'circle';
       node.visible = true;
+      node.__type = 'node';
     });
     nodesAdapter.setAll(state, action);
   };

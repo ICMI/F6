@@ -1,44 +1,3 @@
-const CLS_SHAPE_SUFFIX = '-shape';
-const CLS_LABEL_SUFFIX = '-label';
-const ARROWS = ['startArrow', 'endArrow'];
-const SHAPE_DEFAULT_ATTRS = {
-  lineWidth: 1,
-  stroke: undefined,
-  fill: undefined,
-  lineAppendWidth: 1,
-  opacity: undefined,
-  strokeOpacity: undefined,
-  fillOpacity: undefined,
-  x: 0,
-  y: 0,
-  r: 10,
-  width: 20,
-  height: 20,
-  shadowColor: undefined,
-  shadowBlur: 0,
-  shadowOffsetX: 0,
-  shadowOffsetY: 0,
-};
-const PATH_SHAPE_DEFAULT_ATTRS = {
-  lineWidth: 1,
-  stroke: '#000',
-  lineDash: undefined,
-  startArrow: false,
-  endArrow: false,
-  opacity: undefined,
-  strokeOpacity: undefined,
-  fillOpacity: undefined,
-  shadowColor: undefined,
-  shadowBlur: 0,
-  shadowOffsetX: 0,
-  shadowOffsetY: 0,
-};
-export const SHAPES_DEFAULT_ATTRS = {
-  edge: PATH_SHAPE_DEFAULT_ATTRS,
-  node: SHAPE_DEFAULT_ATTRS,
-  combo: SHAPE_DEFAULT_ATTRS,
-};
-
 const subjectColor = 'rgb(95, 149, 255)';
 const backColor = 'rgb(255, 255, 255)';
 const textColor = 'rgb(0, 0, 0)';
@@ -104,7 +63,7 @@ const colorSet = {
   comboDisableFill: disabledFill,
 };
 
-export const Global = {
+export default {
   version: '0.0.2',
   rootContainerClassName: 'root-container',
   nodeContainerClassName: 'node-container',

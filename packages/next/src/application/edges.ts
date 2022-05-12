@@ -37,7 +37,15 @@ class Edges {
     });
     edgesAdapter.setAll(state, action);
   }
+
+  updateEdge = (state, action) => {
+    edgesAdapter.updateOne(state, action);
+  };
+
+  updateManyEdge = (state, action) => {
+    edgesAdapter.updateMany(state, action);
+  };
 }
 
 const instance = new Edges();
-export const { initEdges } = instance;
+export const { initEdges, updateEdge, updateManyEdge } = instance;
