@@ -1,11 +1,17 @@
 // import { store } from '../store';
+import { BehaviorService } from './behaviorService';
+import EventService from './eventService';
 import { LayoutService } from './layoutService';
+import ModeService from './modeService';
 
 export class GlobalContext {
   store = null;
   canvasContext = null;
   renderer = null;
   layoutService = null;
+  eventService = null;
+  behaviorService = null;
+  modeService = null;
   constructor() {
     this.init();
   }
@@ -13,6 +19,10 @@ export class GlobalContext {
   init() {
     // this.setStore(store);
     this.layoutService = new LayoutService();
+    this.eventService = new EventService();
+    this.eventService.initEvents();
+    this.behaviorService = BehaviorService;
+    this.modeService = new ModeService(this.behaviorService, this.eventService);
   }
 
   setStore(store) {

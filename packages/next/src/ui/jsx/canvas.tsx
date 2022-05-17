@@ -1,10 +1,11 @@
-import { jsx, Canvas as FCanvas, Component } from '@antv/f-engine';
+import { jsx, Canvas as FCanvas, Component, AdapterHammer } from '@antv/f-engine';
 import { createGlobalContext } from '../../service';
 import { viewActions } from '../../store';
 
 import { genCanvasCfg } from '../../utils';
 
 export class Canvas extends FCanvas {
+  hammer = null;
   constructor(props) {
     const { width, height, container, renderer, devicePixelRatio, layout } = props;
 
@@ -16,6 +17,9 @@ export class Canvas extends FCanvas {
       container,
     });
 
-    super({ ...props, ...cfg });
+    super({
+      ...props,
+      ...cfg,
+    });
   }
 }

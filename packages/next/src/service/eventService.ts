@@ -7,9 +7,8 @@ import { cloneEvent, isViewportChanged } from '../utils';
 type Fun = () => void;
 
 export default class EventService extends EE {
-  protected extendEvents: any[] = [];
-
-  protected canvasHandler!: Fun;
+  canvasHandler!: Fun;
+  canvas = null;
 
   protected dragging: boolean = false;
 
@@ -18,17 +17,17 @@ export default class EventService extends EE {
   public destroyed: boolean;
 
   // 初始化 G6 中的事件
-  protected initEvents() {
-    const { graph, extendEvents = [] } = this;
-    const canvas: ICanvas = graph.get('canvas');
-    this.canvasHandler = wrapBehavior(this, '') as Fun;
-    canvas.off('*').on('*', this.canvasHandler);
+  protected initEvents(canvas) {
+    // const canvas: ICanvas = graph.get('canvas');
+    this.canvasHandler = wrapBehavior(this, 'onCanvasEvents') as Fun;
+    this.canvas = canvas;
+    // canvas.off('*').on('*', this.canvasHandler);
   }
 
   // 获取 shape 的 item 对象
   private static getItemRoot<T extends IShape>(shape: any): T {
-    while (shape && !shape.get('item')) {
-      shape = shape.get('parent');
+    while (shape && !shape.item) {
+      shape = shape.getParent?.();
     }
     return shape;
   }
@@ -38,8 +37,7 @@ export default class EventService extends EE {
    * @param evt 事件句柄
    */
   protected onCanvasEvents(evt: IG6GraphEvent) {
-    const { graph } = this;
-    const canvas = graph.get('canvas');
+    const canvas = this.canvas;
     const { target } = evt;
     const eventType = evt.type;
 
@@ -52,21 +50,21 @@ export default class EventService extends EE {
     evt.canvasY = evt.y;
     let point = { x: evt.canvasX, y: evt.canvasY };
 
-    const group: IGroup = graph.get('group');
-    let matrix: Matrix = group.getMatrix();
+    // const group: IGroup = graph.get('group');
+    // let matrix: Matrix = group.getMatrix();
 
-    if (!matrix) {
-      matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-    }
+    // if (!matrix) {
+    //   matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+    // }
 
-    if (isViewportChanged(matrix)) {
-      point = graph.getPointByClient(evt.clientX, evt.clientY);
-    }
+    // if (isViewportChanged(matrix)) {
+    //   point = graph.getPointByClient(evt.clientX, evt.clientY);
+    // }
 
-    evt.x = point.x;
-    evt.y = point.y;
+    // evt.x = point.x;
+    // evt.y = point.y;
 
-    evt.currentTarget = graph;
+    // evt.currentTarget = graph;
 
     if (target === canvas) {
       if (eventType === 'panmove') {
@@ -75,18 +73,18 @@ export default class EventService extends EE {
       evt.target = canvas;
       evt.item = null;
 
-      graph.emit(eventType, evt);
-      graph.emit(`canvas:${eventType}`, evt);
+      this.emit(eventType, evt);
+      this.emit(`canvas:${eventType}`, evt);
       return;
     }
 
-    const itemShape: IShape = EventController.getItemRoot(target);
+    const itemShape: IShape = EventService.getItemRoot(target);
     if (!itemShape) {
-      graph.emit(eventType, evt);
+      this.emit(eventType, evt);
       return;
     }
 
-    const item = itemShape.get('item');
+    const item = itemShape.item;
     if (item.destroyed) {
       return;
     }
@@ -97,16 +95,16 @@ export default class EventService extends EE {
     evt.target = target;
     evt.item = item;
     if (evt.canvasX === evt.x && evt.canvasY === evt.y) {
-      const canvasPoint = graph.getCanvasByPoint(evt.x, evt.y);
-      evt.canvasX = canvasPoint.x;
-      evt.canvasY = canvasPoint.y;
+      // const canvasPoint = graph.getCanvasByPoint(evt.x, evt.y);
+      // evt.canvasX = canvasPoint.x;
+      // evt.canvasY = canvasPoint.y;
     }
 
-    graph.emit(eventType, evt);
+    this.emit(eventType, evt);
     if (evt.name && !evt.name.includes(':')) {
-      graph.emit(`${type}:${eventType}`, evt);
+      this.emit(`${type}:${eventType}`, evt);
     } else {
-      graph.emit(evt.name, evt);
+      this.emit(evt.name, evt);
     }
 
     if (eventType === 'dragstart') {
@@ -124,20 +122,20 @@ export default class EventService extends EE {
    * 处理扩展事件
    * @param evt 事件句柄
    */
-  protected onExtendEvents(evt: IG6GraphEvent) {
-    this.graph.emit(evt.type, evt);
-  }
+  // protected onExtendEvents(evt: IG6GraphEvent) {
+  //   this.graph.emit(evt.type, evt);
+  // }
 
-  /**
-   * 在 graph 上面 emit 事件
-   * @param itemType item 类型
-   * @param eventType 事件类型
-   * @param evt 事件句柄
-   */
-  private emitCustomEvent(itemType: string, eventType: string, evt: IG6GraphEvent) {
-    evt.type = eventType;
-    this.graph.emit(`${itemType}:${eventType}`, evt);
-  }
+  // /**
+  //  * 在 graph 上面 emit 事件
+  //  * @param itemType item 类型
+  //  * @param eventType 事件类型
+  //  * @param evt 事件句柄
+  //  */
+  // private emitCustomEvent(itemType: string, eventType: string, evt: IG6GraphEvent) {
+  //   evt.type = eventType;
+  //   this.graph.emit(`${itemType}:${eventType}`, evt);
+  // }
 
   public destroy() {
     const { graph, canvasHandler, extendEvents } = this;
@@ -155,7 +153,7 @@ export default class EventService extends EE {
 
     this.dragging = false;
     this.preItem = null;
-    this.extendEvents.length = 0;
+    // this.extendEvents.length = 0;
     (this.canvasHandler as Fun | null) = null;
     this.destroyed = true;
   }
@@ -166,27 +164,27 @@ export default class EventService extends EE {
    * @param type item 类型
    */
   private handleTouchMove(evt: IG6GraphEvent, type: string) {
-    const { graph, preItem } = this;
-    const canvas: ICanvas = graph.get('canvas');
+    const { preItem } = this;
+    const canvas: ICanvas = this.canvas;
     const item = (evt.target as any) === canvas ? null : evt.item;
 
-    evt = cloneEvent(evt) as IG6GraphEvent;
+    // evt = cloneEvent(evt) as IG6GraphEvent;
 
     // 从前一个item直接移动到当前item，触发前一个item的leave事件
     if (preItem && preItem !== item && !preItem.destroyed) {
       evt.item = preItem;
-      this.emitCustomEvent(preItem.getType(), 'touchleave', evt);
+      this.emit(preItem.getType(), 'touchleave', evt);
       if (this.dragging) {
-        this.emitCustomEvent(preItem.getType(), 'dragleave', evt);
+        this.emit(preItem.getType(), 'dragleave', evt);
       }
     }
 
     // 从一个item或canvas移动到当前item，触发当前item的enter事件
     if (item && preItem !== item) {
       evt.item = item;
-      this.emitCustomEvent(type, 'touchenter', evt);
+      this.emit(type, 'touchenter', evt);
       if (this.dragging) {
-        this.emitCustomEvent(type, 'dragenter', evt);
+        this.emit(type, 'dragenter', evt);
       }
     }
 

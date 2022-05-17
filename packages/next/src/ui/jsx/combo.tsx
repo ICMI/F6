@@ -23,6 +23,10 @@ export class Combo extends Component {
   cacheCombo = {};
   cahcePosition = {};
 
+  getType() {
+    return 'combo';
+  }
+
   getKeyShapeBBox() {
     const { combo } = this.props;
     if (!combo) return;

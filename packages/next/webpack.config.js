@@ -17,17 +17,17 @@ function lowerFirstLetter(name) {
 }
 
 let entry = {
-  F6: './src/index.umd.ts',
+  F6: './src/index.ts',
 };
 
-const graphExtenders = fs.readdirSync(path.join(__dirname, './src/extends/graph'));
-const layoutExtenders = fs.readdirSync(path.join(__dirname, './src/extends/layout'));
-graphExtenders.forEach((name) => {
-  entry[upperFirstLetter(name)] = `./src/extends/graph/${name}/index.ts`;
-});
-layoutExtenders.forEach((name) => {
-  entry[upperFirstLetter(name)] = `./src/extends/layout/${name}/index.ts`;
-});
+// const graphExtenders = fs.readdirSync(path.join(__dirname, './src/extends/graph'));
+// const layoutExtenders = fs.readdirSync(path.join(__dirname, './src/extends/layout'));
+// graphExtenders.forEach((name) => {
+//   entry[upperFirstLetter(name)] = `./src/extends/graph/${name}/index.ts`;
+// });
+// layoutExtenders.forEach((name) => {
+//   entry[upperFirstLetter(name)] = `./src/extends/layout/${name}/index.ts`;
+// });
 
 module.exports = {
   entry,
@@ -38,12 +38,12 @@ module.exports = {
       if ('F6' === chunkName) {
         filename = 'f6.js';
       }
-      if (/graph/i.test(chunkName)) {
-        filename = `extends/graph/${lowerFirstLetter(chunkName)}.js`;
-      }
-      if (/layout/i.test(chunkName)) {
-        filename = `extends/layout/${lowerFirstLetter(chunkName)}.js`;
-      }
+      // if (/graph/i.test(chunkName)) {
+      //   filename = `extends/graph/${lowerFirstLetter(chunkName)}.js`;
+      // }
+      // if (/layout/i.test(chunkName)) {
+      //   filename = `extends/layout/${lowerFirstLetter(chunkName)}.js`;
+      // }
       return filename;
     },
     library: '[name]',

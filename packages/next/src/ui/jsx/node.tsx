@@ -10,10 +10,17 @@ import { connector } from './connector';
       node: state.nodes.entities[props.id],
     };
   },
-  (dispatch) => {
+  (dispatch, props) => {
     return {
-      updateNodeBBox(node) {
-        dispatch(nodesActions.updateNode(node));
+      updateNode(changes) {
+        const { id } = props;
+        console.log(changes);
+        dispatch(
+          nodesActions.updateNode({
+            id: id,
+            changes,
+          }),
+        );
       },
     };
   },
@@ -22,18 +29,35 @@ export class Node extends Component {
   nodeRef = { current: null };
   cacheBBox = null;
 
+  getModel() {
+    return this.props.node;
+  }
+  hasLocked() {
+    return false;
+  }
+  get(key) {
+    return this.props.node[key];
+  }
+  getType() {
+    return 'node';
+  }
+  updatePosition({ x, y }) {
+    const { updateNode } = this.props;
+    updateNode({ x, y });
+  }
+
   syncKeyShapeBBox(style = {}) {
     const { updateNodeBBox, node } = this.props;
     if (!node) return;
     // let matrix = calcMatrix(this.getNodeRoot());
     // const keyShapeBBox = calculateBBox(calcBBox(this.getKeyShape()), matrix);
 
-    updateNodeBBox({
-      id: node.id,
-      changes: {
-        ...style,
-      },
-    });
+    // updateNodeBBox({
+    //   id: node.id,
+    //   changes: {
+    //     ...style,
+    //   },
+    // });
   }
 
   getBBox() {
@@ -60,11 +84,17 @@ export class Node extends Component {
 
   didMount(): void {
     const { node } = this.props;
-    const Shape = getNode(node?.type);
-    const defaultStyle = Shape?.getOptions();
-    const anchorPoints = this.getShapeNode()?.getAnchorPoints(node) || [];
-    this.syncKeyShapeBBox({ ...defaultStyle, anchorPoints });
+    // const Shape = getNode(node?.type);
+    // const defaultStyle = this.getShapeNode()?.getOptions();
+    // const anchorPoints = this.getShapeNode()?.getAnchorPoints(node) || [];
+    // this.syncKeyShapeBBox({ ...defaultStyle, anchorPoints });
+    this.container.item = this;
   }
+
+  getAnchorPoints = () => {
+    const { node } = this.props;
+    return this.getShapeNode()?.getAnchorPoints(node);
+  };
 
   didUpdate(): void {
     this.cacheBBox = null;

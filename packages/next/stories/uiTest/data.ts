@@ -1,6 +1,8 @@
 export default {
   nodes: [
     {
+      type: 'rect',
+      size: [50, 30],
       id: '0',
       label: '0',
       cluster: 'a',
@@ -11,16 +13,22 @@ export default {
       label: '1',
       cluster: 'a',
       comboId: 'combo1',
+      type: 'rect',
+      size: [50, 30],
     },
     {
       id: '2',
       label: '2',
       cluster: 'a',
+      type: 'rect',
+      size: [50, 30],
     },
     {
       id: '3',
       label: '3',
       cluster: 'a',
+      type: 'rect',
+      size: [50, 30],
     },
     {
       id: '4',

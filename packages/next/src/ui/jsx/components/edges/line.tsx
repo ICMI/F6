@@ -23,33 +23,4 @@ export class Line extends BaseEdge {
       },
     };
   }
-  render() {
-    const { edge } = this.props;
-    const { startPoint, endPoint } = edge;
-    return (
-      <group>
-        <line
-          style={{
-            r: 20,
-            fill: '#000',
-            stroke: '#000',
-            x1: startPoint?.x,
-            y1: startPoint?.y,
-            x2: endPoint?.x,
-            y2: endPoint?.y,
-            points: [
-              {
-                x: 0,
-                y: 0,
-              },
-              {
-                x: 100,
-                y: 100,
-              },
-            ],
-          }}
-        ></line>
-      </group>
-    );
-  }
 }

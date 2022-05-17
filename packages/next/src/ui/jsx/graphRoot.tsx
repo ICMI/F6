@@ -61,6 +61,8 @@ export class GraphRoot extends Component {
   edgeRoot = null;
   comboRoot = null;
 
+  findAllByState() {}
+
   didMount() {
     const { initGraphData } = this.props;
     initGraphData(this.context.root.props);
@@ -86,9 +88,11 @@ export class GraphRoot extends Component {
     return this.comboRefMap[id]?.getPosition();
   };
 
+  getNodeAnchorPoints = (id) => {
+    return this.nodesRefMap[id]?.getAnchorPoints() || this.comboRefMap[id]?.getAnchorPoints();
+  };
   render() {
     const { nodeIds, edgeIds, combos, hullIds } = this.props;
-    console.log(hullIds);
     if (nodeIds.length === 0 || edgeIds.length === 0) return null;
     return (
       <Fragment>
@@ -126,9 +130,9 @@ export class GraphRoot extends Component {
             <Edge
               id={id}
               key={id}
-              // forwardRef={(instance) => this.edgeRefs.push(instance)}
               getNodeBBox={this.getNodeBBox}
               getNodePosition={this.getNodePosition}
+              getNodeAnchorPoints={this.getNodeAnchorPoints}
             ></Edge>
           ))}
         </Fragment>

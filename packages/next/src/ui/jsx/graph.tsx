@@ -1,8 +1,9 @@
-import { jsx, Component } from '@antv/f-engine';
+import { jsx, Component, AdapterHammer } from '@antv/f-engine';
 import { createGlobalContext, getGlobalContext, GlobalContext } from '../../service';
 import { GraphRoot } from './graphRoot';
 
 export class Graph extends Component {
+  hammer = null;
   constructor(props) {
     super(props);
     createGlobalContext();
@@ -11,17 +12,27 @@ export class Graph extends Component {
   willMount(): void {
     const { layout } = this.props;
     const { width, height } = this.context.root.props;
+
+    this.hammer = new AdapterHammer(this.context.canvas);
+
+    this.hammer.on('*', getGlobalContext().eventService.canvasHandler);
+
     getGlobalContext().layoutService.setLayoutConfig(layout, width, height);
   }
 
   didMount(): void {
-    console.log(this.container);
-    this.container.on('panmove', (e) => {
-      console.log('333', e);
-    });
+    const { modes } = this.props;
+    getGlobalContext().modeService.setModes(modes);
   }
 
   render() {
-    return <GraphRoot {...this.props}></GraphRoot>;
+    return (
+      <GraphRoot
+        onTouchStart={() => {
+          console.log('afsdjkfdjs');
+        }}
+        {...this.props}
+      ></GraphRoot>
+    );
   }
 }

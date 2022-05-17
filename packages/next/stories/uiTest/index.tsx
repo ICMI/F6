@@ -80,6 +80,9 @@ export default () => {
           layout={{
             type: 'force',
           }}
+          modes={{
+            default: ['drag-node'],
+          }}
         ></Graph>
       </Canvas>
     );

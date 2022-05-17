@@ -1,4 +1,5 @@
 import { SimpleCircle } from './circle';
+import { SimpleRect } from './rect';
 
 const nodes = {};
 
@@ -11,3 +12,4 @@ export const getNode = (name) => {
 };
 
 registerNode('circle', SimpleCircle);
+registerNode('rect', SimpleRect);

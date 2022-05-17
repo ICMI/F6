@@ -30,6 +30,10 @@ import { connector } from './connector';
 export class Edge extends Component {
   edgeShapeRef = { current: null };
 
+  getType() {
+    return 'edge';
+  }
+
   didMount(): void {}
 
   didUpdate(): void {}
@@ -83,6 +87,7 @@ export class Edge extends Component {
       targetNode,
       getNodeBBox,
       getNodePosition,
+      getNodeAnchorPoints,
     } = this.props;
     const Shape = getEdge(edge?.type || 'line');
 
@@ -94,20 +99,24 @@ export class Edge extends Component {
     if (!edge) {
       return null;
     }
-    const sourcebbox = getNodeBBox(sourceNode.id, sourceNode.__type);
-    const targetbbox = getNodeBBox(targetNode.id, targetNode.__type);
+    const sourcebbox = getNodeBBox(sourceNode.id);
+    const targetbbox = getNodeBBox(targetNode.id);
+    const sourceAnchor = getNodeAnchorPoints(sourceNode.id);
+    const targetAnchor = getNodeAnchorPoints(targetNode.id);
     const sourcePosition = getNodePosition(sourceNode.id);
     const targetPosition = getNodePosition(targetNode.id);
     const points = this.getPoints(
       {
         ...sourceNode,
         keyShapeBBox: sourcebbox,
+        anchorPoints: sourceAnchor,
         x: typeof sourceNode.x === 'number' ? sourceNode.x : sourcePosition.x,
         y: typeof sourceNode.y === 'number' ? sourceNode.y : sourcePosition.y,
       },
       {
         ...targetNode,
         keyShapeBBox: targetbbox,
+        anchorPoints: targetAnchor,
         x: typeof targetNode.x === 'number' ? targetNode.x : targetPosition.x,
         y: typeof targetNode.y === 'number' ? targetNode.y : targetPosition.y,
       },
