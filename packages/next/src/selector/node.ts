@@ -175,3 +175,53 @@ export const getNearestPoint = (points: IPoint[], curPoint: IPoint): IPoint => {
   nearestPoint.anchorIndex = index;
   return nearestPoint;
 };
+
+export const getMatrix = (ele) => {
+  const rotation = (ele.getLocalEulerAngles() * Math.PI) / 180;
+  const [sx, sy] = ele.getLocalScale();
+  const [tx, ty] = ele.getLocalPosition();
+
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+
+  return [sx * cos, sy * sin, 0, -sx * sin, sy * cos, 0, tx, ty, 1];
+};
+
+export const setMatrix = (ele, mat) => {
+  let row0x = mat[0];
+  let row0y = mat[3];
+  let row1x = mat[1];
+  let row1y = mat[4];
+  // decompose 3x3 matrix
+  // @see https://www.w3.org/TR/css-transforms-1/#decomposing-a-2d-matrix
+  let scalingX = Math.sqrt(row0x * row0x + row0y * row0y);
+  let scalingY = Math.sqrt(row1x * row1x + row1y * row1y);
+
+  // If determinant is negative, one axis was flipped.
+  const determinant = row0x * row1y - row0y * row1x;
+  if (determinant < 0) {
+    // Flip axis with minimum unit vector dot product.
+    if (row0x < row1y) {
+      scalingX = -scalingX;
+    } else {
+      scalingY = -scalingY;
+    }
+  }
+
+  // Renormalize matrix to remove scale.
+  if (scalingX) {
+    row0x *= 1 / scalingX;
+    row0y *= 1 / scalingX;
+  }
+  if (scalingY) {
+    row1x *= 1 / scalingY;
+    row1y *= 1 / scalingY;
+  }
+
+  // Compute rotation and renormalize matrix.
+  const angle = (Math.atan2(row0y, row0x) * 180) / Math.PI;
+
+  ele.setLocalScale(scalingX, scalingY);
+  ele.setLocalPosition(mat[6], mat[7]);
+  ele.setLocalEulerAngles(-angle);
+};

@@ -7,14 +7,15 @@ import { isNumber } from '@antv/util';
 import { Global } from '../../const';
 
 @connector((state, props) => {
-  const { combo } = props;
+  const { sortedCombo } = props;
   return {
-    allNodes: state.nodes.entities,
-    nodes: Object.values(state.nodes.entities).filter((node) => {
-      return combo.nodes?.includes(node.id);
+    allNodes: state.node.state.entities,
+    combo: state.combo.state.entities[sortedCombo.id],
+    nodes: Object.values(state.node.state.entities).filter((node) => {
+      return sortedCombo.children?.some(({ id }) => id === node.id);
     }),
-    combos: Object.values(state.combo.entities).filter((node) => {
-      return combo.children?.includes(node.id);
+    combos: Object.values(state.combo.state.entities).filter((node) => {
+      return sortedCombo.children?.some(({ id }) => id === node.id);
     }),
   };
 })
@@ -22,6 +23,19 @@ export class Combo extends Component {
   nodeRef = { current: null };
   cacheCombo = {};
   cahcePosition = {};
+
+  didMount(): void {
+    this.container.item = this;
+    this.container.style.zIndex = this.props.combo.depth;
+  }
+
+  get(key) {
+    return this.props.combo[key];
+  }
+
+  getModel() {
+    return this.cacheCombo;
+  }
 
   getType() {
     return 'combo';
@@ -37,7 +51,6 @@ export class Combo extends Component {
 
   getComboBBox() {
     const { nodes, combos, getNodeBBox } = this.props;
-
     const children = [...nodes, ...combos];
 
     const comboBBox = {
@@ -165,6 +178,10 @@ export class Combo extends Component {
     return this.cahcePosition;
   }
 
+  getComboId() {
+    return this.props.combo.id;
+  }
+
   render() {
     const { combo } = this.props;
 
@@ -174,22 +191,29 @@ export class Combo extends Component {
       console.warn('不存在对应的 Node Shape');
       return null;
     }
+
     const defaultStyle = Shape?.getOptions();
-    const comboBBox = this.getComboBBox();
+    let { x, y } = combo;
     const size = this.getRenderSize();
 
-    if (!isNaN(comboBBox.x)) combo.x = comboBBox.x;
-    else if (isNaN(combo.x)) combo.x = Math.random() * 100;
-    if (!isNaN(comboBBox.y)) combo.y = comboBBox.y;
-    else if (isNaN(combo.y)) combo.y = Math.random() * 100;
+    if (typeof x !== 'number' && typeof y !== 'number') {
+      const comboBBox = this.getComboBBox();
+
+      if (!isNaN(comboBBox.x)) x = comboBBox.x;
+      else if (isNaN(x)) x = Math.random() * 100;
+
+      if (!isNaN(comboBBox.y)) y = comboBBox.y;
+      else if (isNaN(y)) y = Math.random() * 100;
+    }
 
     this.cahcePosition = {
-      x: combo.x,
-      y: combo.y,
+      x,
+      y,
     };
 
     this.cacheCombo = {
       ...combo,
+      ...this.cahcePosition,
       ...defaultStyle,
       style: { ...defaultStyle.style, ...(size || {}) },
     };

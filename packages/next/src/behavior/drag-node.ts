@@ -10,7 +10,8 @@ import { deepMix, clone } from '@antv/util';
 // import { G6Event, IG6GraphEvent, Item, NodeConfig, INode, ICombo } from '@antv/f6-core';
 // import { IGraph } from '../interface/graph';
 import Global from '../global';
-import { BaseBehavior, BehaviorService } from '../service/behaviorService';
+import { BaseBehavior } from './base';
+import { BehaviorService } from './behaviorService';
 
 export class DragNode extends BaseBehavior {
   targets = [];
@@ -141,6 +142,7 @@ export class DragNode extends BaseBehavior {
    * @param evt
    */
   onDragEnd(evt: IG6GraphEvent) {
+    console.log(evt);
     if (!this.origin || !this.shouldEnd.call(this, evt)) {
       return;
     }
@@ -339,7 +341,8 @@ export class DragNode extends BaseBehavior {
 
     const pos: Point = { x, y };
 
-    console.log(evt.x, evt.y, this.point[nodeId].x);
+    // console.log('pos: ', pos.x, pos.y);
+
     item.updatePosition(pos);
 
     // if (this.get('updateEdge')) {
@@ -439,4 +442,3 @@ export class DragNode extends BaseBehavior {
     };
   }
 }
-BehaviorService.registerBehavior('drag-node', DragNode);

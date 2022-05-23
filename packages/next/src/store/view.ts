@@ -1,13 +1,19 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { view } from '../application';
+import { injectTrigger } from './store';
 
-const viewSlice = createSlice({
-  name: 'view',
-  initialState: view.getInitState(),
-  reducers: {
-    initView: view.initView,
-  },
-});
+export class View {
+  state = {};
 
-export const actions = viewSlice.actions;
-export const reducer = viewSlice.reducer;
+  @injectTrigger
+  init(data, state) {
+    const { width, height, devicePixelRatio } = data;
+    state.width = width;
+    state.height = height;
+    state.devicePixelRatio = devicePixelRatio;
+  }
+
+  getState() {}
+}
+
+export const view = new View();
+
+export const { init } = view;

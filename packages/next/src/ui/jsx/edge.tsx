@@ -1,16 +1,18 @@
 import { jsx, Component } from '@antv/f-engine';
 import { isEqual } from '@antv/util';
 import { getControlPointsByCenter, getEndCenter, getLinkPoint } from '../../selector/edge';
-import { edgesActions } from '../../store';
+import { edge } from '../../store';
 import { getEdge } from './components/edges';
 import { connector } from './connector';
 
 @connector(
   (state, props) => {
-    const edge = state.edges.entities[props.id];
+    const edge = state.edge.state.entities[props.id];
 
-    const sourceNode = state.nodes.entities[edge?.source] || state.combo.entities[edge?.source];
-    const targetNode = state.nodes.entities[edge?.target] || state.combo.entities[edge?.target];
+    const sourceNode =
+      state.node.state.entities[edge?.source] || state.combo.state.entities[edge?.source];
+    const targetNode =
+      state.node.state.entities[edge?.target] || state.combo.state.entities[edge?.target];
 
     return {
       linkCenter: false,
@@ -22,7 +24,7 @@ import { connector } from './connector';
   (dispatch) => {
     return {
       updateEdgePoints(node) {
-        dispatch(edgesActions.updateEdge(node));
+        edge.updateOne(node);
       },
     };
   },

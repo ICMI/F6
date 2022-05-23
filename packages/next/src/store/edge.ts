@@ -2,7 +2,7 @@ import { injectTrigger } from './store';
 import { v4 as uuid } from 'uuid';
 import { updateMany, updateOne } from './entityHelper';
 
-export class Hull {
+export class Edge {
   state = {
     entities: {},
     ids: [],
@@ -12,9 +12,8 @@ export class Hull {
   init(data, state?) {
     data?.forEach((node) => {
       node.id = node.id || uuid();
-      node.type = node.type || 'circle';
       node.visible = true;
-      node.__type = 'hull';
+      node.__type = 'edge';
       state.entities[node.id] = node;
       state.ids.push(node.id);
     });
@@ -33,6 +32,6 @@ export class Hull {
   getState() {}
 }
 
-export const hull = new Hull();
+export const edge = new Edge();
 
-export const { init } = hull;
+export const { init } = edge;

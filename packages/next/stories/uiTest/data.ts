@@ -35,11 +35,11 @@ export default {
       label: '4',
       cluster: 'a',
     },
-    // {
-    //   id: '5',
-    //   label: '5',
-    //   cluster: 'a',
-    // },
+    {
+      id: '5',
+      label: '5',
+      cluster: 'a',
+    },
     // {
     //   id: '6',
     //   label: '6',
@@ -202,10 +202,10 @@ export default {
       source: '0',
       target: '4',
     },
-    // {
-    //   source: '0',
-    //   target: '5',
-    // },
+    {
+      source: '0',
+      target: '5',
+    },
     // {
     //   source: '0',
     //   target: '7',
@@ -428,8 +428,8 @@ export default {
     // },
   ],
   combos: [
-    // { id: 'combo1', label: 'Combo 1', parentId: 'combo2' },
-    // { id: 'combo2', label: 'Combo 2' },
+    { id: 'combo1', label: 'Combo 1', parentId: 'combo2' },
+    { id: 'combo2', label: 'Combo 2' },
     { id: 'combo3', label: 'Combo 3', collapsed: true },
   ],
 

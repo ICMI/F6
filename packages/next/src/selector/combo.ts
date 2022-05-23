@@ -16,6 +16,7 @@ export const getSortedCombos = (combos, nodes = []) => {
     }
   }
 
+  // 广度
   const stack = tree;
   const combosRight = [];
   while (stack.length !== 0) {
@@ -24,13 +25,15 @@ export const getSortedCombos = (combos, nodes = []) => {
     node.children && stack.push(...node.children);
   }
 
+  // 添加node子节点
   nodes.forEach((node) => {
     const combo = combosMap[node.comboId];
     if (combo) {
-      combo.nodes = [...(combo.nodes || []), node.id];
+      combo.children = [...(combo.children || []), node.id];
     }
   });
 
+  // 每个combo加上children
   return combosRight
     .map((combo) => {
       return { ...combo, children: combo.children?.map((node) => node.id) || [] };

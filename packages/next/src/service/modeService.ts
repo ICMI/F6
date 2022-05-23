@@ -1,5 +1,4 @@
 import { each, isArray, isString } from '@antv/util';
-import Behavior from '../../behavior/behavior';
 
 export default class ModeService {
   public destroyed: boolean;

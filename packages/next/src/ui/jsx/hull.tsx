@@ -1,6 +1,5 @@
 import { jsx, Component } from '@antv/f-engine';
 import { calcBBox, calcMatrix, calculateBBox } from '../../selector/node';
-import { nodesActions } from '../../store';
 import { getNode } from './components/nodes';
 import { connector } from './connector';
 
@@ -14,27 +13,18 @@ import { isPolygonsIntersect } from '../../utils/math';
 import { genConvexHull } from '../hull/convexHull';
 import { genBubbleSet } from '../hull/bubbleset';
 
-@connector(
-  (state, props) => {
-    const hull = state.hull.entities[props.id];
-    return {
-      hull: hull,
-      members: Object.values(state.nodes.entities).filter((node) => {
-        return hull.members?.includes(node.id);
-      }),
-      nonMembers: Object.values(state.nodes.entities).filter((node) => {
-        return hull.nonMembers?.includes(node.id);
-      }),
-    };
-  },
-  (dispatch) => {
-    return {
-      updateNodeBBox(node) {
-        dispatch(nodesActions.updateNode(node));
-      },
-    };
-  },
-)
+@connector((state, props) => {
+  const hull = state.hull.state.entities[props.id];
+  return {
+    hull: hull,
+    members: Object.values(state.node.state.entities).filter((node) => {
+      return hull.members?.includes(node.id);
+    }),
+    nonMembers: Object.values(state.node.state.entities).filter((node) => {
+      return hull.nonMembers?.includes(node.id);
+    }),
+  };
+})
 export class Hull extends Component {
   nodeRef = { current: null };
   padding = 0;

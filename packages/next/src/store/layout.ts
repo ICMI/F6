@@ -1,23 +1,28 @@
-import { clone } from '@antv/util';
-import {
-  createAction,
-  createAsyncThunk,
-  createNextState,
-  createReducer,
-  createSlice,
-  current,
-} from '@reduxjs/toolkit';
-import { actions as nodesActions } from './nodes';
+import { injectTrigger } from './store';
+import { node } from './node';
+import { edge } from './edge';
 import { getGlobalContext } from '../service';
+import { clone } from '@antv/util';
 
-export const layoutAsync = createAsyncThunk(
-  'layoutAsync',
-  async (layoutCfg, { dispatch, getState }) => {
+export class Layout {
+  state = {};
+
+  node = node;
+  edge = edge;
+
+  @injectTrigger
+  init(data, state) {
+    const { width, height, devicePixelRatio } = data;
+    state.width = width;
+    state.height = height;
+    state.devicePixelRatio = devicePixelRatio;
+  }
+
+  layout() {
     const globalContext = getGlobalContext();
-    const state = createNextState(getState(), () => {});
 
-    const nodes = clone(Object.values(state.nodes.entities));
-    const edges = clone(Object.values(state.edges.entities));
+    const nodes = clone(Object.values(this.node.state.entities));
+    const edges = clone(Object.values(this.edge.state.entities));
 
     globalContext.layoutService.layout(
       { nodes, edges, combos: [] },
@@ -29,7 +34,7 @@ export const layoutAsync = createAsyncThunk(
             y: node.y,
           },
         }));
-        dispatch(nodesActions.updateManyNode(payload));
+        node.updateMany(payload);
       },
       () => {
         const payload = nodes.map((node) => ({
@@ -39,10 +44,14 @@ export const layoutAsync = createAsyncThunk(
             y: node.y,
           },
         }));
-        dispatch(nodesActions.updateManyNode(payload));
+        node.updateMany(payload);
       },
     );
-  },
-);
+  }
 
-export const actions = { layoutAsync: layoutAsync };
+  getState() {}
+}
+
+export const layout = new Layout();
+
+export const { init } = layout;

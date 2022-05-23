@@ -1,26 +1,23 @@
 import { jsx, Component } from '@antv/f-engine';
 import { calcBBox, calcMatrix, calculateBBox } from '../../selector/node';
-import { nodesActions } from '../../store';
+import { node as nodesActions } from '../../store';
 import { getNode } from './components/nodes';
 import { connector } from './connector';
 
 @connector(
   (state, props) => {
     return {
-      node: state.nodes.entities[props.id],
+      node: state.node.state.entities[props.id],
     };
   },
   (dispatch, props) => {
     return {
       updateNode(changes) {
         const { id } = props;
-        console.log(changes);
-        dispatch(
-          nodesActions.updateNode({
-            id: id,
-            changes,
-          }),
-        );
+        nodesActions.updateOne({
+          id: id,
+          changes,
+        });
       },
     };
   },
@@ -44,20 +41,6 @@ export class Node extends Component {
   updatePosition({ x, y }) {
     const { updateNode } = this.props;
     updateNode({ x, y });
-  }
-
-  syncKeyShapeBBox(style = {}) {
-    const { updateNodeBBox, node } = this.props;
-    if (!node) return;
-    // let matrix = calcMatrix(this.getNodeRoot());
-    // const keyShapeBBox = calculateBBox(calcBBox(this.getKeyShape()), matrix);
-
-    // updateNodeBBox({
-    //   id: node.id,
-    //   changes: {
-    //     ...style,
-    //   },
-    // });
   }
 
   getBBox() {

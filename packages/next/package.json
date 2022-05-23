@@ -74,7 +74,8 @@
     "redux": "*",
     "@reduxjs/toolkit": "*",
     "uuid": "*",
-    "reduce-reducers": "*"
+    "reduce-reducers": "*",
+    "immer": "*"
   },
   "devDependencies": {
     "@antv/f6-plugin": "^1.0.1",

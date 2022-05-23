@@ -155,6 +155,8 @@ export class BaseNode extends BaseShape {
 
   didUpdate(): void {
     this.rotateLabel(this.renderLabelStyle, this.getLabelShape());
+    const { node } = this.props;
+    // this.getRootShape()?.setPosition(node.x,node.y);
   }
 
   rotateLabel(labelStyle, label) {
@@ -320,7 +322,6 @@ export class BaseNode extends BaseShape {
 
   render() {
     const { node } = this.props;
-    // this.renderStyle = node;
     return (
       <group style={{ x: node?.x || 0, y: node?.y || 0 }}>
         {this.renderShape(node)}

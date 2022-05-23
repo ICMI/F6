@@ -18,6 +18,7 @@ export class Graph extends Component {
     this.hammer.on('*', getGlobalContext().eventService.canvasHandler);
 
     getGlobalContext().layoutService.setLayoutConfig(layout, width, height);
+    getGlobalContext().eventService.canvas = this.context.canvas;
   }
 
   didMount(): void {

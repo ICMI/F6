@@ -1,14 +1,17 @@
 import { ICanvas, IGroup, IShape } from '@antv/g-base';
 import { each, wrapBehavior } from '@antv/util';
 import EE from 'eventemitter3';
+import { getCanvasByPoint, getPointByCanvas } from '../selector/view';
+import { graph } from '../store';
 
 import { cloneEvent, isViewportChanged } from '../utils';
 
 type Fun = () => void;
-
 export default class EventService extends EE {
   canvasHandler!: Fun;
   canvas = null;
+
+  root = null;
 
   protected dragging: boolean = false;
 
@@ -20,7 +23,6 @@ export default class EventService extends EE {
   protected initEvents(canvas) {
     // const canvas: ICanvas = graph.get('canvas');
     this.canvasHandler = wrapBehavior(this, 'onCanvasEvents') as Fun;
-    this.canvas = canvas;
     // canvas.off('*').on('*', this.canvasHandler);
   }
 
@@ -51,18 +53,18 @@ export default class EventService extends EE {
     let point = { x: evt.canvasX, y: evt.canvasY };
 
     // const group: IGroup = graph.get('group');
-    // let matrix: Matrix = group.getMatrix();
+    let matrix: Matrix = graph.getMatrix();
 
-    // if (!matrix) {
-    //   matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-    // }
+    if (!matrix) {
+      matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+    }
 
-    // if (isViewportChanged(matrix)) {
-    //   point = graph.getPointByClient(evt.clientX, evt.clientY);
-    // }
+    if (isViewportChanged(matrix)) {
+      point = getPointByCanvas(matrix, evt.x, evt.y);
+    }
 
-    // evt.x = point.x;
-    // evt.y = point.y;
+    evt.x = point.x;
+    evt.y = point.y;
 
     // evt.currentTarget = graph;
 
@@ -95,9 +97,9 @@ export default class EventService extends EE {
     evt.target = target;
     evt.item = item;
     if (evt.canvasX === evt.x && evt.canvasY === evt.y) {
-      // const canvasPoint = graph.getCanvasByPoint(evt.x, evt.y);
-      // evt.canvasX = canvasPoint.x;
-      // evt.canvasY = canvasPoint.y;
+      const canvasPoint = getCanvasByPoint(matrix, evt.x, evt.y);
+      evt.canvasX = canvasPoint.x;
+      evt.canvasY = canvasPoint.y;
     }
 
     this.emit(eventType, evt);

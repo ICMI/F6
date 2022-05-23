@@ -1,5 +1,5 @@
 // import { store } from '../store';
-import { BehaviorService } from './behaviorService';
+import { BehaviorService } from '../behavior';
 import EventService from './eventService';
 import { LayoutService } from './layoutService';
 import ModeService from './modeService';

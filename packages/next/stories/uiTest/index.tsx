@@ -81,7 +81,7 @@ export default () => {
             type: 'force',
           }}
           modes={{
-            default: ['drag-node'],
+            default: ['drag-node', 'drag-combo'],
           }}
         ></Graph>
       </Canvas>
