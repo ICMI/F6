@@ -321,10 +321,34 @@ export class BaseNode extends BaseShape {
   }
 
   render() {
-    const { node } = this.props;
+    const { node, animation, onFrame, states } = this.props;
+    const stateStyle = states?.reduce((prev, name) => {
+      return { ...prev, ...(this.getStateStyle(name, node) || {}) };
+    }, {});
+
+    const shapeStyle = this.getShapeStyle(node);
+    const style = { ...shapeStyle, ...stateStyle };
+
     return (
-      <group style={{ x: node?.x || 0, y: node?.y || 0 }}>
-        {this.renderShape(node)}
+      <group
+        style={{ x: node?.x || 0, y: node?.y || 0 }}
+        animation={{
+          appear: {
+            ...(animation.appear || {}),
+            onFrame,
+            onEnd: onFrame,
+          },
+          update: {
+            ...(animation.update || {}),
+            onFrame,
+          },
+          end: {
+            ...(animation.end || {}),
+            onFrame,
+          },
+        }}
+      >
+        {this.renderShape(style)}
         {/* label */}
         {this.renderLabel(node)}
         {/* label bg */}

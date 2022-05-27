@@ -1,5 +1,4 @@
 import { jsx, Component } from '@antv/f-engine';
-import { calcBBox, calcMatrix, calculateBBox } from '../../selector/node';
 import { getNode } from './components/nodes';
 import { connector } from './connector';
 

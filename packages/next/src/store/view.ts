@@ -4,7 +4,7 @@ export class View {
   state = {};
 
   @injectTrigger
-  init(data, state) {
+  init(data, state?) {
     const { width, height, devicePixelRatio } = data;
     state.width = width;
     state.height = height;
@@ -15,5 +15,3 @@ export class View {
 }
 
 export const view = new View();
-
-export const { init } = view;

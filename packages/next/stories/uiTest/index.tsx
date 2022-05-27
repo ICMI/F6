@@ -79,6 +79,8 @@ export default () => {
           data={data}
           layout={{
             type: 'force',
+            // preventOverlap: true,
+            alphaDecay: 0,
           }}
           modes={{
             default: ['drag-node', 'drag-combo'],

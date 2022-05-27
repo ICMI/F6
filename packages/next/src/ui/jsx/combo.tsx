@@ -2,9 +2,11 @@ import { jsx, Component } from '@antv/f-engine';
 import { getCombo } from './components/comos';
 import { connector } from './connector';
 
-import { calcBBox, calcMatrix, calculateBBox } from '../../selector/node';
+import { calcBBox, calcMatrix, calculateBBox } from '../adapter/element';
+
 import { isNumber } from '@antv/util';
 import { Global } from '../../const';
+import { combo as comboActions } from '../../store';
 
 @connector((state, props) => {
   const { sortedCombo } = props;
@@ -41,62 +43,22 @@ export class Combo extends Component {
     return 'combo';
   }
 
-  getKeyShapeBBox() {
+  getBBox() {
     const { combo } = this.props;
     if (!combo) return;
     let matrix = calcMatrix(this.getNodeRoot());
-    const keyShapeBBox = calculateBBox(calcBBox(this.getKeyShape()), matrix);
-    return keyShapeBBox;
+    return calculateBBox(calcBBox(this.getKeyShape()), matrix);
   }
 
-  getComboBBox() {
-    const { nodes, combos, getNodeBBox } = this.props;
-    const children = [...nodes, ...combos];
-
-    const comboBBox = {
-      minX: Infinity,
-      minY: Infinity,
-      maxX: -Infinity,
-      maxY: -Infinity,
-      x: undefined,
-      y: undefined,
-      width: undefined,
-      height: undefined,
-      centerX: undefined,
-      centerY: undefined,
-    };
-
-    if (!children || children.length === 0) {
-      return comboBBox;
-    }
-
-    children.forEach((node) => {
-      const childBBox = getNodeBBox(node.id, node.__type);
-      if (!childBBox) return; // ignore hidden children
-      if (childBBox.x && comboBBox.minX > childBBox.minX) comboBBox.minX = childBBox.minX;
-      if (childBBox.y && comboBBox.minY > childBBox.minY) comboBBox.minY = childBBox.minY;
-      if (childBBox.x && comboBBox.maxX < childBBox.maxX) comboBBox.maxX = childBBox.maxX;
-      if (childBBox.y && comboBBox.maxY < childBBox.maxY) comboBBox.maxY = childBBox.maxY;
-    });
-    comboBBox.x = (comboBBox.minX + comboBBox.maxX) / 2;
-    comboBBox.y = (comboBBox.minY + comboBBox.maxY) / 2;
-    comboBBox.width = comboBBox.maxX - comboBBox.minX;
-    comboBBox.height = comboBBox.maxY - comboBBox.minY;
-
-    comboBBox.centerX = (comboBBox.minX + comboBBox.maxX) / 2;
-    comboBBox.centerY = (comboBBox.minY + comboBBox.maxY) / 2;
-
-    Object.keys(comboBBox).forEach((key) => {
-      if (comboBBox[key] === Infinity || comboBBox[key] === -Infinity) {
-        comboBBox[key] = undefined;
-      }
-    });
-
-    return comboBBox;
+  calcComboBBox() {
+    const { nodes, combos, combo } = this.props;
+    return comboActions.calcComboBBox(combo.id);
   }
+
+  getAnchorPoints() {}
 
   getRenderSize(padding = 0) {
-    const bbox = this.getComboBBox();
+    const bbox = this.calcComboBBox();
     if (bbox) {
       // merge graph的item样式与数据模型中的样式
       const size = {
@@ -130,46 +92,6 @@ export class Combo extends Component {
     return this.nodeRef.current?.getRootShape();
   }
 
-  getBBox() {
-    const bbox = this.getKeyShapeBBox();
-    const comboBBox = this.getRenderSize();
-
-    bbox.centerX = (bbox.minX + bbox.maxX) / 2;
-    bbox.centerY = (bbox.minY + bbox.maxY) / 2;
-
-    const cacheSize = comboBBox;
-
-    const cacheBBox = {};
-    // const oriX = cacheBBox.x;
-    // const oriY = cacheBBox.x;
-
-    if (cacheSize) {
-      cacheSize.width = Math.max(cacheSize.width, bbox.width);
-      cacheSize.height = Math.max(cacheSize.height, bbox.height);
-      const type: string = 'circle';
-      if (type === 'circle') {
-        bbox.width = cacheSize.r * 2;
-        bbox.height = cacheSize.r * 2;
-      } else {
-        bbox.width = cacheSize.width;
-        bbox.height = cacheSize.height;
-      }
-      bbox.minX = bbox.centerX - bbox.width / 2;
-      bbox.minY = bbox.centerY - bbox.height / 2;
-      bbox.maxX = bbox.centerX + bbox.width / 2;
-      bbox.maxY = bbox.centerY + bbox.height / 2;
-    } else {
-      bbox.width = bbox.maxX - bbox.minX;
-      bbox.height = bbox.maxY - bbox.minY;
-      bbox.centerX = (bbox.minX + bbox.maxX) / 2;
-      bbox.centerY = (bbox.minY + bbox.maxY) / 2;
-    }
-    bbox.x = bbox.minX;
-    bbox.y = bbox.minY;
-    // if (bbox.x !== oriX || bbox.y !== oriY) this.set(CACHE_ANCHOR_POINTS, null);
-    return bbox;
-  }
-
   getRenderState() {
     return this.cacheCombo;
   }
@@ -180,6 +102,27 @@ export class Combo extends Component {
 
   getComboId() {
     return this.props.combo.id;
+  }
+
+  didUpdate(prev): void {
+    const { combo } = this.props;
+    let { x, y } = combo;
+
+    const comboBBox = this.calcComboBBox();
+
+    if (!isNaN(comboBBox.x)) x = comboBBox.x;
+    else if (isNaN(x)) x = Math.random() * 100;
+
+    if (!isNaN(comboBBox.y)) y = comboBBox.y;
+    else if (isNaN(y)) y = Math.random() * 100;
+
+    comboActions.updateOne({
+      id: combo.id,
+      changes: {
+        x,
+        y,
+      },
+    });
   }
 
   render() {
@@ -193,31 +136,20 @@ export class Combo extends Component {
     }
 
     const defaultStyle = Shape?.getOptions();
-    let { x, y } = combo;
     const size = this.getRenderSize();
 
-    if (typeof x !== 'number' && typeof y !== 'number') {
-      const comboBBox = this.getComboBBox();
-
-      if (!isNaN(comboBBox.x)) x = comboBBox.x;
-      else if (isNaN(x)) x = Math.random() * 100;
-
-      if (!isNaN(comboBBox.y)) y = comboBBox.y;
-      else if (isNaN(y)) y = Math.random() * 100;
-    }
-
     this.cahcePosition = {
-      x,
-      y,
+      x: combo.x || 0,
+      y: combo.y || 0,
     };
 
     this.cacheCombo = {
       ...combo,
-      ...this.cahcePosition,
       ...defaultStyle,
       style: { ...defaultStyle.style, ...(size || {}) },
     };
 
-    return <Shape ref={this.nodeRef} combo={this.cacheCombo} />;
+    const ele = <Shape ref={this.nodeRef} combo={this.cacheCombo} />;
+    return ele;
   }
 }

@@ -1,4 +1,3 @@
-import { injectTrigger } from './store';
 import { node } from './node';
 import { edge } from './edge';
 import { getGlobalContext } from '../service';
@@ -9,14 +8,6 @@ export class Layout {
 
   node = node;
   edge = edge;
-
-  @injectTrigger
-  init(data, state) {
-    const { width, height, devicePixelRatio } = data;
-    state.width = width;
-    state.height = height;
-    state.devicePixelRatio = devicePixelRatio;
-  }
 
   layout() {
     const globalContext = getGlobalContext();
@@ -53,5 +44,3 @@ export class Layout {
 }
 
 export const layout = new Layout();
-
-export const { init } = layout;

@@ -369,53 +369,21 @@ export class DragCombo extends BaseBehavior {
   }
 
   updateCombo(item: ICombo, evt: IG6GraphEvent) {
-    this.traverse(item, (item) => {
-      this.updateSignleItem(item, evt);
-      return true;
-    });
-  }
-
-  /**
-   *
-   * @param item 当前正在拖动的元素
-   * @param evt
-   */
-  updateSignleItem(item: Item, evt: IG6GraphEvent) {
     const { origin } = this;
-    const graph: IGraph = this.graph;
-    // const model = item.getModel() as ComboConfig;
+    const dx = evt.x - origin.x;
+    const dy = evt.y - origin.y;
     const itemId = item.get('id');
-    const model = item.getModel();
 
-    if (!this.point[itemId]) {
-      this.point[itemId] = {
-        x: model.x,
-        y: model.y,
-      };
-    }
+    this.origin = {
+      x: evt.x,
+      y: evt.y,
+    };
 
-    const x: number = evt.x - origin.x + this.point[itemId].x;
-    const y: number = evt.y - origin.y + this.point[itemId].y;
-
-    if (node.state.entities[itemId]) {
-      node.updateOne({
-        id: itemId,
-        changes: {
-          x,
-          y,
-        },
-      });
-    }
-    if (combo.state.entities[itemId]) {
-      combo.updateOne({
-        id: itemId,
-        changes: {
-          x,
-          y,
-        },
-      });
-    }
-    // graph.updateItem(item, { x, y });
+    combo.translate({
+      x: dx,
+      y: dy,
+      id: itemId,
+    });
   }
 
   /**

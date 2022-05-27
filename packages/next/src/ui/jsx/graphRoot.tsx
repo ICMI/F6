@@ -1,14 +1,14 @@
 import { jsx, Component, Fragment } from '@antv/f-engine';
 
-import { node, edge, view, combo, hull, layout as layoutActions, graph } from '../../store';
+import { node, edge, view, combo, hull, layout as layoutActions, graph, store } from '../../store';
 import { connector } from './connector';
 import { Node } from './node';
 import { Edge } from './edge';
 import { COMBO_Z_INDEX, EDGE_Z_INDEX, HULL_Z_INDEX, NODE_Z_INDEX } from '../../const';
-import { getSortedCombos } from '../../selector/combo';
+
+import { calcBBox, calcCanvasBBox, calcMatrix, getMatrix, setMatrix } from '../adapter/element';
 import { Combo } from './combo';
 import { Hull } from './hull';
-import { calcBBox, getMatrix } from '../../selector/node';
 
 @connector(
   (state) => {
@@ -22,18 +22,11 @@ import { calcBBox, getMatrix } from '../../selector/node';
   },
   (dispatch, props) => {
     return {
-      initGraphData: ({ width, height, devicePixelRatio }) => {
-        const { data } = props;
-        view.init({
-          width,
-          height,
-          devicePixelRatio,
-        });
-        node.init(data.nodes);
-        edge.init(data.edges);
-        combo.init(data.combos || []);
-        hull.init(data.hulls || []);
-        layoutActions.layout();
+      initGraphData: (props) => {
+        graph.initGraph(props);
+      },
+      initTreeGraph(props) {
+        graph.initTreeGraph(props);
       },
       updateNodes(nodes) {
         node.updateMany(nodes);
@@ -47,31 +40,45 @@ import { calcBBox, getMatrix } from '../../selector/node';
 export class GraphRoot extends Component {
   comboRefMap = {};
   nodesRefMap = {};
+  edgesRefMap = {};
   nodeRoot = null;
   edgeRoot = null;
   comboRoot = null;
   hullRoot = null;
-
-  findAllByState() {}
+  willMount(): void {
+    node.inject('getBBox', this.getNodeBBox);
+    combo.inject('getBBox', this.getNodeBBox);
+    node.inject('getAnchorPoints', this.getNodeAnchorPoints);
+    edge.inject('getControlPoints', this.getEdgeControlPoints);
+    graph.inject('getCanvasBBox', this.getRootBBox);
+    graph.inject('getMatrix', this.getRootMatrix);
+  }
 
   didMount() {
-    const { initGraphData } = this.props;
-    initGraphData(this.context.root.props);
+    const { initGraphData, isTreeGraph, initTreeGraph, data, layout } = this.props;
+    const { width, height, devicePixelRatio } = this.context.root.props;
+
+    if (isTreeGraph) {
+      initTreeGraph({ width, height, devicePixelRatio, data, layout });
+    } else {
+      initGraphData({ width, height, devicePixelRatio, data, layout });
+    }
+
     // 初始化 event service
 
     // 遍历 behavior 加事件
   }
 
   didUpdate(): void {
-    this.nodeRoot.container.style.zIndex = NODE_Z_INDEX;
-    this.edgeRoot.container.style.zIndex = EDGE_Z_INDEX;
-    this.comboRoot.container.style.zIndex = COMBO_Z_INDEX;
-    this.hullRoot.container.style.zIndex = HULL_Z_INDEX;
-    const { translate, scale, rotate } = this.props.graph;
-    this.container.style.transform = `translate3d(${translate[0]}px, ${translate[1]}px, ${translate[2]}px) scale3d(${scale[0]}, ${scale[1]}, ${scale[2]}) rotate(${rotate}deg)`;
-
-    graph.syncMatrix(getMatrix(this.container));
-    graph.syncBBox(calcBBox(this.container));
+    this.nodeRoot && (this.nodeRoot.container.style.zIndex = NODE_Z_INDEX);
+    this.edgeRoot && (this.edgeRoot.container.style.zIndex = EDGE_Z_INDEX);
+    this.comboRoot && (this.comboRoot.container.style.zIndex = COMBO_Z_INDEX);
+    this.hullRoot && (this.hullRoot.container.style.zIndex = HULL_Z_INDEX);
+    const { matrix } = this.props.graph;
+    // graph.syncMatrix(getMatrix(this.container));
+    // graph.syncBBox(calcBBox(this.container));
+    setMatrix(this.container, matrix);
+    // graph.fitView();
   }
 
   updateBBox() {}
@@ -87,6 +94,19 @@ export class GraphRoot extends Component {
   getNodeAnchorPoints = (id) => {
     return this.nodesRefMap[id]?.getAnchorPoints() || this.comboRefMap[id]?.getAnchorPoints();
   };
+
+  getEdgeControlPoints = (id, cfg) => {
+    return this.edgesRefMap[id]?.getControlPoints(cfg);
+  };
+
+  getRootBBox = () => {
+    return calcCanvasBBox(this.container);
+  };
+
+  getRootMatrix = () => {
+    return getMatrix(this.container);
+  };
+
   render() {
     const { nodeIds, edgeIds, sortedCombos, hullIds } = this.props;
     if (nodeIds.length === 0 || edgeIds.length === 0) return null;
@@ -107,7 +127,7 @@ export class GraphRoot extends Component {
             ></Node>
           ))}
         </Fragment>
-        <Fragment ref={(instance) => (this.comboRoot = instance)}>
+        {/* <Fragment ref={(instance) => (this.comboRoot = instance)}>
           {sortedCombos.map((sortedCombo) => (
             <Combo
               id={sortedCombo.id}
@@ -119,7 +139,7 @@ export class GraphRoot extends Component {
               getNodeBBox={this.getNodeBBox}
             ></Combo>
           ))}
-        </Fragment>
+        </Fragment> */}
 
         <Fragment ref={(instance) => (this.edgeRoot = instance)}>
           {[...edgeIds].map((id) => (
@@ -129,14 +149,17 @@ export class GraphRoot extends Component {
               getNodeBBox={this.getNodeBBox}
               getNodePosition={this.getNodePosition}
               getNodeAnchorPoints={this.getNodeAnchorPoints}
+              forwardRef={(instance) => {
+                this.edgesRefMap[id] = instance;
+              }}
             ></Edge>
           ))}
         </Fragment>
-        <Fragment ref={(instance) => (this.hullRoot = instance)}>
+        {/* <Fragment ref={(instance) => (this.hullRoot = instance)}>
           {hullIds.map((id) => (
             <Hull id={id} key={id} getNodeBBox={this.getNodeBBox}></Hull>
           ))}
-        </Fragment>
+        </Fragment> */}
       </Fragment>
     );
   }

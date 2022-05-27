@@ -56,7 +56,7 @@ export class DragCanvas extends BaseBehavior {
     };
     const width = view.state.width;
     const height = view.state.height;
-    const graphCanvasBBox = graph.getBBox();
+    const graphCanvasBBox = graph.getCanvasBBox();
 
     if (
       (graphCanvasBBox.minX <= width + this.scalableRange &&

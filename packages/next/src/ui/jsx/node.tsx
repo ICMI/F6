@@ -1,6 +1,8 @@
 import { jsx, Component } from '@antv/f-engine';
-import { calcBBox, calcMatrix, calculateBBox } from '../../selector/node';
-import { node as nodesActions } from '../../store';
+import { calcBBox, calcMatrix, calculateBBox } from '../adapter/element';
+import { node as nodesActions, store } from '../../store';
+import { animate } from '../../store/animate';
+import { state } from '../../store/state';
 import { getNode } from './components/nodes';
 import { connector } from './connector';
 
@@ -8,6 +10,10 @@ import { connector } from './connector';
   (state, props) => {
     return {
       node: state.node.state.entities[props.id],
+      appear: animate.getAppear(props.id),
+      update: animate.getUpdate(props.id),
+      end: animate.getEnd(props.id),
+      states: state.state.state[props.id],
     };
   },
   (dispatch, props) => {
@@ -43,15 +49,12 @@ export class Node extends Component {
     updateNode({ x, y });
   }
 
-  getBBox() {
-    if (this.cacheBBox) return this.cacheBBox;
-
+  getBBox = () => {
     const { node } = this.props;
     if (!node) return;
     let matrix = calcMatrix(this.getNodeRoot());
-    this.cacheBBox = calculateBBox(calcBBox(this.getKeyShape()), matrix);
-    return this.cacheBBox;
-  }
+    return calculateBBox(calcBBox(this.getKeyShape()), matrix);
+  };
 
   getShapeNode() {
     return this.nodeRef.current;
@@ -83,8 +86,15 @@ export class Node extends Component {
     this.cacheBBox = null;
   }
 
+  onFrame = () => {
+    const { updateNode, id } = this.props;
+    let { x, y } = this.getNodeRoot().style;
+    y = typeof y === 'string' ? Number(y.replace('px', '')) : y;
+    updateNode({ x, y });
+  };
+
   render() {
-    const { node } = this.props;
+    const { node, appear, update, end, states } = this.props;
     this.container.setAttribute('state', node);
     this.container.setAttribute('id', node?.id);
     const Shape = getNode(node?.type);
@@ -92,6 +102,18 @@ export class Node extends Component {
       console.warn('不存在对应的 Node Shape');
       return null;
     }
-    return <Shape node={node} ref={this.nodeRef}></Shape>;
+    return (
+      <Shape
+        node={node}
+        animation={{
+          appear,
+          update,
+          end,
+        }}
+        onFrame={this.onFrame}
+        ref={this.nodeRef}
+        states={states}
+      ></Shape>
+    );
   }
 }

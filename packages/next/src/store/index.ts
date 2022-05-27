@@ -6,6 +6,8 @@ import { hull } from './hull';
 import { view } from './view';
 import { layout } from './layout';
 import { graph } from './graph';
+import { animate } from './animate';
+import { state } from './state';
 
 const createStore = (): any => {
   prepareStore.init({
@@ -15,6 +17,8 @@ const createStore = (): any => {
     hull,
     view,
     graph,
+    animate,
+    state,
   });
 
   return prepareStore;

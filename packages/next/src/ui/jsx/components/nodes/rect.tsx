@@ -54,8 +54,7 @@ export class SimpleRect extends BaseNode {
     return styles;
   }
 
-  renderShape(node) {
-    const style = this.getShapeStyle!(node);
+  renderShape(style) {
     return <rect style={style} ref={this.keyShapeRef} />;
   }
 }

@@ -1,7 +1,7 @@
 import { ICanvas, IGroup, IShape } from '@antv/g-base';
 import { each, wrapBehavior } from '@antv/util';
 import EE from 'eventemitter3';
-import { getCanvasByPoint, getPointByCanvas } from '../selector/view';
+import { getCanvasByPoint, getPointByCanvas } from './viewService';
 import { graph } from '../store';
 
 import { cloneEvent, isViewportChanged } from '../utils';

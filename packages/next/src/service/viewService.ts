@@ -17,10 +17,14 @@ export const getCanvasByPoint = (viewportMatrix, x: number, y: number): Point =>
  * @param clientX 页面 x 坐标
  * @param clientY 页面 y 坐标
  */
-export const getPointByClient = (canvas, clientX: number, clientY: number): Point => {
+export const getPointByClient = (
+  canvas,
+  viewportMatrix,
+  clientX: number,
+  clientY: number,
+): Point => {
   const canvasPoint: Point = canvas.getPointByClient(clientX, clientY);
-
-  return getPointByCanvas(canvasPoint.x, canvasPoint.y);
+  return getPointByCanvas(viewportMatrix, canvasPoint.x, canvasPoint.y);
 };
 
 /**

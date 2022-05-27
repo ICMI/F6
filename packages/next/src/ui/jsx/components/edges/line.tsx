@@ -2,7 +2,7 @@ import { jsx } from '@antv/f-engine';
 import { Global } from '../../../../const';
 import { BaseEdge } from './base';
 export class Line extends BaseEdge {
-  static getOptions() {
+  getOptions() {
     return {
       size: Global.defaultNode.size,
       style: {

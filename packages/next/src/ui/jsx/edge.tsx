@@ -1,7 +1,6 @@
 import { jsx, Component } from '@antv/f-engine';
 import { isEqual } from '@antv/util';
-import { getControlPointsByCenter, getEndCenter, getLinkPoint } from '../../selector/edge';
-import { edge } from '../../store';
+import { edge as edgeActions } from '../../store';
 import { getEdge } from './components/edges';
 import { connector } from './connector';
 
@@ -24,7 +23,7 @@ import { connector } from './connector';
   (dispatch) => {
     return {
       updateEdgePoints(node) {
-        edge.updateOne(node);
+        edgeActions.updateOne(node);
       },
     };
   },
@@ -44,40 +43,26 @@ export class Edge extends Component {
     return this.edgeShapeRef.current;
   }
 
-  getPoints(sourceNode, targetNode) {
-    // todo 此处原有可以手动传入start Point，先忽略改功能，只从节点拿point
+  getPoints() {
     const { updateEdgePoints, edge, linkCenter } = this.props;
-    if (!edge || !sourceNode.keyShapeBBox) return;
+    if (!edge) return;
     let startPoint, endPoint;
     if (linkCenter) {
-      startPoint = getEndCenter('source', edge, sourceNode);
-      endPoint = getEndCenter('target', edge, targetNode);
+      startPoint = edgeActions.getEndCenter('source', edge.id);
+      endPoint = edgeActions.getEndCenter('target', edge.id);
     } else {
-      const controlPoints =
-        edge.controlPoints ||
-        this.getShapeEdge()?.getControlPoints({
-          ...edge,
-          startPoint: sourceNode,
-          endPoint: targetNode,
-        });
-      startPoint = getLinkPoint(
-        'source',
-        { source: sourceNode, target: targetNode },
-        edge,
-        controlPoints,
-      );
-      endPoint = getLinkPoint(
-        'target',
-        { source: sourceNode, target: targetNode },
-        edge,
-        controlPoints,
-      );
+      const controlPoints = edge.controlPoints || edgeActions.getControlPointsByCenter(edge.id);
+      startPoint = edgeActions.getLinkPoint('source', edge, controlPoints);
+      endPoint = edgeActions.getLinkPoint('target', edge, controlPoints);
     }
-
     return {
       startPoint,
       endPoint,
     };
+  }
+
+  getControlPoints(cfg) {
+    return this.getShapeEdge()?.getControlPoints(cfg);
   }
 
   render() {
@@ -107,22 +92,10 @@ export class Edge extends Component {
     const targetAnchor = getNodeAnchorPoints(targetNode.id);
     const sourcePosition = getNodePosition(sourceNode.id);
     const targetPosition = getNodePosition(targetNode.id);
-    const points = this.getPoints(
-      {
-        ...sourceNode,
-        keyShapeBBox: sourcebbox,
-        anchorPoints: sourceAnchor,
-        x: typeof sourceNode.x === 'number' ? sourceNode.x : sourcePosition.x,
-        y: typeof sourceNode.y === 'number' ? sourceNode.y : sourcePosition.y,
-      },
-      {
-        ...targetNode,
-        keyShapeBBox: targetbbox,
-        anchorPoints: targetAnchor,
-        x: typeof targetNode.x === 'number' ? targetNode.x : targetPosition.x,
-        y: typeof targetNode.y === 'number' ? targetNode.y : targetPosition.y,
-      },
-    );
+    const points = this.getPoints();
+    if (Number.isNaN(points.startPoint.x) || Number.isNaN(points.endPoint)) {
+      return null;
+    }
 
     return <Shape edge={{ ...edge, ...points }} ref={this.edgeShapeRef}></Shape>;
   }

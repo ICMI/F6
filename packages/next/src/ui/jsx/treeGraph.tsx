@@ -2,7 +2,7 @@ import { jsx, Component, AdapterHammer } from '@antv/f-engine';
 import { createGlobalContext, getGlobalContext, GlobalContext } from '../../service';
 import { GraphRoot } from './graphRoot';
 
-export class Graph extends Component {
+export class TreeGraph extends Component {
   hammer = null;
   constructor(props) {
     super(props);
@@ -27,6 +27,6 @@ export class Graph extends Component {
   }
 
   render() {
-    return <GraphRoot {...this.props}></GraphRoot>;
+    return <GraphRoot {...this.props} isTreeGraph></GraphRoot>;
   }
 }

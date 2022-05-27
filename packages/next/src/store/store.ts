@@ -4,9 +4,9 @@ export const injectTrigger = (target, propertyKey, descriptor) => {
   const func = descriptor.value;
   return {
     get() {
-      return (action?) => {
+      return (...args) => {
         const draft = createDraft(this.state);
-        func.call(this, action, draft);
+        func.apply(this, [...args, draft]);
         this.state = finishDraft(draft);
         store.trigger();
       };
@@ -33,26 +33,26 @@ class Store {
     this.events.push(fn);
   };
 
-  trigger = () => {
-    this.events.forEach((fn) => {
-      fn();
-    });
+  trigger = async () => {
+    for (const event of this.events) {
+      event();
+    }
   };
 }
 
 export const store = new Store();
 
-export const computed = (dependencyFn) => (target, key, descriptor) => {
+export const computed = (dependencyFn?) => (target, key, descriptor) => {
   let result = null;
   let cacheArgs = null;
   const func = descriptor.value;
   return {
     get() {
       return (...args) => {
-        let preCacheArgs = [...args, ...(dependencyFn?.(this) || [])];
+        let prepareCacheArgs = [...args, ...(dependencyFn?.(this, ...args) || [])];
         const isSame =
           cacheArgs &&
-          preCacheArgs.every((a, index) => {
+          prepareCacheArgs.every((a, index) => {
             const b = cacheArgs[index];
             if (typeof a !== typeof b) return false;
             if (typeof a === 'function') {
@@ -61,7 +61,7 @@ export const computed = (dependencyFn) => (target, key, descriptor) => {
             return a === b;
           });
         if (isSame) return result;
-        cacheArgs = preCacheArgs;
+        cacheArgs = prepareCacheArgs;
         result = func.call(this, ...cacheArgs);
         return result;
       };

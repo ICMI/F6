@@ -5,18 +5,32 @@ import { store } from '../../store';
 export function connector(mapStatetoProps?, mapActionstoProps?) {
   return function (WrapperComponent) {
     return class Connector extends Component {
+      isFirst = true;
+
+      prevProps = {};
+
       willMount(): void {
         store.subscribe(this.updateProps);
-        this.updateProps(true);
+        this.updateProps();
+        this.isFirst = false;
       }
 
-      updateProps = (isFirst = false) => {
+      updateProps = () => {
         // 传入state和props
         var stateProps = mapStatetoProps ? mapStatetoProps(store.getState(), this.props) : {};
+        let isEqual = true;
+        for (const [key, value] of Object.entries(stateProps || {})) {
+          if (this.prevProps[key] !== value) {
+            isEqual = false;
+          }
+        }
+        if (isEqual) return;
+
+        this.prevProps = stateProps;
         // 传入dispatch和props
         var actionProps = mapActionstoProps ? mapActionstoProps(store.dispatch, this.props) : {};
 
-        isFirst &&
+        this.isFirst &&
           (this.state = {
             allProps: {
               ...stateProps,
@@ -25,7 +39,7 @@ export function connector(mapStatetoProps?, mapActionstoProps?) {
             },
           });
 
-        !isFirst &&
+        if (!this.isFirst) {
           this.setState({
             allProps: {
               ...stateProps,
@@ -33,7 +47,9 @@ export function connector(mapStatetoProps?, mapActionstoProps?) {
               ...this.props,
             },
           });
+        }
       };
+
       render() {
         const { forwardRef } = this.props;
         return <WrapperComponent {...this.state.allProps} ref={forwardRef} />;

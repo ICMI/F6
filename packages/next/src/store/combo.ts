@@ -1,36 +1,16 @@
 import { computed, injectTrigger } from './store';
 import { v4 as uuid } from 'uuid';
-import { updateMany, updateOne } from './entityHelper';
-import { node } from './node';
+import { Node, node } from './node';
+import { Entity } from './entity';
 
-export class Combo {
-  state = {
-    entities: {},
-    ids: [],
-  };
-
+export class Combo extends Node {
   node = node;
 
-  @injectTrigger
-  init(data, state?) {
-    data?.forEach((node) => {
-      node.id = node.id || uuid();
-      node.type = node.type || 'circle';
-      node.visible = true;
-      node.__type = 'combo';
-      state.entities[node.id] = node;
-      state.ids.push(node.id);
-    });
-  }
-
-  @injectTrigger
-  updateOne(data, state?) {
-    updateOne(data, state);
-  }
-
-  @injectTrigger
-  updateMany(data, state?) {
-    updateMany(data, state);
+  createOne(item: any) {
+    item.visible = true;
+    item.type = item.type || 'circle';
+    item.__type = 'combo';
+    return item;
   }
 
   @computed((self) => [self.state.ids, self.node.state.ids])
@@ -90,6 +70,72 @@ export class Combo {
     for (const combo of combos) {
       if (combo.id === comboId) return combo;
     }
+  }
+
+  calcComboBBox(id) {
+    const combo = this.getCombo(id);
+
+    const children = [...(combo.nodes || []), ...(combo.combos || [])];
+
+    const comboBBox = {
+      minX: Infinity,
+      minY: Infinity,
+      maxX: -Infinity,
+      maxY: -Infinity,
+      x: undefined,
+      y: undefined,
+      width: undefined,
+      height: undefined,
+      centerX: undefined,
+      centerY: undefined,
+    };
+
+    if (!children || children.length === 0) {
+      return comboBBox;
+    }
+
+    children.forEach((node) => {
+      const childBBox = this.getBBox(node.id) || node.getBBox(node.id);
+      if (!childBBox) return; // ignore hidden children
+      if (childBBox.x && comboBBox.minX > childBBox.minX) comboBBox.minX = childBBox.minX;
+      if (childBBox.y && comboBBox.minY > childBBox.minY) comboBBox.minY = childBBox.minY;
+      if (childBBox.x && comboBBox.maxX < childBBox.maxX) comboBBox.maxX = childBBox.maxX;
+      if (childBBox.y && comboBBox.maxY < childBBox.maxY) comboBBox.maxY = childBBox.maxY;
+    });
+    comboBBox.x = (comboBBox.minX + comboBBox.maxX) / 2;
+    comboBBox.y = (comboBBox.minY + comboBBox.maxY) / 2;
+    comboBBox.width = comboBBox.maxX - comboBBox.minX;
+    comboBBox.height = comboBBox.maxY - comboBBox.minY;
+
+    comboBBox.centerX = (comboBBox.minX + comboBBox.maxX) / 2;
+    comboBBox.centerY = (comboBBox.minY + comboBBox.maxY) / 2;
+
+    Object.keys(comboBBox).forEach((key) => {
+      if (comboBBox[key] === Infinity || comboBBox[key] === -Infinity) {
+        comboBBox[key] = undefined;
+      }
+    });
+
+    return comboBBox;
+  }
+
+  @injectTrigger
+  translate(data, state?) {
+    super.translate(data, state);
+    const { id } = data;
+    const combo = this.getCombo(id);
+    combo.combos?.forEach((entity) => {
+      this.translate({ ...data, id: entity.id });
+    });
+    combo.nodes?.forEach((entity) => {
+      this.node.translate({ ...data, id: entity.id });
+    });
+  }
+
+  getBBox() {}
+
+  inject(key, fn) {
+    this[key] = fn;
   }
 }
 

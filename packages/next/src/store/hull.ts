@@ -1,36 +1,14 @@
 import { injectTrigger } from './store';
 import { v4 as uuid } from 'uuid';
-import { updateMany, updateOne } from './entityHelper';
+import { Entity } from './entity';
 
-export class Hull {
-  state = {
-    entities: {},
-    ids: [],
-  };
-
-  @injectTrigger
-  init(data, state?) {
-    data?.forEach((node) => {
-      node.id = node.id || uuid();
-      node.type = node.type || 'circle';
-      node.visible = true;
-      node.__type = 'hull';
-      state.entities[node.id] = node;
-      state.ids.push(node.id);
-    });
+export class Hull extends Entity {
+  createOne(item: any) {
+    item.type = item.type || 'circle';
+    item.visible = true;
+    item.__type = 'hull';
+    return item;
   }
-
-  @injectTrigger
-  updateOne(data, state?) {
-    updateOne(data, state);
-  }
-
-  @injectTrigger
-  updateMany(data, state?) {
-    updateMany(data, state);
-  }
-
-  getState() {}
 }
 
 export const hull = new Hull();
