@@ -38,12 +38,12 @@ export const calcBBox = (ele) => {
   };
 };
 
-export const calcCanvasBBox = (ele) => {
+export const calcCanvasBBox = (paramEle) => {
   let minX = Infinity;
   let maxX = -Infinity;
   let minY = Infinity;
   let maxY = -Infinity;
-  const stack = [ele];
+  const stack = [paramEle];
   while (stack.length) {
     const ele = stack.pop();
     if (ele.config.type !== 'g') {

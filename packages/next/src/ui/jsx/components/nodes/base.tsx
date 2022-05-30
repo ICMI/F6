@@ -209,9 +209,10 @@ export class BaseNode extends BaseShape {
     }
   }
 
-  renderShape(node) {
+  renderShape(node, states) {
     return null;
   }
+
   renderLabel(cfg) {
     const { labelCfg: defaultLabelCfg } = this.getOptions(cfg) as ModelConfig;
     // image的情况下有可能为null
@@ -322,13 +323,6 @@ export class BaseNode extends BaseShape {
 
   render() {
     const { node, animation, onFrame, states } = this.props;
-    const stateStyle = states?.reduce((prev, name) => {
-      return { ...prev, ...(this.getStateStyle(name, node) || {}) };
-    }, {});
-
-    const shapeStyle = this.getShapeStyle(node);
-    const style = { ...shapeStyle, ...stateStyle };
-
     return (
       <group
         style={{ x: node?.x || 0, y: node?.y || 0 }}
@@ -348,7 +342,7 @@ export class BaseNode extends BaseShape {
           },
         }}
       >
-        {this.renderShape(style)}
+        {this.renderShape(node, states)}
         {/* label */}
         {this.renderLabel(node)}
         {/* label bg */}

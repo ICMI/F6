@@ -10,7 +10,7 @@ class Animate {
     relationIds: {},
   };
 
-  @injectTrigger
+  @injectTrigger()
   addOne(data, state?) {
     const { type = 'update', relationNodeId } = data;
     const id = uniqueId();
@@ -20,7 +20,7 @@ class Animate {
     state.relationIds[relationNodeId][id] = 1;
   }
 
-  @injectTrigger
+  @injectTrigger()
   addMany(data, state?) {
     data?.forEach((data) => {
       const { type = 'update', relationNodeId } = data;
@@ -32,7 +32,7 @@ class Animate {
     });
   }
 
-  @injectTrigger
+  @injectTrigger()
   removeOne(data, state?) {
     const id = data.id;
     const entity = state.entities[id];

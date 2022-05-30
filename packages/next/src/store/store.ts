@@ -1,18 +1,20 @@
 import { createDraft, finishDraft } from 'immer';
 
-export const injectTrigger = (target, propertyKey, descriptor) => {
-  const func = descriptor.value;
-  return {
-    get() {
-      return (...args) => {
-        const draft = createDraft(this.state);
-        func.apply(this, [...args, draft]);
-        this.state = finishDraft(draft);
-        store.trigger();
-      };
-    },
+export const injectTrigger =
+  (needDispatch = true, action?) =>
+  (target, propertyKey, descriptor) => {
+    const func = descriptor.value;
+    return {
+      get() {
+        return (...args) => {
+          const draft = createDraft(this.state);
+          func.apply(this, [...args, draft]);
+          this.state = finishDraft(draft);
+          needDispatch && store.trigger();
+        };
+      },
+    };
   };
-};
 
 class Store {
   events = [];
@@ -20,7 +22,7 @@ class Store {
   state = {};
 
   // 如果想做成树也可以，目前store只有一层
-  @injectTrigger
+  @injectTrigger()
   init(action, state?) {
     Object.assign(state, action);
   }

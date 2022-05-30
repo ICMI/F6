@@ -125,7 +125,6 @@ export class Node extends Entity {
       // 如果最终依然没法找到锚点和连接点，直接返回中心点
       linkPoint = { x: centerX, y: centerY } as IPoint;
     }
-    if (Number.isNaN(linkPoint.x)) debugger;
     return linkPoint;
   };
 
@@ -137,7 +136,7 @@ export class Node extends Entity {
     return [];
   }
 
-  @injectTrigger
+  @injectTrigger()
   translate(data, state?) {
     const { id, x, y } = data;
     const entity = state.entities[id];

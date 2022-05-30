@@ -336,8 +336,9 @@ export class BaseEdge extends BaseShape {
     // }
   }
 
-  renderShape(cfg) {
-    const style = this.getShapeStyle(cfg);
+  renderShape(cfg, states) {
+    const style = this.getMixedStyle(cfg, states);
+
     delete style.x;
     delete style.y;
     return <path style={style} ref={this.keyShapeRef}></path>;
@@ -364,11 +365,11 @@ export class BaseEdge extends BaseShape {
   }
 
   render() {
-    const { edge } = this.props;
+    const { edge, states } = this.props;
 
     return (
       <group>
-        {this.renderShape(edge)}
+        {this.renderShape(edge, states)}
 
         {this.renderLabel(edge)}
 

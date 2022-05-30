@@ -1,6 +1,6 @@
 import { jsx, Component, Fragment } from '@antv/f-engine';
 
-import { node, edge, view, combo, hull, layout as layoutActions, graph, store } from '../../store';
+import { node, edge, view, combo, hull, layout as graphLayout, graph, store } from '../../store';
 import { connector } from './connector';
 import { Node } from './node';
 import { Edge } from './edge';
@@ -78,6 +78,8 @@ export class GraphRoot extends Component {
     // graph.syncMatrix(getMatrix(this.container));
     // graph.syncBBox(calcBBox(this.container));
     setMatrix(this.container, matrix);
+    graphLayout.layout();
+
     // graph.fitView();
   }
 
@@ -127,7 +129,7 @@ export class GraphRoot extends Component {
             ></Node>
           ))}
         </Fragment>
-        {/* <Fragment ref={(instance) => (this.comboRoot = instance)}>
+        <Fragment ref={(instance) => (this.comboRoot = instance)}>
           {sortedCombos.map((sortedCombo) => (
             <Combo
               id={sortedCombo.id}
@@ -139,7 +141,7 @@ export class GraphRoot extends Component {
               getNodeBBox={this.getNodeBBox}
             ></Combo>
           ))}
-        </Fragment> */}
+        </Fragment>
 
         <Fragment ref={(instance) => (this.edgeRoot = instance)}>
           {[...edgeIds].map((id) => (
@@ -155,11 +157,11 @@ export class GraphRoot extends Component {
             ></Edge>
           ))}
         </Fragment>
-        {/* <Fragment ref={(instance) => (this.hullRoot = instance)}>
+        <Fragment ref={(instance) => (this.hullRoot = instance)}>
           {hullIds.map((id) => (
             <Hull id={id} key={id} getNodeBBox={this.getNodeBBox}></Hull>
           ))}
-        </Fragment> */}
+        </Fragment>
       </Fragment>
     );
   }

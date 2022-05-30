@@ -54,7 +54,8 @@ export class SimpleRect extends BaseNode {
     return styles;
   }
 
-  renderShape(style) {
+  renderShape(node, states) {
+    const style = this.getMixedStyle(node, states);
     return <rect style={style} ref={this.keyShapeRef} />;
   }
 }

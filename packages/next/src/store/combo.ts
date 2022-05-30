@@ -119,7 +119,7 @@ export class Combo extends Node {
     return comboBBox;
   }
 
-  @injectTrigger
+  @injectTrigger()
   translate(data, state?) {
     super.translate(data, state);
     const { id } = data;

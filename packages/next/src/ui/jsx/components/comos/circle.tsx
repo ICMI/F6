@@ -27,19 +27,19 @@ export class SimpleCircle extends BaseNode {
   }
 
   render() {
-    const { combo } = this.props;
+    const { combo, states } = this.props;
+    const style = this.getMixedStyle(combo, states);
     return (
       <group style={{ x: combo?.x || 0, y: combo?.y || 0 }}>
         <circle
           style={{
-            r: 20,
-            ...combo.style,
+            ...style,
           }}
           ref={this.keyShapeRef}
         />
         <text
           style={{
-            text: combo?.label,
+            text: combo?.label || '',
             ...combo.labelCfg?.style,
           }}
         ></text>

@@ -45,7 +45,8 @@ export class SimpleCircle extends BaseNode {
     return styles;
   }
 
-  renderShape(style) {
+  renderShape(node, states) {
+    const style = this.getMixedStyle(node, states);
     return <circle style={style} ref={this.keyShapeRef} />;
   }
 }

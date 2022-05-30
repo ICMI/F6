@@ -8,7 +8,7 @@ export class Entity {
     ids: [],
   };
 
-  @injectTrigger
+  @injectTrigger()
   init(data, state?) {
     data?.forEach((item) => {
       item.id = isNil(item.id) ? uuid() : item.id;
@@ -21,7 +21,7 @@ export class Entity {
     return item;
   }
 
-  @injectTrigger
+  @injectTrigger()
   updateOne(data, state?) {
     const { id, changes } = data;
     if (state.entities[id]) {
@@ -29,7 +29,7 @@ export class Entity {
     }
   }
 
-  @injectTrigger
+  @injectTrigger()
   updateMany(data, state?) {
     data?.forEach((data) => {
       const { id, changes } = data;

@@ -117,4 +117,14 @@ export class BaseShape extends Component {
     const { anchorPoints } = this.getOptions(cfg) as ModelConfig;
     return anchorPoints;
   }
+
+  getMixedStyle(cfg, states) {
+    const stateStyle = states?.reduce((prev, name) => {
+      return { ...prev, ...(this.getStateStyle(name, cfg) || {}) };
+    }, {});
+
+    const shapeStyle = this.getShapeStyle(cfg);
+    const style = { ...shapeStyle, ...stateStyle };
+    return style;
+  }
 }

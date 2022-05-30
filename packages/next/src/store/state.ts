@@ -5,7 +5,7 @@ import { computed, injectTrigger } from './store';
 class State {
   state = {};
 
-  @injectTrigger
+  @injectTrigger()
   setState(data, state?) {
     const { id, ...paramStates } = data;
     if (isNil(id)) return;
@@ -29,7 +29,7 @@ class State {
     }
   }
 
-  @injectTrigger
+  @injectTrigger()
   clearStates(data, state?) {
     const { id, states: values } = data;
     if (isNil(id)) return;

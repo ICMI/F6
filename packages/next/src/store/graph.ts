@@ -37,7 +37,6 @@ export class Graph {
     edge.init(data.edges);
     combo.init(data.combos || []);
     hull.init(data.hulls || []);
-    graphLayout.layout();
   }
 
   initTreeGraph(props) {
@@ -75,7 +74,7 @@ export class Graph {
     treeLayout.layout();
   }
 
-  @injectTrigger
+  @injectTrigger()
   translate(data, state?) {
     const { x = 0, y = 0 } = data;
     state.matrix = transform(state.matrix, [['t', x, y]]);
@@ -89,7 +88,7 @@ export class Graph {
     this.translate({ x: tox - curX, y: toy - cury });
   }
 
-  @injectTrigger
+  @injectTrigger()
   zoom(data, state?) {
     const { ratio, center } = data;
     if (center) {
@@ -109,12 +108,12 @@ export class Graph {
     this.zoom({ ratio, center });
   }
 
-  @injectTrigger
+  @injectTrigger()
   rotate(degree = 0, state?) {
     state.rotate = degree;
   }
 
-  @injectTrigger
+  @injectTrigger()
   resetTransform(state?) {
     state.matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
   }
@@ -134,7 +133,7 @@ export class Graph {
       y: bbox.y + bbox.height / 2,
     };
 
-    this.translateTo({ x: viewCenter.x - groupCenter.x, y: viewCenter.y - groupCenter.y });
+    this.translate({ x: viewCenter.x - groupCenter.x, y: viewCenter.y - groupCenter.y });
     const w = (width - padding[1] - padding[3]) / bbox.width;
     const h = (height - padding[0] - padding[2]) / bbox.height;
     let ratio = w;

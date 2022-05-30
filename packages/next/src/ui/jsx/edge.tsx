@@ -86,12 +86,12 @@ export class Edge extends Component {
     if (!edge) {
       return null;
     }
-    const sourcebbox = getNodeBBox(sourceNode.id);
-    const targetbbox = getNodeBBox(targetNode.id);
-    const sourceAnchor = getNodeAnchorPoints(sourceNode.id);
-    const targetAnchor = getNodeAnchorPoints(targetNode.id);
-    const sourcePosition = getNodePosition(sourceNode.id);
-    const targetPosition = getNodePosition(targetNode.id);
+    // const sourcebbox = getNodeBBox(sourceNode.id);
+    // const targetbbox = getNodeBBox(targetNode.id);
+    // const sourceAnchor = getNodeAnchorPoints(sourceNode.id);
+    // const targetAnchor = getNodeAnchorPoints(targetNode.id);
+    // const sourcePosition = getNodePosition(sourceNode.id);
+    // const targetPosition = getNodePosition(targetNode.id);
     const points = this.getPoints();
     if (Number.isNaN(points.startPoint.x) || Number.isNaN(points.endPoint)) {
       return null;

@@ -80,7 +80,7 @@ export default () => {
           layout={{
             type: 'force',
             // preventOverlap: true,
-            alphaDecay: 0,
+            // alphaDecay: 0,
           }}
           modes={{
             default: ['drag-node', 'drag-combo'],

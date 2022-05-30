@@ -129,16 +129,7 @@ export class BaseNode extends BaseShape {
     style.text = cfg.label;
     return style;
   }
-  drawShape(cfg: NodeConfig, group: IGroup): IShape {
-    const { shapeType } = this; // || this.type，都已经加了 shapeType
-    const style = this.getShapeStyle!(cfg);
-    const shape = group.addShape(shapeType, {
-      attrs: style,
-      draggable: true,
-      name: 'combo-shape',
-    });
-    return shape;
-  }
+
   updateShape(cfg: NodeConfig, item: Item, keyShapeStyle: ShapeStyle) {
     const keyShape = item.get('keyShape');
     const animate = cfg.animate === undefined ? this.options.animate : cfg.animate;
