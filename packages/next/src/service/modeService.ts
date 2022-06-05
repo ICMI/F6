@@ -1,6 +1,8 @@
 import { each, isArray, isString } from '@antv/util';
 
 export default class ModeService {
+  graph = null;
+
   public destroyed: boolean;
 
   behaviorService = null;
@@ -33,11 +35,12 @@ export default class ModeService {
 
   private currentBehaves: IBehaviorOption[];
 
-  constructor(behaviorService, eventService, modes?, defaultMode?) {
+  constructor(graph, modes?, defaultMode?) {
     this.destroyed = false;
 
-    this.behaviorService = behaviorService;
-    this.eventService = eventService;
+    this.graph = graph;
+    this.behaviorService = graph.behaviorService;
+    this.eventService = graph.eventService;
     if (modes) {
       this.setModes(modes, defaultMode);
     }
@@ -77,7 +80,7 @@ export default class ModeService {
 
       behave = new BehaviorInstance(behavior);
       if (behave) {
-        this.behaviorService.bindEvents(this.eventService, behave);
+        behave.bindEvents(this.graph);
         behaves.push(behave);
       }
     });
@@ -126,7 +129,7 @@ export default class ModeService {
 
     each(this.currentBehaves, (behave) => {
       if (behave.delegate) behave.delegate.remove();
-      this.behaviorService.unBindEvents(this.eventService, behave);
+      behave.unBindEvents(this.graph);
     });
 
     this.setBehaviors(current);

@@ -58,7 +58,7 @@ export const computed = (dependencyFn?) => (target, key, descriptor) => {
             const b = cacheArgs[index];
             if (typeof a !== typeof b) return false;
             if (typeof a === 'function') {
-              return a() === b();
+              return a.call(this, this) === b.call(this, this);
             }
             return a === b;
           });

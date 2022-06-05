@@ -1,6 +1,6 @@
 import { jsx, Component } from '@antv/f-engine';
 import { getCombo } from './components/comos';
-import { connector } from './connector';
+import { connect, connector } from './connector';
 
 import { calcBBox, calcMatrix, calculateBBox } from '../adapter/element';
 
@@ -8,23 +8,36 @@ import { isNumber } from '@antv/util';
 import { Global } from '../../const';
 import { combo as comboActions } from '../../store';
 
-@connector((state, props) => {
+@connect((graph, props) => {
   const { sortedCombo } = props;
+  const combo = graph.comboManager.byId(sortedCombo.id);
+
   return {
-    allNodes: state.node.state.entities,
-    combo: state.combo.state.entities[sortedCombo.id],
-    nodes: Object.values(state.node.state.entities).filter((node) => {
+    allNodes: graph.nodeManager.models,
+    combo: combo.model,
+    nodes: graph.nodeManager.models.filter((node) => {
       return sortedCombo.children?.some(({ id }) => id === node.id);
     }),
-    combos: Object.values(state.combo.state.entities).filter((node) => {
+    combos: graph.comboManager.models.filter((node) => {
       return sortedCombo.children?.some(({ id }) => id === node.id);
     }),
+    inject: combo.inject.bind(combo),
+    setPosition: combo.setPosition.bind(combo),
+    calcComboBBox: graph.comboManager.calcComboBBox.bind(graph.comboManager),
+    isAutoSize: graph.comboManager.isAutoSize,
   };
 })
 export class Combo extends Component {
   nodeRef = { current: null };
   cacheCombo = {};
   cahcePosition = {};
+  size = {};
+  position = {};
+
+  willMount(): void {
+    const { inject } = this.props;
+    inject('getBBox', this.getBBox);
+  }
 
   didMount(): void {
     this.container.item = this;
@@ -43,42 +56,47 @@ export class Combo extends Component {
     return 'combo';
   }
 
-  getBBox() {
+  getBBox = () => {
     const { combo } = this.props;
     if (!combo) return;
     let matrix = calcMatrix(this.getNodeRoot());
     return calculateBBox(calcBBox(this.getKeyShape()), matrix);
-  }
-
-  calcComboBBox() {
-    const { nodes, combos, combo } = this.props;
-    return comboActions.calcComboBBox(combo.id);
-  }
+  };
 
   getAnchorPoints() {}
 
-  getRenderSize(padding = 0) {
-    const bbox = this.calcComboBBox();
-    if (bbox) {
-      // merge graph的item样式与数据模型中的样式
-      const size = {
-        r: Math.hypot(bbox.height, bbox.width) / 2 || Global.defaultCombo.size[0] / 2,
-        width: bbox.width || Global.defaultCombo.size[0],
-        height: bbox.height || Global.defaultCombo.size[1],
-      };
-      if (isNumber(padding)) {
-        size.r += padding;
-        size.width += padding * 2;
-        size.height += padding * 2;
-      } else {
-        size.r += padding[0];
-        size.width += padding[1] + padding[3] || padding[1] * 2;
-        size.height += padding[0] + padding[2] || padding[0] * 2;
-      }
-      // this.set(CACHE_SIZE, size);
-      return size;
+  getRenderRect(padding = 0) {
+    const { calcComboBBox, combo } = this.props;
+    let x = 0;
+    let y = 0;
+    const bbox = calcComboBBox(combo.id);
+    // merge graph的item样式与数据模型中的样式
+    const size = {
+      r: Math.hypot(bbox.height, bbox.width) / 2 || Global.defaultCombo.size[0] / 2,
+      width: bbox.width || Global.defaultCombo.size[0],
+      height: bbox.height || Global.defaultCombo.size[1],
+    };
+    if (isNumber(padding)) {
+      size.r += padding;
+      size.width += padding * 2;
+      size.height += padding * 2;
+    } else {
+      size.r += padding[0];
+      size.width += padding[1] + padding[3] || padding[1] * 2;
+      size.height += padding[0] + padding[2] || padding[0] * 2;
     }
+
+    if (!isNaN(bbox.x)) x = bbox.x;
+    else if (isNaN(x)) x = Math.random() * 100;
+    if (!isNaN(bbox.y)) y = bbox.y;
+    else if (isNaN(y)) y = Math.random() * 100;
+    // this.set(CACHE_SIZE, size);
+    // return size;
+    this.size = size;
+    this.position = { x, y };
   }
+
+  getRenderPosition() {}
 
   getShapeNode() {
     return this.nodeRef.current;
@@ -105,28 +123,21 @@ export class Combo extends Component {
   }
 
   didUpdate(prev): void {
-    const { combo } = this.props;
-    let { x, y } = combo;
+    const { isAutoSize, setPosition, combo } = this.props;
+    // let { x, y } = combo;
+    // const comboBBox = this.calcComboBBox();
+    // if (!isNaN(comboBBox.x)) x = comboBBox.x;
+    // else if (isNaN(x)) x = Math.random() * 100;
+    // if (!isNaN(comboBBox.y)) y = comboBBox.y;
+    // else if (isNaN(y)) y = Math.random() * 100;
 
-    const comboBBox = this.calcComboBBox();
-
-    if (!isNaN(comboBBox.x)) x = comboBBox.x;
-    else if (isNaN(x)) x = Math.random() * 100;
-
-    if (!isNaN(comboBBox.y)) y = comboBBox.y;
-    else if (isNaN(y)) y = Math.random() * 100;
-
-    comboActions.updateOne({
-      id: combo.id,
-      changes: {
-        x,
-        y,
-      },
-    });
+    if (isAutoSize) {
+      setPosition(this.position);
+    }
   }
 
   render() {
-    const { combo } = this.props;
+    const { isAutoSize, combo } = this.props;
 
     const Shape = getCombo(combo?.type || 'circle');
 
@@ -136,7 +147,8 @@ export class Combo extends Component {
     }
 
     const defaultStyle = Shape?.getOptions();
-    const size = this.getRenderSize();
+    isAutoSize && this.getRenderRect();
+    const size = this.size;
 
     this.cahcePosition = {
       x: combo.x || 0,
@@ -150,6 +162,7 @@ export class Combo extends Component {
     };
 
     const ele = <Shape ref={this.nodeRef} combo={this.cacheCombo} />;
+
     return ele;
   }
 }

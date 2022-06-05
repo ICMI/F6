@@ -4,8 +4,6 @@
 import { BaseBehavior } from './base';
 import { BehaviorService } from './behaviorService';
 
-import { combo, graph, view } from '../store';
-
 // const { cloneEvent, isNaN } = Util;
 
 const { abs } = Math;
@@ -54,9 +52,9 @@ export class DragCanvas extends BaseBehavior {
       x: clientX,
       y: clientY,
     };
-    const width = view.state.width;
-    const height = view.state.height;
-    const graphCanvasBBox = graph.getCanvasBBox();
+    const width = this.graph.view.width;
+    const height = this.graph.view.height;
+    const graphCanvasBBox = this.graph.getCanvasBBox();
 
     if (
       (graphCanvasBBox.minX <= width + this.scalableRange &&
@@ -74,7 +72,7 @@ export class DragCanvas extends BaseBehavior {
     ) {
       dy = 0;
     }
-    graph.translate({ x: dx, y: dy });
+    this.graph.translate({ x: dx, y: dy });
   }
   onDragStart(e: IG6GraphEvent) {
     const self = this as any;

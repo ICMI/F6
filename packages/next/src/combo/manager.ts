@@ -1,23 +1,28 @@
-import { computed, injectTrigger } from './store';
-import { v4 as uuid } from 'uuid';
-import { Node, node } from './node';
-import { Entity } from './entity';
+import { makeAutoObservable, observable, computed, makeObservable } from 'mobx';
+import { Item } from '../item/item';
+import { ItemManger } from '../item/manager';
+import { Combo } from './combo';
 
-export class Combo extends Node {
-  node = node;
+export class ComboManager extends ItemManger {
   isAutoSize = true;
 
-  createOne(item: any) {
-    item.visible = true;
-    item.type = item.type || 'circle';
-    item.__type = 'combo';
-    return item;
+  graph = null;
+
+  constructor(graph) {
+    super();
+    this.graph = graph;
+    makeObservable(this, {
+      sortedCombos: computed,
+    });
   }
 
-  // @computed((self) => [self.state.ids, self.node.state.ids])
-  sortedCombos() {
-    const combos = Object.values(this.state.entities);
-    const nodes = Object.values(this.node.state.entities);
+  createItem(data: any): Item {
+    return new Combo(data, this.graph);
+  }
+
+  get sortedCombos() {
+    const combos = this.models;
+    const nodes = this.graph.nodeManager.models;
     // 邻接
     const combosMap = {};
     combos.forEach((combo) => {
@@ -65,16 +70,15 @@ export class Combo extends Node {
     return combosSorted;
   }
 
-  @computed((self) => [self.sortedCombos])
-  getCombo(comboId) {
-    const combos = this.sortedCombos();
+  getParsedCombo(comboId) {
+    const combos = this.sortedCombos;
     for (const combo of combos) {
       if (combo.id === comboId) return combo;
     }
   }
 
   calcComboBBox(id) {
-    const combo = this.getCombo(id);
+    const combo = this.getParsedCombo(id);
 
     const children = [...(combo.nodes || []), ...(combo.combos || [])];
 
@@ -96,7 +100,7 @@ export class Combo extends Node {
     }
 
     children.forEach((node) => {
-      const childBBox = this.getBBox(node.id) || node.getBBox(node.id);
+      const childBBox = this.graph.getItem(node.id).getBBox();
       if (!childBBox) return; // ignore hidden children
       if (childBBox.x && comboBBox.minX > childBBox.minX) comboBBox.minX = childBBox.minX;
       if (childBBox.y && comboBBox.minY > childBBox.minY) comboBBox.minY = childBBox.minY;
@@ -120,34 +124,14 @@ export class Combo extends Node {
     return comboBBox;
   }
 
-  @injectTrigger()
-  translate(data, state?) {
-    // super.translate(data, state);
-    const { id, x, y } = data;
-    const entity = state.entities[id];
-    entity.x = (entity.x || 0) + x;
-    entity.y = (entity.y || 0) + y;
-    console.log('store: ', entity.id, entity.x, entity.y);
-
-    // const { id } = data;
-    const combo = this.getCombo(id);
-    // combo.nodes?.forEach((entity) => {
-    //   this.node.translate({ ...data, id: entity.id });
-    // });
+  translate(id, pos) {
+    const combo = this.getParsedCombo(id);
+    this.graph.getItem(id).translate(pos);
+    combo.nodes?.forEach((entity) => {
+      this.graph.getItem(entity.id).translate(pos);
+    });
     combo.combos?.forEach((entity) => {
-      this.translate({ ...data, id: entity.id });
+      this.translate(entity.id, pos);
     });
   }
-
-  updateSize(data, state) {}
-
-  getBBox() {}
-
-  inject(key, fn) {
-    this[key] = fn;
-  }
 }
-
-export const combo = new Combo();
-
-export const { init } = combo;

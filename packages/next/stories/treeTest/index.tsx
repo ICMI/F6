@@ -158,7 +158,7 @@ export default () => {
             },
           }}
           modes={{
-            default: ['collapse-slibing', 'drag-canvas'],
+            default: ['collapse-slibing', 'drag-canvas', 'drag-node'],
           }}
         ></TreeGraph>
       </Canvas>

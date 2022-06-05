@@ -75,7 +75,9 @@
     "@reduxjs/toolkit": "*",
     "uuid": "*",
     "reduce-reducers": "*",
-    "immer": "*"
+    "immer": "*",
+    "mobx": "*",
+    "mobx-react": "*"
   },
   "devDependencies": {
     "@antv/f6-plugin": "^1.0.1",

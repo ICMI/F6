@@ -26,18 +26,4 @@ export class BehaviorService {
   public static getBehavior(type: string) {
     return BehaviorService.types[type];
   }
-
-  public static bindEvents(eventService, behavior) {
-    const events = behavior.getEvents();
-    each(events, (fn, key) => {
-      eventService.on(key, behavior[fn].bind(behavior));
-    });
-  }
-
-  public static unBindEvents(eventService, behavior) {
-    const events = behavior.getEvents();
-    each(events, (fn, key) => {
-      eventService.off(key, behavior[fn].bind(behavior));
-    });
-  }
 }

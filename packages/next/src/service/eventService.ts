@@ -2,12 +2,12 @@ import { ICanvas, IGroup, IShape } from '@antv/g-base';
 import { each, wrapBehavior } from '@antv/util';
 import EE from 'eventemitter3';
 import { getCanvasByPoint, getPointByCanvas } from './viewService';
-import { graph } from '../store';
 
 import { cloneEvent, isViewportChanged } from '../utils';
 
 type Fun = () => void;
 export default class EventService extends EE {
+  graph = null;
   canvasHandler!: Fun;
   canvas = null;
 
@@ -18,6 +18,11 @@ export default class EventService extends EE {
   protected preItem: Item | null = null;
 
   public destroyed: boolean;
+
+  constructor(graph) {
+    super();
+    this.graph = graph;
+  }
 
   // 初始化 G6 中的事件
   protected initEvents(canvas) {
@@ -53,7 +58,7 @@ export default class EventService extends EE {
     let point = { x: evt.canvasX, y: evt.canvasY };
 
     // const group: IGroup = graph.get('group');
-    let matrix: Matrix = graph.getMatrix();
+    let matrix: Matrix = this.graph.getMatrix();
 
     if (!matrix) {
       matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];

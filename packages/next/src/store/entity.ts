@@ -30,12 +30,34 @@ export class Entity {
   }
 
   @injectTrigger()
+  addOne(item, state?) {
+    item.id = isNil(item.id) ? uuid() : item.id;
+    state.entities[item.id] = this.createOne(item);
+    state.ids.push(item.id);
+  }
+
+  @injectTrigger()
+  removeOne(id, state?) {
+    delete state.entities[id];
+    state.ids.splice(state.ids.indexOf(id), 1);
+  }
+
+  @injectTrigger()
   updateMany(data, state?) {
     data?.forEach((data) => {
       const { id, changes } = data;
       if (state.entities[id]) {
         state.entities[id] = { ...state.entities[id], ...changes };
       }
+    });
+  }
+
+  @injectTrigger()
+  addMany(data, state?) {
+    data?.forEach((item) => {
+      item.id = isNil(item.id) ? uuid() : item.id;
+      state.entities[item.id] = this.createOne(item);
+      state.ids.push(item.id);
     });
   }
 

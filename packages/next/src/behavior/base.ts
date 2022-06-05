@@ -1,5 +1,9 @@
+import { each } from '@antv/util';
+
 // 自定义 Behavior 时候共有的方法
 export class BaseBehavior {
+  graph = null;
+
   getDefaultCfg() {
     return {};
   }
@@ -39,5 +43,20 @@ export class BaseBehavior {
   set(key: string, val: any) {
     (this as any)[key] = val;
     return this;
+  }
+
+  public bindEvents(graph) {
+    this.graph = graph;
+    const events = this.getEvents();
+    each(events, (fn, key) => {
+      graph.on(key, this[fn].bind(this));
+    });
+  }
+
+  public unBindEvents(graph) {
+    const events = this.getEvents();
+    each(events, (fn, key) => {
+      graph.off(key, this[fn].bind(this));
+    });
   }
 }

@@ -1,7 +1,7 @@
-import { computed, injectTrigger } from './store';
+import { each, isNil, mod } from '@antv/util';
+import { action, makeAutoObservable, makeObservable, observable } from 'mobx';
 import { v4 as uuid } from 'uuid';
-import { Entity } from './entity';
-import { each } from '@antv/util';
+import { Item } from '../item/item';
 import {
   distance,
   getCircleIntersectByPoint,
@@ -26,30 +26,43 @@ const getNearestPoint = (points: IPoint[], curPoint: IPoint): IPoint => {
   return nearestPoint;
 };
 
-export class Node extends Entity {
-  state = {
-    entities: {},
-    ids: [],
-  };
+export class Node extends Item {
+  rootId = null; // 兼容树图
+  graph = null;
+  parent = null;
 
-  rootId = null;
+  constructor(model, graph) {
+    super();
+    this.graph = graph;
+    this.model = { ...model };
+    this.model.type = model.type || 'circle';
+    this.model.visible = true;
+    makeObservable(this, {
+      setPosition: action,
+    });
+  }
+
+  get type() {
+    return 'node';
+  }
+
+  setPosition(position) {
+    this.model = { ...this.model, ...position };
+    // this.model.x = position.x;
+    // this.model.y = position.y;
+  }
+
+  getParent() {
+    return this.graph.getItem(this.model.parent);
+  }
 
   setRootId(id) {
+    if (isNil(id)) return;
     this.rootId = id;
   }
 
-  getTree() {
-    return this.state.entities[this.rootId];
-  }
-
-  createOne(item: any) {
-    item.type = item.type || 'circle';
-    item.visible = true;
-    return item;
-  }
-
-  @computed((self, id) => [self.state.entities[id]])
-  calcAnchorPoints(id) {
+  calcAnchorPoints() {
+    const id = this.model.id;
     const bbox = this.getBBox(id);
     const anchorPoints = [];
     const points = this.getAnchorPoints(id);
@@ -65,14 +78,15 @@ export class Node extends Entity {
     return anchorPoints;
   }
 
-  getLinkPointByAnchor(id, index: number) {
+  getLinkPointByAnchor(index: number) {
+    const id = this.model.id;
     const anchorPoints = this.calcAnchorPoints(id);
     return anchorPoints[index];
   }
 
-  getLinkPoint = (id, point: IPoint): IPoint | null => {
-    const nodeState = this.state.entities[id];
-
+  getLinkPoint = (point: IPoint): IPoint | null => {
+    const id = this.model.id;
+    const nodeState = this.model;
     const type: string = nodeState['type'];
     const itemType: string = nodeState['type'];
     let centerX;
@@ -128,6 +142,58 @@ export class Node extends Entity {
     return linkPoint;
   };
 
+  /**
+   * 获取从节点关联的所有边
+   */
+  public getEdges(): IEdge[] {
+    return this.graph.edgeManager.getEdges(this.model.id);
+  }
+
+  /**
+   * 获取所有的入边
+   */
+  public getInEdges(): IEdge[] {
+    return this.graph.edgeManager.getInEdges(this.model.id);
+  }
+
+  /**
+   * 获取所有的出边
+   */
+  public getOutEdges(): IEdge[] {
+    return this.graph.edgeManager.getOutEdges(this.model.id);
+  }
+
+  /**
+   * 获取节点的邻居节点
+   *
+   * @returns {INode[]}
+   * @memberof Node
+   */
+  public getNeighbors(type?: 'target' | 'source' | undefined): INode[] {
+    const edges = this.getEdges();
+
+    if (type === 'target') {
+      // 当前节点为 source，它所指向的目标节点
+      const neighhborsConverter = (edge: IEdge) => {
+        return edge.getSource() === this;
+      };
+      return edges.filter(neighhborsConverter).map((edge) => edge.getTarget());
+    }
+    if (type === 'source') {
+      // 当前节点为 target，它所指向的源节点
+      const neighhborsConverter = (edge: IEdge) => {
+        return edge.getTarget() === this;
+      };
+      return edges.filter(neighhborsConverter).map((edge) => edge.getSource());
+    }
+
+    // 若未指定 type ，则返回所有邻居
+    const neighhborsConverter = (edge: IEdge) => {
+      return edge.getSource() === this ? edge.getTarget() : edge.getSource();
+    };
+    return edges.map(neighhborsConverter);
+  }
+
   getBBox(id) {
     return {};
   }
@@ -136,17 +202,18 @@ export class Node extends Entity {
     return [];
   }
 
-  @injectTrigger()
-  translate(data, state?) {
-    const { id, x, y } = data;
-    const entity = state.entities[id];
-    entity.x = (entity.x || 0) + x;
-    entity.y = (entity.y || 0) + y;
+  translate(pos) {
+    const { x, y } = this.model;
+    this.model = {
+      ...this.model,
+      ...{
+        x: x + pos.x,
+        y: y + pos.y,
+      },
+    };
   }
 
   inject(key, fn) {
     this[key] = fn;
   }
 }
-
-export const node = new Node();

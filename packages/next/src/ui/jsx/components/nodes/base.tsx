@@ -1,4 +1,4 @@
-import { jsx, Component } from '@antv/f-engine';
+import { jsx, Component, renderShape } from '@antv/f-engine';
 import { isArray, isNil, mix } from '@antv/util';
 // import { ILabelConfig, ShapeOptions } from '../interface/shape';
 // import { Item, LabelStyle, NodeConfig, ModelConfig } from '../types';
@@ -336,8 +336,8 @@ export class BaseNode extends BaseShape {
             ...(animation.update || {}),
             onFrame,
           },
-          end: {
-            ...(animation.end || {}),
+          leave: {
+            duration: 1500,
             onFrame,
           },
         }}

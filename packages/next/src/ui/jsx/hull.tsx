@@ -1,6 +1,6 @@
-import { jsx, Component } from '@antv/f-engine';
+import { jsx, Component, renderShape } from '@antv/f-engine';
 import { getNode } from './components/nodes';
-import { connector } from './connector';
+import { connect, connector } from './connector';
 
 import { IGroup } from '@antv/g-base';
 import { deepMix, isString } from '@antv/util';
@@ -12,16 +12,18 @@ import { isPolygonsIntersect } from '../../utils/math';
 import { genConvexHull } from '../hull/convexHull';
 import { genBubbleSet } from '../hull/bubbleset';
 
-@connector((state, props) => {
-  const hull = state.hull.state.entities[props.id];
+@connect((graph, props) => {
+  const hull = graph.hullManager.byId(props.id);
+
   return {
-    hull: hull,
-    members: Object.values(state.node.state.entities).filter((node) => {
-      return hull.members?.includes(node.id);
+    hull: hull.model,
+    members: graph.nodeManager.models.filter((node) => {
+      return hull.model.members?.includes(node.id);
     }),
-    nonMembers: Object.values(state.node.state.entities).filter((node) => {
-      return hull.nonMembers?.includes(node.id);
+    nonMembers: graph.nodeManager.models.filter((node) => {
+      return hull.model.nonMembers?.includes(node.id);
     }),
+    getItem: graph.getItem.bind(graph),
   };
 })
 export class Hull extends Component {
@@ -135,18 +137,26 @@ export class Hull extends Component {
 
   willMount(): void {}
 
+  didMount(): void {
+    // console.log('renderShpae: ', this, render(this, this.render(), false));
+  }
   render() {
     const { hull, members, nonMembers } = this.props;
     this.setType();
     this.setPadding();
     const path = this.calcPath(members, nonMembers);
     return (
-      <path
+      <Path2
         style={{
           ...{ ...this.cfg.style, ...(hull.style || {}) },
           path,
         }}
-      ></path>
+      ></Path2>
     );
   }
+}
+
+function Path2(props) {
+  const { style, onClick } = props;
+  return <path style={style} onClick={onClick}></path>;
 }

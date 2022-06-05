@@ -2,32 +2,22 @@ import { jsx, Component } from '@antv/f-engine';
 import { isEqual } from '@antv/util';
 import { edge as edgeActions } from '../../store';
 import { getEdge } from './components/edges';
-import { connector } from './connector';
+import { connect, connector } from './connector';
 
-@connector(
-  (state, props) => {
-    const edge = state.edge.state.entities[props.id];
+@connect((graph, props) => {
+  const edge = graph.edgeManager.byId(props.id);
 
-    const sourceNode =
-      state.node.state.entities[edge?.source] || state.combo.state.entities[edge?.source];
-    const targetNode =
-      state.node.state.entities[edge?.target] || state.combo.state.entities[edge?.target];
-
-    return {
-      linkCenter: false,
-      edge,
-      sourceNode,
-      targetNode,
-    };
-  },
-  (dispatch) => {
-    return {
-      updateEdgePoints(node) {
-        edgeActions.updateOne(node);
-      },
-    };
-  },
-)
+  return {
+    sourceNode: edge.getNodeEntity(edge.model.source),
+    targetNode: edge.getNodeEntity(edge.model.target),
+    linkCenter: false,
+    edge: edge.model,
+    inject: edge.inject.bind(edge),
+    getEndCenter: edge.getEndCenter.bind(edge),
+    getLinkPoint: edge.getLinkPoint.bind(edge),
+    getControlPointsByCenter: edge.getControlPointsByCenter.bind(edge),
+  };
+})
 export class Edge extends Component {
   edgeShapeRef = { current: null };
 
@@ -35,25 +25,33 @@ export class Edge extends Component {
     return 'edge';
   }
 
-  didMount(): void {}
-
-  didUpdate(): void {}
+  willMount(): void {
+    const { inject } = this.props;
+    inject('getControlPoints', this.getControlPoints);
+  }
 
   getShapeEdge() {
     return this.edgeShapeRef.current;
   }
 
   getPoints() {
-    const { updateEdgePoints, edge, linkCenter } = this.props;
+    const {
+      updateEdgePoints,
+      edge,
+      linkCenter,
+      getEndCenter,
+      getControlPointsByCenter,
+      getLinkPoint,
+    } = this.props;
     if (!edge) return;
     let startPoint, endPoint;
     if (linkCenter) {
-      startPoint = edgeActions.getEndCenter('source', edge.id);
-      endPoint = edgeActions.getEndCenter('target', edge.id);
+      startPoint = getEndCenter('source', edge.id);
+      endPoint = getEndCenter('target', edge.id);
     } else {
-      const controlPoints = edge.controlPoints || edgeActions.getControlPointsByCenter(edge.id);
-      startPoint = edgeActions.getLinkPoint('source', edge, controlPoints);
-      endPoint = edgeActions.getLinkPoint('target', edge, controlPoints);
+      const controlPoints = edge.controlPoints || getControlPointsByCenter(edge.id);
+      startPoint = getLinkPoint('source', edge, controlPoints);
+      endPoint = getLinkPoint('target', edge, controlPoints);
     }
     return {
       startPoint,
@@ -61,9 +59,9 @@ export class Edge extends Component {
     };
   }
 
-  getControlPoints(cfg) {
+  getControlPoints = (cfg) => {
     return this.getShapeEdge()?.getControlPoints(cfg);
-  }
+  };
 
   render() {
     const {

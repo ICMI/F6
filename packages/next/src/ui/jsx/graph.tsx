@@ -1,29 +1,24 @@
 import { jsx, Component, AdapterHammer } from '@antv/f-engine';
+import { autorun, observable, reaction } from 'mobx';
+import { observer } from 'mobx-react';
 import { createGlobalContext, getGlobalContext, GlobalContext } from '../../service';
 import { GraphRoot } from './graphRoot';
+import { Graph as RootStore } from '../../graph/graph';
+import { NodeManager } from '../../node/manager';
 
 export class Graph extends Component {
   hammer = null;
-  constructor(props) {
-    super(props);
-    createGlobalContext();
-  }
 
   willMount(): void {
-    const { layout } = this.props;
-    const { width, height } = this.context.root.props;
-
     this.hammer = new AdapterHammer(this.context.canvas);
 
-    this.hammer.on('*', getGlobalContext().eventService.canvasHandler);
+    const graph = new RootStore();
+    graph.eventService.initEvents();
+    graph.eventService.canvas = this.context.canvas;
 
-    getGlobalContext().layoutService.setLayoutConfig(layout, width, height);
-    getGlobalContext().eventService.canvas = this.context.canvas;
-  }
+    this.hammer.on('*', graph.eventService.canvasHandler);
 
-  didMount(): void {
-    const { modes } = this.props;
-    getGlobalContext().modeService.setModes(modes);
+    this.context.graph = graph;
   }
 
   render() {

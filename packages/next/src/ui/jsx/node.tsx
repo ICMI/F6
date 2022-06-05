@@ -4,33 +4,28 @@ import { node as nodesActions, store } from '../../store';
 import { animate } from '../../store/animate';
 import { state } from '../../store/state';
 import { getNode } from './components/nodes';
-import { connector } from './connector';
+import { connect, connector } from './connector';
 
-@connector(
-  (state, props) => {
-    return {
-      node: state.node.state.entities[props.id],
-      appear: animate.getAppear(props.id),
-      update: animate.getUpdate(props.id),
-      end: animate.getEnd(props.id),
-      states: state.state.state[props.id],
-    };
-  },
-  (dispatch, props) => {
-    return {
-      updateNode(changes) {
-        const { id } = props;
-        nodesActions.updateOne({
-          id: id,
-          changes,
-        });
-      },
-    };
-  },
-)
+@connect((graph, props) => {
+  const node = graph.nodeManager.byId(props.id);
+  return {
+    node: node.model,
+    inject: node.inject.bind(node),
+    // appear: animate.getAppear(props.id),
+    // update: animate.getUpdate(props.id),
+    // end: animate.getEnd(props.id),
+    // states: state.state.state[props.id],
+  };
+})
 export class Node extends Component {
   nodeRef = { current: null };
   cacheBBox = null;
+
+  willMount(): void {
+    const { inject } = this.props;
+    inject('getBBox', this.getBBox);
+    inject('getAnchorPoints', this.getAnchorPoints);
+  }
 
   getModel() {
     return this.props.node;
@@ -43,10 +38,6 @@ export class Node extends Component {
   }
   getType() {
     return 'node';
-  }
-  updatePosition({ x, y }) {
-    const { updateNode } = this.props;
-    updateNode({ x, y });
   }
 
   getBBox = () => {
@@ -90,7 +81,7 @@ export class Node extends Component {
     const { updateNode, id } = this.props;
     let { x, y } = this.getNodeRoot().style;
     y = typeof y === 'string' ? Number(y.replace('px', '')) : y;
-    updateNode({ x, y });
+    // updateNode({ x, y });
   };
 
   render() {

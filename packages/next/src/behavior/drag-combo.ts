@@ -9,7 +9,6 @@ import { each } from '@antv/util';
 // import { IGraph } from '../interface/graph';
 import { calculationItemsBBox } from '../utils';
 import Global from '../global';
-import { combo, node } from '../store';
 import { BaseBehavior } from './base';
 
 /**
@@ -126,7 +125,7 @@ export class DragCombo extends BaseBehavior {
 
     this.currentItemChildCombos = [];
 
-    const comboEntity = combo.getCombo(item.getComboId());
+    const comboEntity = this.graph.comboManager.getParsedCombo(item.getComboId());
 
     traverseCombo(comboEntity, (model) => {
       this.currentItemChildCombos.push(model.id);
@@ -304,6 +303,7 @@ export class DragCombo extends BaseBehavior {
   onDragEnd(evt: IG6GraphEvent) {
     if (!this.targets || this.targets.length === 0) return;
     const item = evt.item;
+    this.graph.comboManager.isAutoSize = true;
     this.updatePositions(evt);
     // const parentCombo = this.getParentCombo(item.getModel().parentId);
     // const graph: IGraph = this.graph;
@@ -378,11 +378,11 @@ export class DragCombo extends BaseBehavior {
       x: evt.x,
       y: evt.y,
     };
-
-    combo.translate({
+    this.graph.comboManager.isAutoSize = false;
+    // const combo = this.graph.getItem(itemId);
+    this.graph.comboManager.translate(itemId, {
       x: dx,
       y: dy,
-      id: itemId,
     });
   }
 

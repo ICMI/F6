@@ -11,7 +11,6 @@ import { deepMix, clone } from '@antv/util';
 // import { IGraph } from '../interface/graph';
 import Global from '../global';
 import { BaseBehavior } from './base';
-import { BehaviorService } from './behaviorService';
 
 export class DragNode extends BaseBehavior {
   targets = [];
@@ -343,7 +342,7 @@ export class DragNode extends BaseBehavior {
 
     // console.log('pos: ', pos.x, pos.y);
 
-    item.updatePosition(pos);
+    this.graph.nodeManager.setPosition(nodeId, pos);
 
     // if (this.get('updateEdge')) {
     //   this.graph.updateItem(item, pos, false);

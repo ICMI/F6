@@ -9,6 +9,7 @@ import { layout as graphLayout } from './layout';
 import { view } from './view';
 import { formatPadding } from '../utils';
 import { ext } from '@antv/matrix-util';
+import { getGlobalContext } from '../service';
 
 const { transform } = ext;
 
@@ -37,6 +38,7 @@ export class Graph {
     edge.init(data.edges);
     combo.init(data.combos || []);
     hull.init(data.hulls || []);
+    graphLayout.layout();
   }
 
   initTreeGraph(props) {
@@ -71,7 +73,7 @@ export class Graph {
     this.combo.init(data.combos || []);
     this.hull.init(data.hulls || []);
     this.treeLayout.setLayoutCfg(layout);
-    treeLayout.layout();
+    // treeLayout.layout();
   }
 
   @injectTrigger()
@@ -106,11 +108,6 @@ export class Graph {
     const { ratio: toRatio, center } = data;
     const ratio = toRatio / this.state.matrix[0];
     this.zoom({ ratio, center });
-  }
-
-  @injectTrigger()
-  rotate(degree = 0, state?) {
-    state.rotate = degree;
   }
 
   @injectTrigger()
@@ -152,6 +149,8 @@ export class Graph {
       y: (height - padding[0] - padding[2]) / 2 + padding[0],
     };
   }
+
+  removeItem(id) {}
 
   getCanvasBBox() {}
   inject(key, fn) {

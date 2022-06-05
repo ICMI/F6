@@ -2,7 +2,31 @@ import React, { useEffect } from 'react';
 import { Graph, Canvas, registerLayout } from '../../src';
 import data from './data';
 import { ForceLayout, DagreLayout } from '@antv/layout/lib/layout';
+import { makeObservable, observable, reaction } from 'mobx';
+class Test {
+  test = 1;
+  constructor() {
+    makeObservable(this, {
+      test: observable,
+    });
+  }
 
+  random() {
+    this.test = Math.random();
+  }
+}
+
+const testStore = new Test();
+reaction(
+  () => testStore,
+  () => {
+    console.log(testStore.test);
+  },
+);
+
+setInterval(() => {
+  testStore.random();
+}, 1000);
 export default () => {
   const ref = React.useRef(null);
   const height = window.innerHeight - 32; // demos padding
