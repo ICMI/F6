@@ -13,6 +13,7 @@ import { combo as comboActions } from '../../store';
   const combo = graph.comboManager.byId(sortedCombo.id);
 
   return {
+    item: combo,
     allNodes: graph.nodeManager.models,
     combo: combo.model,
     nodes: graph.nodeManager.models.filter((node) => {
@@ -40,7 +41,7 @@ export class Combo extends Component {
   }
 
   didMount(): void {
-    this.container.item = this;
+    this.container.item = this.props.item;
     this.container.style.zIndex = this.props.combo.depth;
   }
 
@@ -123,17 +124,11 @@ export class Combo extends Component {
   }
 
   didUpdate(prev): void {
-    const { isAutoSize, setPosition, combo } = this.props;
-    // let { x, y } = combo;
-    // const comboBBox = this.calcComboBBox();
-    // if (!isNaN(comboBBox.x)) x = comboBBox.x;
-    // else if (isNaN(x)) x = Math.random() * 100;
-    // if (!isNaN(comboBBox.y)) y = comboBBox.y;
-    // else if (isNaN(y)) y = Math.random() * 100;
-
-    if (isAutoSize) {
-      setPosition(this.position);
-    }
+    const { isAutoSize, setPosition, sortedCombo } = this.props;
+    this.container.parentNode.style.zIndex = sortedCombo.depth;
+    // if (isAutoSize) {
+    setPosition(this.position);
+    // }
   }
 
   render() {
@@ -147,7 +142,7 @@ export class Combo extends Component {
     }
 
     const defaultStyle = Shape?.getOptions();
-    isAutoSize && this.getRenderRect();
+    this.getRenderRect();
     const size = this.size;
 
     this.cahcePosition = {

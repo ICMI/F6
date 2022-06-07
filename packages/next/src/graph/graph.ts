@@ -9,6 +9,7 @@ import { ext } from '@antv/matrix-util';
 import EventService from '../service/eventService';
 import ModeService from '../service/modeService';
 import { BehaviorService } from '../behavior';
+import { each, isNil } from '@antv/util';
 const { transform } = ext;
 
 export class Graph {
@@ -122,6 +123,10 @@ export class Graph {
     this.eventService.on(...args);
   }
 
+  emit(...args) {
+    this.eventService.emit(...args);
+  }
+
   addItem(type, model) {
     switch (type) {
       case 'node':
@@ -143,21 +148,22 @@ export class Graph {
     if (typeof item === 'string' || typeof item === 'number') {
       temItem = this.getItem(item);
     }
+    if (isNil(temItem)) return;
 
     let removeEdges = [];
     const removeNodes = [];
     const removeCombos = [];
 
-    switch (item.type) {
+    switch (temItem.type) {
       case 'node':
-        removeEdges = item.getEdges();
+        removeEdges = temItem.getEdges();
         removeNodes.push(temItem);
         break;
       case 'edge':
         removeEdges.push(temItem);
         break;
       case 'combo':
-        removeEdges = item.getEdges();
+        removeEdges = temItem.getEdges();
         removeCombos.push(temItem);
         break;
       default:
@@ -174,19 +180,60 @@ export class Graph {
     if (typeof item === 'string' || typeof item === 'number') {
       temItem = this.getItem(item);
     }
-    switch (item.type) {
+    if (isNil(temItem)) return;
+
+    switch (temItem.type) {
       case 'node':
-        this.nodeManager.updateItem(item.id, model);
+        this.nodeManager.updateItem(temItem.id, model);
         break;
       case 'edge':
-        this.edgeManager.updateItem(item.id, model);
+        this.edgeManager.updateItem(temItem.id, model);
         break;
       case 'combo':
-        this.comboManager.updateItem(item.id, model);
+        this.comboManager.updateItem(temItem.id, model);
         break;
       default:
         break;
     }
+  }
+
+  getItemManager(type) {
+    switch (type) {
+      case 'node':
+        return this.nodeManager;
+      case 'edge':
+        return this.edgeManager;
+      case 'combo':
+        return this.comboManager;
+      default:
+        break;
+    }
+  }
+
+  public findAll<T extends Item>(type: ITEM_TYPE, fn: (item: T, index?: number) => boolean): T[] {
+    const result: T[] = [];
+
+    each(this.getItemManager(type).items, (item, i) => {
+      if (fn(item, i)) {
+        result.push(item);
+      }
+    });
+
+    return result;
+  }
+
+  findAllByState(type, state) {
+    return this.findAll(type, (item) => item.hasState(state));
+  }
+
+  setItemState(item, stateName, value) {
+    let temItem = item;
+    if (typeof item === 'string' || typeof item === 'number') {
+      temItem = this.getItem(item);
+    }
+    if (isNil(temItem)) return;
+
+    item.setState(stateName, value);
   }
 
   getMatrix() {}

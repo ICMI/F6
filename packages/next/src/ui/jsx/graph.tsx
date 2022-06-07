@@ -16,6 +16,10 @@ export class Graph extends Component {
     graph.eventService.initEvents();
     graph.eventService.canvas = this.context.canvas;
 
+    this.context.canvas.addEventListener('dragenter', () => {
+      console.log('dragenter');
+    });
+
     this.hammer.on('*', graph.eventService.canvasHandler);
 
     this.context.graph = graph;

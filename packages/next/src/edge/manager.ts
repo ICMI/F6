@@ -14,14 +14,16 @@ export class EdgeManager extends ItemManger {
   }
 
   getEdges(id) {
-    return this.items.filter((item) => item.model.source === id || item.model.target === id);
+    return Object.values(this.items).filter(
+      (item) => item.model.source === id || item.model.target === id,
+    );
   }
 
   getInEdges(id) {
-    return this.items.filter((item) => item.model.source === id);
+    return Object.values(this.items).filter((item) => item.model.source === id);
   }
 
   getOutEdges(id) {
-    return this.items.filter((item) => item.model.target === id);
+    return Object.values(this.items).filter((item) => item.model.target === id);
   }
 }

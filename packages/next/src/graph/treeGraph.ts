@@ -1,12 +1,10 @@
-import { each, extend, uniqueId } from '@antv/util';
+import { clone, each, extend, uniqueId } from '@antv/util';
 import { formatPadding } from '../utils';
 import { ext } from '@antv/matrix-util';
 import { getGlobalContext } from '../service';
 import { Graph } from './graph';
-import { traverseTreeUp } from '../utils/graphic';
+import { traverseTree, traverseTreeUp } from '../utils/graphic';
 import Hierarchy from '@antv/hierarchy';
-
-const { transform } = ext;
 
 export class TreeGraph extends Graph {
   originData = {};
@@ -15,6 +13,7 @@ export class TreeGraph extends Graph {
 
   init(props) {
     const { data, layout } = props;
+    this.addId(data);
     this.originData = data;
     let nodes = [];
     let edges = [];
@@ -23,7 +22,11 @@ export class TreeGraph extends Graph {
     while (stack.length) {
       for (let i = 0, len = stack.length; i < len; i++) {
         const [parent, node] = stack.pop();
-        node.id = node.id || uniqueId();
+        // const newNode = {
+        //   ...node,
+        //   parent: parent?.id,
+        //   children: node.children?.map((node) => node.id),
+        // };
         nodes.push({ ...node, parent });
         parent &&
           edges.push({
@@ -42,6 +45,13 @@ export class TreeGraph extends Graph {
     super.init({ ...props, data: { nodes, edges } });
   }
 
+  addId(data) {
+    traverseTreeUp(data, (node) => {
+      node.id = node.id || uniqueId();
+      return true;
+    });
+  }
+
   /**
    * 向🌲树中添加数据
    * @param treeData 树图数据
@@ -53,10 +63,10 @@ export class TreeGraph extends Graph {
     let nodes = [];
     let edges = [];
     while (stack.length) {
-      const [parentData, node] = stack.pop();
       for (let i = 0, len = stack.length; i < len; i++) {
+        const [parentData, node] = stack.pop();
         node.id = node.id || uniqueId();
-        nodes.push({ ...node, parentData });
+        nodes.push({ ...node, parent: parentData });
         parentData &&
           edges.push({
             source: parentData.id,
@@ -80,7 +90,7 @@ export class TreeGraph extends Graph {
    */
   private innerRemoveChild(id: string) {
     const model = this.getItem(id)?.model;
-    traverseTreeUp(model, (child) => {
+    traverseTree(model, (child) => {
       if (!child) {
         return true;
       }
@@ -89,37 +99,69 @@ export class TreeGraph extends Graph {
     });
   }
 
-  innerUpdateChild(data) {
-    const stack = [[null, data]];
-    while (stack.length) {
-      for (let i = 0, len = stack.length; i < len; i++) {
-        const [parent, node] = stack.pop();
-        const current = this.getItem(node.id);
+  innerUpdateChild(data, parent?) {
+    const self = this;
+    const current = self.getItem(data.id);
 
-        if (!current) {
-          this.innerAddChild(node, current.model);
-          continue;
-        }
+    // 若子树不存在，整体添加即可
+    if (!current) {
+      self.innerAddChild(data, parent);
+      return;
+    }
 
-        this.updateItem(current, node);
+    // 更新新节点下所有子节点
+    each(data.children || [], (child: TreeGraphData) => {
+      self.innerUpdateChild(child, current);
+    });
 
-        const currentChildren = current.model.children;
-        if (currentChildren) {
-          for (let i = currentChildren.length - 1; i > 0; i--) {
-            const child = currentChildren[i];
-            const node = this.findDataById(child.id);
-            if (!node) {
-              this.innerRemoveChild(node.id);
-            }
+    // 用现在节点的children实例来删除移除的子节点
+    const children = current.model.children;
+    if (children) {
+      const len = children.length;
+      if (len > 0) {
+        for (let i = children.length - 1; i >= 0; i--) {
+          const child = children[i];
+
+          if (TreeGraph.indexOfChild(data.children || [], child.id) === -1) {
+            self.innerRemoveChild(child.id);
           }
         }
-
-        node.children &&
-          node.children.forEach((child) => {
-            stack.push([node, child]);
-          });
       }
     }
+
+    this.updateItem(current, { ...data });
+
+    // const stack = [[null, data]];
+    // const updateNodes = [];
+    // while (stack.length) {
+    //   for (let i = 0, len = stack.length; i < len; i++) {
+    //     const [parent, node] = stack.shift();
+    //     const current = this.getItem(node.id);
+
+    //     if (!current) {
+    //       this.innerAddChild(node, parent);
+    //       continue;
+    //     }
+
+    //     const currentChildren = current.model.children;
+    //     if (currentChildren) {
+    //       for (let i = currentChildren.length - 1; i > -1; i--) {
+    //         const child = currentChildren[i];
+    //         const node = this.findDataById(child.id, data);
+    //         if (!node) {
+    //           this.innerRemoveChild(child.id);
+    //         }
+    //       }
+    //     }
+    //     console.log('update: ', node.id);
+    //     this.updateItem(current, { ...node });
+
+    //     node.children &&
+    //       node.children.forEach((child) => {
+    //         stack.push([node, child]);
+    //       });
+    //   }
+    // }
   }
 
   findDataById(id: string, parent = this.originData) {
@@ -252,7 +294,6 @@ export class TreeGraph extends Graph {
   layout(): void {
     const layout = this.getLayout();
     const layoutData = layout(this.originData, this.layoutCfg);
-
     this.innerUpdateChild(layoutData);
   }
 

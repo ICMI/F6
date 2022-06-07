@@ -47,6 +47,6 @@ export class SimpleCircle extends BaseNode {
 
   renderShape(node, states) {
     const style = this.getMixedStyle(node, states);
-    return <circle style={style} ref={this.keyShapeRef} />;
+    return <circle style={{ ...style, draggable: true }} ref={this.keyShapeRef} />;
   }
 }

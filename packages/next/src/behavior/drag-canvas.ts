@@ -2,7 +2,6 @@
 // import { IGraph } from '../interface/graph';
 // import Util from '../util';
 import { BaseBehavior } from './base';
-import { BehaviorService } from './behaviorService';
 
 // const { cloneEvent, isNaN } = Util;
 

@@ -7,6 +7,10 @@ import { connect, connector } from './connector';
 @connect((graph, props) => {
   const edge = graph.edgeManager.byId(props.id);
 
+  if (!edge) {
+    return false;
+  }
+
   return {
     sourceNode: edge.getNodeEntity(edge.model.source),
     targetNode: edge.getNodeEntity(edge.model.target),

@@ -4,7 +4,7 @@ import data from './data';
 import { ForceLayout, DagreLayout } from '@antv/layout/lib/layout';
 import { makeObservable, observable, reaction } from 'mobx';
 class Test {
-  test = 1;
+  test = [];
   constructor() {
     makeObservable(this, {
       test: observable,
@@ -12,7 +12,7 @@ class Test {
   }
 
   random() {
-    this.test = Math.random();
+    this.test[0] = [];
   }
 }
 
@@ -94,7 +94,7 @@ export default () => {
   //     graph.fitView();
   //   }
   // }, []);
-  registerLayout('force', ForceLayout);
+  registerLayout('force', DagreLayout);
   registerLayout('dagre', DagreLayout);
   useEffect(() => {
     const { props } = (
@@ -107,7 +107,7 @@ export default () => {
             // alphaDecay: 0,
           }}
           modes={{
-            default: ['drag-node', 'drag-combo'],
+            default: ['drag-node', 'drag-combo', 'click-select'],
           }}
         ></Graph>
       </Canvas>

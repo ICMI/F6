@@ -66,21 +66,15 @@ export function connect(mapStatetoProps?) {
 
       prevProps = {};
 
-      willMount(): void {
-        // store.subscribe(this.updateProps);
-        // this.updateProps();
-        // this.isFirst = false;
-        // const mapFn = (
-        //   (store) => () =>
-        //     mapStatetoProps(store)
-        // )(this.context.rootStore);
+      disposer = null;
 
-        autorun(() => {
+      willMount(): void {
+        this.disposer = autorun(() => {
           const stateProps = mapStatetoProps(this.context.graph, this.props);
+          if (!stateProps) return;
           let isEqual = true;
           for (const [key, value] of Object.entries(stateProps || {})) {
             if (this.prevProps[key] !== value) {
-              // console.log(key, this.prevProps[key], value);
               isEqual = false;
             }
           }
@@ -134,8 +128,12 @@ export function connect(mapStatetoProps?) {
 
       render() {
         const { forwardRef } = this.props;
-
         return <WrapperComponent {...this.state.allProps} ref={forwardRef} />;
+      }
+
+      didUnmount(): void {
+        // console.log('unmount: ', this.props.id);
+        this.disposer?.();
       }
     };
   };

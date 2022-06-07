@@ -8,13 +8,17 @@ import { connect, connector } from './connector';
 
 @connect((graph, props) => {
   const node = graph.nodeManager.byId(props.id);
+  if (!node) {
+    return;
+  }
   return {
+    item: node,
     node: node.model,
     inject: node.inject.bind(node),
     // appear: animate.getAppear(props.id),
     // update: animate.getUpdate(props.id),
     // end: animate.getEnd(props.id),
-    // states: state.state.state[props.id],
+    states: node.states,
   };
 })
 export class Node extends Component {
@@ -60,12 +64,18 @@ export class Node extends Component {
   }
 
   didMount(): void {
-    const { node } = this.props;
+    const { node, item } = this.props;
     // const Shape = getNode(node?.type);
     // const defaultStyle = this.getShapeNode()?.getOptions();
     // const anchorPoints = this.getShapeNode()?.getAnchorPoints(node) || [];
     // this.syncKeyShapeBBox({ ...defaultStyle, anchorPoints });
-    this.container.item = this;
+    this.container.item = item;
+
+    // setInterval(() => {
+    //   this.setState({
+    //     node: { ...this.props.node, ...{ x: Math.random(), y: Math.random() } },
+    //   });
+    // }, 500);
   }
 
   getAnchorPoints = () => {
@@ -93,6 +103,7 @@ export class Node extends Component {
       console.warn('不存在对应的 Node Shape');
       return null;
     }
+    console.log(states.length);
     return (
       <Shape
         node={node}

@@ -131,7 +131,7 @@ export class GraphRoot extends Component {
             ></Node>
           ))}
         </Fragment>
-        {/* <Fragment ref={(instance) => (this.comboRoot = instance)}>
+        <Fragment ref={(instance) => (this.comboRoot = instance)}>
           {sortedCombos.map((sortedCombo) => (
             <Combo
               id={sortedCombo.id}
@@ -143,7 +143,7 @@ export class GraphRoot extends Component {
               getNodeBBox={this.getNodeBBox}
             ></Combo>
           ))}
-        </Fragment> */}
+        </Fragment>
 
         <Fragment ref={(instance) => (this.edgeRoot = instance)}>
           {[...edgeIds].map((id) => (

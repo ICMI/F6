@@ -96,7 +96,7 @@ export default class EventService extends EE {
       return;
     }
 
-    const type = item.getType();
+    const type = item.type;
 
     // 事件target是触发事件的Shape实例，item是触发事件的item实例
     evt.target = target;
@@ -180,9 +180,9 @@ export default class EventService extends EE {
     // 从前一个item直接移动到当前item，触发前一个item的leave事件
     if (preItem && preItem !== item && !preItem.destroyed) {
       evt.item = preItem;
-      this.emit(preItem.getType(), 'touchleave', evt);
+      this.emit(preItem.type, 'touchleave', evt);
       if (this.dragging) {
-        this.emit(preItem.getType(), 'dragleave', evt);
+        this.emit(preItem.type, 'dragleave', evt);
       }
     }
 

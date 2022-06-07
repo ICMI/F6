@@ -3,6 +3,11 @@ import { each } from '@antv/util';
 // 自定义 Behavior 时候共有的方法
 export class BaseBehavior {
   graph = null;
+  cfg = null;
+
+  constructor(cfg) {
+    this.cfg = Object.assign(this.getDefaultCfg(), cfg);
+  }
 
   getDefaultCfg() {
     return {};

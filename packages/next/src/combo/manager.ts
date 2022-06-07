@@ -70,6 +70,56 @@ export class ComboManager extends ItemManger {
     return combosSorted;
   }
 
+  // get sortedCombos() {
+  //   const combos = this.models;
+  //   const nodes = this.graph.nodeManager.models;
+  //   // 邻接
+  //   const combosMap = {};
+  //   combos.forEach((combo) => {
+  //     combosMap[combo.id] = { ...combo };
+  //   });
+
+  //   // 转树
+  //   const tree = [];
+  //   for (const [key, value] of Object.entries(combosMap)) {
+  //     if (typeof combosMap[key].parentId === 'undefined') {
+  //       tree.push(value);
+  //     } else {
+  //       const parent = combosMap[value.parentId];
+  //       parent.combos = [...(parent.combos || []), value];
+  //     }
+  //   }
+
+  //   // 广度 + 计算depth + reverse = 节点从叶子向根排序
+  //   const stack = [[{ combos: tree }, 0]];
+  //   let combosSorted = [];
+  //   while (stack.length !== 0) {
+  //     for (let i = 0, len = stack.length; i < len; i++) {
+  //       let [node, depth] = stack.shift();
+  //       const nextDepth = depth + 1;
+  //       node.combos?.forEach((child) => {
+  //         child.depth = nextDepth;
+  //         combosSorted.push(child);
+  //         stack.push([child, nextDepth]);
+  //       });
+  //     }
+  //   }
+  //   combosSorted = combosSorted.reverse();
+
+  //   // 添加node子节点依赖
+  //   nodes.forEach((node) => {
+  //     const combo = combosMap[node.comboId];
+  //     if (combo) {
+  //       combo.nodes = [...(combo.nodes || []), node];
+  //     }
+  //   });
+  //   combosSorted.forEach(
+  //     (combo) => (combo.children = [...(combo.nodes || []), ...(combo.combos || [])]),
+  //   );
+
+  //   return combosSorted;
+  // }
+
   getParsedCombo(comboId) {
     const combos = this.sortedCombos;
     for (const combo of combos) {

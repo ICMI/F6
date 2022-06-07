@@ -1,5 +1,5 @@
 import { isNil } from '@antv/util';
-import { computed, makeObservable, observable } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import { v4 as uuid } from 'uuid';
 import { Item } from './item';
 
@@ -11,6 +11,10 @@ export abstract class ItemManger {
       items: observable,
       models: computed,
       ids: computed,
+      removeItem: action,
+      updateItem: action,
+      addItem: action,
+      init: action,
     });
   }
 
@@ -66,6 +70,7 @@ export abstract class ItemManger {
     }
     ids.forEach((id) => {
       delete this.items[id];
+      this.items[id]?.destory();
     });
   }
 

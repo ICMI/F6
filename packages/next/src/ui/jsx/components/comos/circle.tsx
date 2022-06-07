@@ -34,6 +34,8 @@ export class SimpleCircle extends BaseNode {
         <circle
           style={{
             ...style,
+            draggable: true,
+            droppable: true,
           }}
           ref={this.keyShapeRef}
         />
@@ -45,5 +47,9 @@ export class SimpleCircle extends BaseNode {
         ></text>
       </group>
     );
+  }
+
+  didUnmount() {
+    console.log('unmount!!');
   }
 }

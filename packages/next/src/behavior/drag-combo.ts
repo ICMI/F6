@@ -71,7 +71,7 @@ export class DragCombo extends BaseBehavior {
       return false;
     }
 
-    const type = item.getType();
+    const type = item.type;
 
     if (type !== 'combo') {
       return false;
@@ -90,10 +90,10 @@ export class DragCombo extends BaseBehavior {
     // const combos = graph.findAllByState('combo', this.selectedState);
 
     const combos = [];
-    const currentCombo = item.get('id');
+    const currentCombo = item.id;
 
     const dragCombos = combos.filter((combo) => {
-      const comboId = combo.get('id');
+      const comboId = combo.id;
       return currentCombo === comboId;
     });
 

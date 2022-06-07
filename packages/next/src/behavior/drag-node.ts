@@ -48,7 +48,7 @@ export class DragNode extends BaseBehavior {
       return false;
     }
 
-    const type = item.getType();
+    const type = item.type;
     if (type !== 'combo') {
       return false;
     }
@@ -59,6 +59,7 @@ export class DragNode extends BaseBehavior {
    * @param evt
    */
   onDragStart(evt: IG6GraphEvent) {
+    const { selectedState } = this.cfg;
     if (!this.shouldBegin.call(this, evt)) {
       return;
     }
@@ -74,17 +75,15 @@ export class DragNode extends BaseBehavior {
     this.targetCombo = null;
 
     // 获取所有选中的元素
-    // const nodes = graph.findAllByState('node', this.selectedState);
+    const nodes = this.graph.findAllByState('node', selectedState);
 
-    const nodes = [];
-    const currentNodeId = item.get('id');
+    const currentNodeId = item.id;
 
-    const dragNodes = [];
     // // 当前拖动的节点是否是选中的节点
-    // const dragNodes = nodes.filter((node) => {
-    //   const nodeId = node.get('id');
-    //   return currentNodeId === nodeId;
-    // });
+    const dragNodes = nodes.filter((node) => {
+      const nodeId = node.id;
+      return currentNodeId === nodeId;
+    });
 
     // 只拖动当前节点
     if (dragNodes.length === 0) {
@@ -326,7 +325,7 @@ export class DragNode extends BaseBehavior {
    */
   update(item: Item, evt: IG6GraphEvent) {
     const { origin } = this;
-    const model: NodeConfig = item.getModel();
+    const model: NodeConfig = item.model;
     const nodeId: string = model.id;
     if (!this.point[nodeId]) {
       this.point[nodeId] = {
