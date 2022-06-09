@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { clone, each, extend, uniqueId } from '@antv/util';
 import { formatPadding } from '../utils';
 import { ext } from '@antv/matrix-util';
@@ -30,6 +31,7 @@ export class TreeGraph extends Graph {
         nodes.push({ ...node, parent });
         parent &&
           edges.push({
+            id: `${parent.id}-${node.id}`,
             source: parent.id,
             target: node.id,
           });
@@ -69,6 +71,7 @@ export class TreeGraph extends Graph {
         nodes.push({ ...node, parent: parentData });
         parentData &&
           edges.push({
+            id: `${parentData.id}-${node.id}`,
             source: parentData.id,
             target: node.id,
           });
@@ -239,7 +242,7 @@ export class TreeGraph extends Graph {
    * @param {TreeGraphData} data 子树数据模型
    * @param {string} parentId 子树的父节点id
    */
-  public updateChild(data: TreeGraphData, parentId?: string): void {
+  public updateChild(data, parentId?: string): void {
     const self = this;
 
     // 如果没有父节点或找不到该节点，是全量的更新，直接重置data
@@ -297,7 +300,7 @@ export class TreeGraph extends Graph {
     this.innerUpdateChild(layoutData);
   }
 
-  public changeData(data?: GraphData | TreeGraphData): any {
+  public changeData(data?): any {
     const self = this;
 
     // 更改数据源后，取消所有状态

@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { each, isArray, isString } from '@antv/util';
 
 export default class ModeService {
@@ -22,7 +23,7 @@ export default class ModeService {
    * @type {Modes}
    * @memberof Mode
    */
-  public modes: Modes;
+  public modes;
 
   /**
    * mode = 'drag-node'
@@ -151,11 +152,7 @@ export default class ModeService {
    * @returns {Mode}
    * @memberof Mode
    */
-  public manipulateBehaviors(
-    behaviors: ModeType[] | ModeType,
-    modes: string[] | string,
-    isAdd: boolean,
-  ): ModeService {
+  public manipulateBehaviors(behaviors, modes: string[] | string, isAdd: boolean): ModeService {
     let behaves: ModeType[];
     if (!isArray(behaviors)) {
       behaves = [behaviors];
@@ -207,7 +204,7 @@ export default class ModeService {
    * @param {string | string[]} modes 指定的模式中的行为，不指定则为 default
    * @return {Graph} Graph
    */
-  public updateBehavior(behavior: string | ModeType, newCfg: object, mode?: string): ModeService {
+  public updateBehavior(behavior: string, newCfg: object, mode?: string): ModeService {
     if (isString(behavior)) {
       behavior = { type: behavior };
     }

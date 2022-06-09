@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { isNil, isString } from '@antv/util';
 import { action, makeObservable, observable } from 'mobx';
 
@@ -6,12 +7,18 @@ export class Item {
   states = [];
 
   constructor() {
-    makeObservable(this, {
-      model: observable,
-      states: observable,
-      setState: action,
-      clearStates: action,
-    });
+    makeObservable(
+      this,
+      {
+        model: observable.ref,
+        states: observable.ref,
+        setState: action,
+        clearStates: action,
+        hideItem: action,
+        showItem: action,
+      },
+      { proxy: false },
+    );
   }
 
   get type() {
@@ -50,10 +57,17 @@ export class Item {
       }
       this.states = [...this.states, stateName];
     } else if (index > -1) {
-      debugger;
       states.splice(index, 1);
       this.states = [...this.states];
     }
+  }
+
+  hideItem() {
+    this.model = { ...this.model, visible: false };
+  }
+
+  showItem() {
+    this.model = { ...this.model, visible: true };
   }
 
   clearStates(data) {

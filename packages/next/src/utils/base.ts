@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { isString, isNumber, isNil, isArray } from '@antv/util';
 // import { G6GraphEvent } from '../interface/behavior';
 import { IG6GraphEvent, Padding, Matrix, Item } from '../types';
@@ -35,7 +36,7 @@ export const formatPadding = (padding: Padding): number[] => {
  * clone event
  * @param e
  */
-export const cloneEvent = (e: IG6GraphEvent): IG6GraphEvent => {
+export const cloneEvent = (e) => {
   const event = new G6GraphEvent(e.type, e);
   event.clientX = e.clientX;
   event.clientY = e.clientY;

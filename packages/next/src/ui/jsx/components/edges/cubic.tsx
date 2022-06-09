@@ -3,6 +3,7 @@ import { Global } from '../../../../const';
 import { BaseEdge } from './base';
 import { getControlPoint } from '../../../../utils/path';
 import { isArray, isNumber } from '@antv/util';
+import { Item, EdgeData, IPoint, Point, EdgeConfig } from '../../../../types';
 
 export class Cubic extends BaseEdge {
   curvePosition = [1 / 2, 1 / 2];
@@ -16,14 +17,14 @@ export class Cubic extends BaseEdge {
     if (!controlPoints || !controlPoints.length || controlPoints.length < 2) {
       const { startPoint, endPoint } = cfg;
       const innerPoint1 = getControlPoint(
-        startPoint as Point,
-        endPoint as Point,
+        startPoint,
+        endPoint,
         cfg.curvePosition[0],
         cfg.curveOffset[0],
       );
       const innerPoint2 = getControlPoint(
-        startPoint as Point,
-        endPoint as Point,
+        startPoint,
+        endPoint,
         cfg.curvePosition[1],
         cfg.curveOffset[1],
       );

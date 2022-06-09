@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { each, isNil, mod } from '@antv/util';
 import { action, makeAutoObservable, makeObservable, observable } from 'mobx';
 import { v4 as uuid } from 'uuid';
@@ -39,6 +40,7 @@ export class Node extends Item {
     this.model.visible = true;
     makeObservable(this, {
       setPosition: action,
+      translate: action,
     });
   }
 
@@ -145,21 +147,21 @@ export class Node extends Item {
   /**
    * 获取从节点关联的所有边
    */
-  public getEdges(): IEdge[] {
+  public getEdges() {
     return this.graph.edgeManager.getEdges(this.model.id);
   }
 
   /**
    * 获取所有的入边
    */
-  public getInEdges(): IEdge[] {
+  public getInEdges() {
     return this.graph.edgeManager.getInEdges(this.model.id);
   }
 
   /**
    * 获取所有的出边
    */
-  public getOutEdges(): IEdge[] {
+  public getOutEdges() {
     return this.graph.edgeManager.getOutEdges(this.model.id);
   }
 
@@ -169,7 +171,7 @@ export class Node extends Item {
    * @returns {INode[]}
    * @memberof Node
    */
-  public getNeighbors(type?: 'target' | 'source' | undefined): INode[] {
+  public getNeighbors(type?: 'target' | 'source' | undefined) {
     const edges = this.getEdges();
 
     if (type === 'target') {

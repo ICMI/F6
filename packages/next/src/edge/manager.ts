@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { makeAutoObservable, observable } from 'mobx';
 import { Item } from '../item/item';
 import { ItemManger } from '../item/manager';

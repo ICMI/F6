@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { applyMatrix, invertMatrix } from '../utils/math';
 
 /**

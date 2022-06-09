@@ -19,7 +19,7 @@ export class GlobalContext {
   init() {
     // this.setStore(store);
     this.layoutService = new LayoutService();
-    this.eventService = new EventService();
+    this.eventService = new EventService(this);
     this.eventService.initEvents();
     this.behaviorService = BehaviorService;
     this.modeService = new ModeService(this.behaviorService, this.eventService);

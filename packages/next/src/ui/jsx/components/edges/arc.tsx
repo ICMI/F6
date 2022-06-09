@@ -28,7 +28,7 @@ export class Arc extends BaseEdge {
       },
     };
   }
-  getControlPoints(cfg: EdgeConfig): IPoint[] {
+  getControlPoints(cfg) {
     const { startPoint, endPoint } = cfg;
 
     const midPoint = {
@@ -88,7 +88,7 @@ export class Arc extends BaseEdge {
 
     return controlPoints;
   }
-  getPath(points: Point[]): Array<Array<string | number>> {
+  getPath(points): Array<Array<string | number>> {
     const path: Array<Array<string | number>> = [];
     path.push(['M', points[0].x, points[0].y]);
     // 控制点与端点共线

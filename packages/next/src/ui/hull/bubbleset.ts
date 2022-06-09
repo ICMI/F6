@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { IPoint, IBBox, Item, BubblesetCfg } from '../../types';
 import {
   squareDist,

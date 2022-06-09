@@ -1,81 +1,74 @@
-import { node } from './node';
-import { edge } from './edge';
 import { getGlobalContext } from '../service';
 import { clone, identity } from '@antv/util';
 import Hierarchy from '@antv/hierarchy';
 import { traverseTree } from '../utils/graphic';
-import { animate } from './animate';
-import { computed } from './store';
 
-export class Layout {
-  state = {};
+// export class Layout {
+//   state = {};
 
-  node = node;
-  edge = edge;
+//   cfg = null;
 
-  cfg = null;
+//   setLayoutCfg = (cfg) => {
+//     this.cfg = cfg;
+//   };
 
-  setLayoutCfg = (cfg) => {
-    this.cfg = cfg;
-  };
+//   getLayout() {
+//     const layout = this.cfg;
+//     if (!layout) {
+//       return null;
+//     }
+//     if (typeof layout === 'function') {
+//       return layout;
+//     }
+//     if (!layout.type) {
+//       layout.type = 'dendrogram';
+//     }
+//     if (!layout.direction) {
+//       layout.direction = 'TB';
+//     }
+//     // if (layout.radial) {
+//     //   return (data: any) => {
+//     //     const layoutData = Hierarchy[layout.type](data, layout);
+//     //     radialLayout(layoutData);
+//     //     return layoutData;
+//     //   };
+//     // }
+//     return (data: any) => Hierarchy[layout.type](data, layout);
+//   }
 
-  getLayout() {
-    const layout = this.cfg;
-    if (!layout) {
-      return null;
-    }
-    if (typeof layout === 'function') {
-      return layout;
-    }
-    if (!layout.type) {
-      layout.type = 'dendrogram';
-    }
-    if (!layout.direction) {
-      layout.direction = 'TB';
-    }
-    // if (layout.radial) {
-    //   return (data: any) => {
-    //     const layoutData = Hierarchy[layout.type](data, layout);
-    //     radialLayout(layoutData);
-    //     return layoutData;
-    //   };
-    // }
-    return (data: any) => Hierarchy[layout.type](data, layout);
-  }
+//   prevattrs = {};
 
-  prevattrs = {};
+//   layout() {
+//     const tree = clone(this.node.getTree());
 
-  layout() {
-    const tree = clone(this.node.getTree());
+//     const layout = this.getLayout();
+//     const layoutData = layout(tree, this.cfg);
 
-    const layout = this.getLayout();
-    const layoutData = layout(tree, this.cfg);
+//     const nodePayload = [];
 
-    const nodePayload = [];
+//     traverseTree(layoutData, (node) => {
+//       nodePayload.push({
+//         id: node.id,
+//         changes: {
+//           x: node.x,
+//           y: node.y,
+//         },
+//       });
 
-    traverseTree(layoutData, (node) => {
-      nodePayload.push({
-        id: node.id,
-        changes: {
-          x: node.x,
-          y: node.y,
-        },
-      });
+//       return true;
+//     });
 
-      return true;
-    });
+//     node.init(layoutData);
 
-    node.init(layoutData);
+//     // this.prevattrs = animatePayload;
+//   }
 
-    // this.prevattrs = animatePayload;
-  }
+//   @computed()
+//   animate() {
+//     // animate.addMany(this.prevattrs);
+//   }
 
-  @computed()
-  animate() {
-    // animate.addMany(this.prevattrs);
-  }
+//   getState() {}
+// }
 
-  getState() {}
-}
-
-export const treeLayout = new Layout();
+// export const treeLayout = new Layout();

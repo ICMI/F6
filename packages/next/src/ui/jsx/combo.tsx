@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { jsx, Component } from '@antv/f-engine';
 import { getCombo } from './components/comos';
 import { connect, connector } from './connector';
@@ -6,7 +7,6 @@ import { calcBBox, calcMatrix, calculateBBox } from '../adapter/element';
 
 import { isNumber } from '@antv/util';
 import { Global } from '../../const';
-import { combo as comboActions } from '../../store';
 
 @connect((graph, props) => {
   const { sortedCombo } = props;
@@ -26,14 +26,16 @@ import { combo as comboActions } from '../../store';
     setPosition: combo.setPosition.bind(combo),
     calcComboBBox: graph.comboManager.calcComboBBox.bind(graph.comboManager),
     isAutoSize: graph.comboManager.isAutoSize,
+    states: [...combo.states],
+    syncPosition: combo.syncPosition,
   };
 })
 export class Combo extends Component {
   nodeRef = { current: null };
   cacheCombo = {};
-  cahcePosition = {};
   size = {};
   position = {};
+  isInited = false;
 
   willMount(): void {
     const { inject } = this.props;
@@ -41,20 +43,15 @@ export class Combo extends Component {
   }
 
   didMount(): void {
+    const { sortedCombo } = this.props;
+    this.container.parentNode.style.zIndex = sortedCombo.depth;
     this.container.item = this.props.item;
-    this.container.style.zIndex = this.props.combo.depth;
+    this.isInited = true;
   }
 
-  get(key) {
-    return this.props.combo[key];
-  }
-
-  getModel() {
-    return this.cacheCombo;
-  }
-
-  getType() {
-    return 'combo';
+  didUpdate(prev): void {
+    const { sortedCombo } = this.props;
+    this.container.parentNode.style.zIndex = sortedCombo.depth;
   }
 
   getBBox = () => {
@@ -64,12 +61,9 @@ export class Combo extends Component {
     return calculateBBox(calcBBox(this.getKeyShape()), matrix);
   };
 
-  getAnchorPoints() {}
-
-  getRenderRect(padding = 0) {
+  calcRenderRect(padding = 0) {
     const { calcComboBBox, combo } = this.props;
-    let x = 0;
-    let y = 0;
+    let x, y;
     const bbox = calcComboBBox(combo.id);
     // merge graph的item样式与数据模型中的样式
     const size = {
@@ -97,8 +91,6 @@ export class Combo extends Component {
     this.position = { x, y };
   }
 
-  getRenderPosition() {}
-
   getShapeNode() {
     return this.nodeRef.current;
   }
@@ -111,28 +103,8 @@ export class Combo extends Component {
     return this.nodeRef.current?.getRootShape();
   }
 
-  getRenderState() {
-    return this.cacheCombo;
-  }
-
-  getPosition() {
-    return this.cahcePosition;
-  }
-
-  getComboId() {
-    return this.props.combo.id;
-  }
-
-  didUpdate(prev): void {
-    const { isAutoSize, setPosition, sortedCombo } = this.props;
-    this.container.parentNode.style.zIndex = sortedCombo.depth;
-    // if (isAutoSize) {
-    setPosition(this.position);
-    // }
-  }
-
   render() {
-    const { isAutoSize, combo } = this.props;
+    const { isAutoSize, combo, sortedCombo, syncPosition, states } = this.props;
 
     const Shape = getCombo(combo?.type || 'circle');
 
@@ -141,23 +113,26 @@ export class Combo extends Component {
       return null;
     }
 
+    let finalPos = {};
+    if ((isAutoSize && sortedCombo.children.length > 0) || !this.isInited) {
+      this.calcRenderRect(50);
+      finalPos = this.position;
+      // console.log(combo.id, '001');
+    } else {
+      // console.log(combo.id, '002', combo.x, combo.y);
+      finalPos = { x: combo.x, y: combo.y };
+    }
+    syncPosition(finalPos);
+
     const defaultStyle = Shape?.getOptions();
-    this.getRenderRect();
     const size = this.size;
 
-    this.cahcePosition = {
-      x: combo.x || 0,
-      y: combo.y || 0,
-    };
-
     this.cacheCombo = {
-      ...combo,
+      ...{ ...combo, ...finalPos },
       ...defaultStyle,
       style: { ...defaultStyle.style, ...(size || {}) },
     };
 
-    const ele = <Shape ref={this.nodeRef} combo={this.cacheCombo} />;
-
-    return ele;
+    return <Shape ref={this.nodeRef} combo={this.cacheCombo} states={states} />;
   }
 }

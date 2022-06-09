@@ -1,9 +1,31 @@
+//@ts-nocheck
 import { ICanvas, IGroup, IShape } from '@antv/g-base';
 import { each, wrapBehavior } from '@antv/util';
 import EE from 'eventemitter3';
 import { getCanvasByPoint, getPointByCanvas } from './viewService';
 
 import { cloneEvent, isViewportChanged } from '../utils';
+
+const Event = {
+  click: 'click',
+  dbclick: 'dbclick',
+  touchstart: 'touchstart',
+  touchmove: 'touchmove',
+  touchend: 'touchend',
+  touchendoutside: 'touchendoutside',
+  panstart: 'panstart',
+  pan: 'pan',
+  panend: 'panend',
+  press: 'press',
+  swipe: 'swipe',
+  dragstart: 'dragstart',
+  drag: 'drag',
+  dragend: 'dragend',
+  dragenter: 'dragenter',
+  dragover: 'dragover',
+  dragleave: 'dragleave',
+  drop: 'drop',
+};
 
 type Fun = () => void;
 export default class EventService extends EE {
@@ -15,7 +37,9 @@ export default class EventService extends EE {
 
   protected dragging: boolean = false;
 
-  protected preItem: Item | null = null;
+  protected draggingItem = null;
+
+  protected preItem = null;
 
   public destroyed: boolean;
 
@@ -25,9 +49,44 @@ export default class EventService extends EE {
   }
 
   // 初始化 G6 中的事件
-  protected initEvents(canvas) {
-    // const canvas: ICanvas = graph.get('canvas');
-    this.canvasHandler = wrapBehavior(this, 'onCanvasEvents') as Fun;
+  protected initEvents(root, canvas) {
+    root.on(Event.touchstart, (evt) => {
+      evt.target.tap = {
+        startTime: Date.now(),
+        startX: evt.clientX,
+        startY: evt.clientY,
+        endX: evt.clientX,
+        endY: evt.clientX,
+      };
+    });
+
+    root.on(Event.touchMove, (evt) => {
+      const tap = evt.target;
+      tap.endX = evt.clientX;
+      tap.endY = evt.clientY;
+    });
+
+    root.on(Event.touchend, (evt) => {
+      if (!evt.target.tap) return;
+      const { startTime, startX, startY, endX, endY } = evt.target.tap;
+      if (Date.now() - startTime > 250) {
+        return;
+      }
+      //如果移动距离过大，则不是tap事件。为了大家在电脑上能看到效果，这里设置成了1000，因为在电脑上移动幅度不好控制。如果是在移动端，设置为30就差不多了。
+      if (Math.abs(endX - startX) > 1000 || Math.abs(endY - startY) > 1000) {
+        return;
+      }
+      this.onCanvasEvents(this.transformEvent(evt, 'tap'));
+    });
+
+    Object.values(Event).forEach((type) => {
+      root.on(type, (evt) => this.onCanvasEvents(this.transformEvent(evt, type)));
+    });
+
+    root.on(Event.dbclick, (evt) => {
+      this.onCanvasEvents(this.transformEvent(evt, 'dbtap'));
+    });
+    this.canvas = canvas;
     // canvas.off('*').on('*', this.canvasHandler);
   }
 
@@ -39,15 +98,43 @@ export default class EventService extends EE {
     return shape;
   }
 
+  transformEvent(event, type) {
+    return {
+      type,
+      name: type,
+      x: event.x,
+      y: event.y,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      canvasX: event.canvasX,
+      canvasY: event.canvasY,
+      tiltX: event.tiltX,
+      tiltY: event.tiltY,
+      offsetX: event.offsetX,
+      offsetY: event.offsetY,
+      pageX: event.pageX,
+      pageY: event.pageY,
+      screenX: event.screenX,
+      screenY: event.screenY,
+      target: event.target,
+      currentTarget: event.currentTarget,
+      propagationPath: event.propagationPath,
+      stopPropagation: (is) => event.stopPropagation(is),
+      preventDefault: () => event.preventDefault(),
+      stopImmediatePropagation: () => event.stopImmediatePropagation(),
+    };
+  }
+
   /**
    * 处理 canvas 事件
    * @param evt 事件句柄
    */
-  protected onCanvasEvents(evt: IG6GraphEvent) {
+  protected onCanvasEvents = (evt) => {
     const canvas = this.canvas;
     const { target } = evt;
     const eventType = evt.type;
-
+    console.log(eventType);
+    // if (eventType === 'drop' || eventType === 'dragend') console.log(eventType);
     /**
      * (clientX, clientY): 相对于页面的坐标；
      * (canvasX, canvasY): 相对于 <canvas> 左上角的坐标；
@@ -73,10 +160,10 @@ export default class EventService extends EE {
 
     // evt.currentTarget = graph;
 
-    if (target === canvas) {
-      if (eventType === 'panmove') {
-        this.handleTouchMove(evt, 'canvas');
-      }
+    if (target === canvas.document) {
+      // if (eventType === 'panmove') {
+      //   this.handleTouchMove(evt, 'canvas');
+      // }
       evt.target = canvas;
       evt.item = null;
 
@@ -120,16 +207,16 @@ export default class EventService extends EE {
     if (eventType === 'dragend') {
       this.dragging = false;
     }
-    if (eventType === 'panmove') {
-      this.handleTouchMove(evt, type);
-    }
-  }
+    // if (eventType === 'panmove') {
+    //   this.handleTouchMove(evt, type);
+    // }
+  };
 
   /**
    * 处理扩展事件
    * @param evt 事件句柄
    */
-  // protected onExtendEvents(evt: IG6GraphEvent) {
+  // protected onExtendEvents(evt) {
   //   this.graph.emit(evt.type, evt);
   // }
 
@@ -139,7 +226,7 @@ export default class EventService extends EE {
   //  * @param eventType 事件类型
   //  * @param evt 事件句柄
   //  */
-  // private emitCustomEvent(itemType: string, eventType: string, evt: IG6GraphEvent) {
+  // private emitCustomEvent(itemType: string, eventType: string, evt) {
   //   evt.type = eventType;
   //   this.graph.emit(`${itemType}:${eventType}`, evt);
   // }
@@ -170,31 +257,31 @@ export default class EventService extends EE {
    * @param evt 事件句柄
    * @param type item 类型
    */
-  private handleTouchMove(evt: IG6GraphEvent, type: string) {
-    const { preItem } = this;
-    const canvas: ICanvas = this.canvas;
-    const item = (evt.target as any) === canvas ? null : evt.item;
+  // private handleTouchMove(evt, type: string) {
+  //   const { preItem } = this;
+  //   const canvas: ICanvas = this.canvas;
+  //   const item = (evt.target as any) === canvas ? null : evt.item;
 
-    // evt = cloneEvent(evt) as IG6GraphEvent;
+  //   // evt = cloneEvent(evt) as IG6GraphEvent;
 
-    // 从前一个item直接移动到当前item，触发前一个item的leave事件
-    if (preItem && preItem !== item && !preItem.destroyed) {
-      evt.item = preItem;
-      this.emit(preItem.type, 'touchleave', evt);
-      if (this.dragging) {
-        this.emit(preItem.type, 'dragleave', evt);
-      }
-    }
+  //   // 从前一个item直接移动到当前item，触发前一个item的leave事件
+  //   // if (preItem && preItem !== item && !preItem.destroyed) {
+  //   //   evt.item = preItem;
+  //   //   this.emit(preItem.type, 'touchleave', evt);
+  //   //   if (this.dragging) {
+  //   //     this.emit(preItem.type, 'dragleave', evt);
+  //   //   }
+  //   // }
 
-    // 从一个item或canvas移动到当前item，触发当前item的enter事件
-    if (item && preItem !== item) {
-      evt.item = item;
-      this.emit(type, 'touchenter', evt);
-      if (this.dragging) {
-        this.emit(type, 'dragenter', evt);
-      }
-    }
+  //   // // 从一个item或canvas移动到当前item，触发当前item的enter事件
+  //   // if (item && preItem !== item) {
+  //   //   evt.item = item;
+  //   //   this.emit(type, 'touchenter', evt);
+  //   //   if (this.dragging) {
+  //   //     this.emit(type, 'dragenter', evt);
+  //   //   }
+  //   // }
 
-    this.preItem = item;
-  }
+  //   this.preItem = item;
+  // }
 }

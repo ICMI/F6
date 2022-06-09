@@ -1,9 +1,10 @@
+// @ts-nocheck
+
 import { jsx, Component } from '@antv/f-engine';
 import { isEqualWith } from '@antv/util';
 import { autorun, reaction } from 'mobx';
-import { store } from '../../store';
 
-export function connector(mapStatetoProps?, mapActionstoProps?) {
+export function connector(mapStatetoProps?, mapActionstoProps?): any {
   return function (WrapperComponent) {
     return class Connector extends Component {
       isFirst = true;
@@ -59,7 +60,7 @@ export function connector(mapStatetoProps?, mapActionstoProps?) {
   };
 }
 
-export function connect(mapStatetoProps?) {
+export function connect(mapStatetoProps?): any {
   return function (WrapperComponent) {
     return class Connector extends Component {
       isFirst = true;
@@ -70,15 +71,15 @@ export function connect(mapStatetoProps?) {
 
       willMount(): void {
         this.disposer = autorun(() => {
-          const stateProps = mapStatetoProps(this.context.graph, this.props);
+          const stateProps = mapStatetoProps(this.context.graph, this.props, this.prevProps);
           if (!stateProps) return;
           let isEqual = true;
-          for (const [key, value] of Object.entries(stateProps || {})) {
-            if (this.prevProps[key] !== value) {
-              isEqual = false;
-            }
-          }
-          if (isEqual) return;
+          // for (const [key, value] of Object.entries(stateProps || {})) {
+          //   if (this.prevProps[key] !== value) {
+          //     isEqual = false;
+          //   }
+          // }
+          // if (isEqual) return;
           this.prevProps = stateProps;
           this.isFirst &&
             (this.state = {

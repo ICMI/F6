@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { IGroup, BBox } from '@antv/g-base';
 import { vec2 } from '@antv/matrix-util';
 import Global from '../global';

@@ -1,5 +1,5 @@
 import { each } from '@antv/util';
-import { G6Event, IG6GraphEvent } from '@antv/f6-core';
+// import { G6Event, IG6GraphEvent } from '@antv/f6-core';
 import { BaseBehavior } from './base';
 
 export class ClickSelect extends BaseBehavior {
@@ -9,7 +9,7 @@ export class ClickSelect extends BaseBehavior {
       selectedState: 'selected',
     };
   }
-  getEvents(): { [key in G6Event]?: string } {
+  getEvents() {
     const self = this as any;
 
     return {
@@ -18,7 +18,7 @@ export class ClickSelect extends BaseBehavior {
       'canvas:tap': 'onCanvasClick',
     };
   }
-  onClick(evt: IG6GraphEvent) {
+  onClick(evt) {
     const self = this;
     const { item } = evt;
     if (!item || item.destroyed) {

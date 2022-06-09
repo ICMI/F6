@@ -94,8 +94,8 @@ export default () => {
   //     graph.fitView();
   //   }
   // }, []);
-  registerLayout('force', DagreLayout);
-  registerLayout('dagre', DagreLayout);
+  // registerLayout('force', DagreLayout);
+  // registerLayout('dagre', DagreLayout);
   useEffect(() => {
     const { props } = (
       <Canvas width={width} height={height} devicePixelRatio={1} container={ref.current}>

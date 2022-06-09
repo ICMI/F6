@@ -11,6 +11,8 @@ const DRAG_OFFSET = 10;
 export class DragCanvas extends BaseBehavior {
   origin = null;
   scalableRange = 0;
+  dragging = false;
+  dragbegin = false;
   getDefaultCfg(): object {
     return {
       direction: 'both',
@@ -23,14 +25,14 @@ export class DragCanvas extends BaseBehavior {
       allowDragOnItem: false,
     };
   }
-  getEvents(): { [key in G6Event]?: string } {
+  getEvents() {
     return {
       dragstart: 'onDragStart',
       drag: 'onDragMove',
       dragend: 'onDragEnd',
     };
   }
-  updateViewport(e: IG6GraphEvent) {
+  updateViewport(e) {
     const { origin } = this;
     const clientX = +e.clientX;
     const clientY = +e.clientY;
@@ -73,7 +75,7 @@ export class DragCanvas extends BaseBehavior {
     }
     this.graph.translate({ x: dx, y: dy });
   }
-  onDragStart(e: IG6GraphEvent) {
+  onDragStart(e) {
     const self = this as any;
     const event = e.originalEvent as Event;
     if (!this.shouldBegin.call(this, e)) {
@@ -89,7 +91,7 @@ export class DragCanvas extends BaseBehavior {
 
     // if (this.enableOptimize) {
     //   // 拖动 canvas 过程中隐藏所有的边及label
-    //   const graph: IGraph = this.graph;
+    //   const graph = this.graph;
     //   const edges = graph.getEdges();
     //   for (let i = 0, len = edges.length; i < len; i++) {
     //     const shapes = edges[i].get('group').get('children');
@@ -114,7 +116,7 @@ export class DragCanvas extends BaseBehavior {
     // }
   }
 
-  onDragMove(e: IG6GraphEvent) {
+  onDragMove(e) {
     // const { graph } = this;
     const target = e.target;
     // const targetIsCanvas = target && target.isCanvas && target.isCanvas();
@@ -138,7 +140,7 @@ export class DragCanvas extends BaseBehavior {
       this.updateViewport(e);
     }
   }
-  onDragEnd(e: IG6GraphEvent) {
+  onDragEnd(e) {
     // const { graph } = this;
 
     // if (this.enableOptimize) {

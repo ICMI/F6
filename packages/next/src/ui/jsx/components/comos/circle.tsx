@@ -30,7 +30,7 @@ export class SimpleCircle extends BaseNode {
     const { combo, states } = this.props;
     const style = this.getMixedStyle(combo, states);
     return (
-      <group style={{ x: combo?.x || 0, y: combo?.y || 0 }}>
+      <group style={{ x: combo?.x || 0, y: combo?.y || 0, droppable: true }}>
         <circle
           style={{
             ...style,

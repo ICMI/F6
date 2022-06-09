@@ -2,6 +2,7 @@ import { jsx } from '@antv/f-engine';
 import { BaseEdge } from './base';
 import { getControlPoint } from '../../../../utils/path';
 import { isArray } from '@antv/util';
+import { Item, EdgeData, IPoint, Point, EdgeConfig } from '../../../../types';
 
 export class Quadratic extends BaseEdge {
   curvePosition = 0.5; // 弯曲的默认位置
@@ -15,8 +16,8 @@ export class Quadratic extends BaseEdge {
       if (isArray(this.curveOffset)) cfg.curveOffset = cfg.curveOffset[0];
       if (isArray(this.curvePosition)) cfg.curvePosition = cfg.curveOffset[0];
       const innerPoint = getControlPoint(
-        startPoint as Point,
-        endPoint as Point,
+        startPoint,
+        endPoint,
         cfg.curvePosition as number,
         cfg.curveOffset as number,
       );

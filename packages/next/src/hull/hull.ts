@@ -2,7 +2,7 @@ import { action, makeObservable, observable } from 'mobx';
 import { Item } from '../item/item';
 import { ItemManger } from '../item/manager';
 
-class Hull extends Item {
+export class Hull extends Item {
   model = {};
 
   constructor(model) {

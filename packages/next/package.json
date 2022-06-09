@@ -22,11 +22,11 @@
   "license": "MIT",
   "author": "https://github.com/orgs/antvis/people",
   "files": ["package.json", "es", "lib", "dist", "LICENSE", "README.md"],
-  "main": "lib/index.js",
+  "main": "src/index.ts",
   "miniprogram": "dist",
-  "module": "es/index.js",
-  "browser": "dist/f6.js",
-  "types": "lib/index.d.ts",
+  "module": "src/index.ts",
+  "browser": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
     "start": "father build --watch",
     "analysis": "npm run clean && father build && ANALYZE=1 npm run build:umd",
@@ -80,6 +80,7 @@
     "mobx-react": "*"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-static-block": "^7.17.6",
     "@antv/f6-plugin": "^1.0.1",
     "@antv/chart-node-g6": "^0.0.3",
     "@babel/core": "^7.7.7",

@@ -34,14 +34,14 @@ export class SimpleRect extends BaseNode {
    * @param {Object} cfg 节点数据模型
    * @return {Object} 节点的样式
    */
-  getShapeStyle(cfg: NodeConfig) {
-    const { style: defaultStyle } = this.getOptions(cfg) as NodeConfig;
-    const strokeStyle: ShapeStyle = {
+  getShapeStyle(cfg) {
+    const { style: defaultStyle } = this.getOptions(cfg);
+    const strokeStyle = {
       stroke: cfg.color,
     };
     // 如果设置了color，则覆盖默认的stroke属性
     const style = mix({}, defaultStyle, strokeStyle);
-    const size = (this as ShapeOptions).getSize!(cfg);
+    const size = this.getSize!(cfg);
     const width = style.width || size[0];
     const height = style.height || size[1];
     const styles = {
@@ -56,6 +56,29 @@ export class SimpleRect extends BaseNode {
 
   renderShape(node, states) {
     const style = this.getMixedStyle(node, states);
-    return <rect style={style} ref={this.keyShapeRef} />;
+    return (
+      <rect
+        animation={{
+          // appear: {
+          //   duration: 1500,
+          //   ...(animation.appear || {}),
+          //   onFrame,
+          // },
+          update: {
+            easing: 'linear',
+            duration: 450,
+            property: ['x', 'y', 'width', 'height', 'fill'],
+            // ...(animation.update || {}),
+            // onFrame,
+          },
+          // leave: {
+          //   duration: 1500,
+          //   onFrame,
+          // },
+        }}
+        style={style}
+        ref={this.keyShapeRef}
+      />
+    );
   }
 }

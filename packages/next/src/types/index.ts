@@ -1,11 +1,16 @@
 /* eslint @typescript-eslint/no-use-before-define: 0 */
 import { IGroup, Event as GraphEvent, BBox, AnimateCfg, ICanvas, IShape } from '@antv/g-base';
-import Node from '../item/node';
+import { Node } from '../node/node';
 import { IAbstractGraph } from '../interface/graph';
 import { IEdge, INode, ICombo } from '../interface/item';
 import { ILabelConfig } from '../interface/shape';
 
 export * from '../interface';
+
+export interface Point {
+  x: any;
+  y: any;
+}
 
 // Node Edge Combo 实例
 export type Item = INode | IEdge | ICombo;
@@ -163,9 +168,9 @@ export interface ModeOption {
   relayout?: boolean;
   brushStyle?: object;
   zoomKey?: 'shift' | 'ctrl' | 'alt' | 'control';
-  shouldUpdate?: (e: IG6GraphEvent) => boolean;
-  shouldBegin?: (e: IG6GraphEvent) => boolean;
-  shouldEnd?: (e: IG6GraphEvent) => boolean;
+  shouldUpdate?: (e) => boolean;
+  shouldBegin?: (e) => boolean;
+  shouldEnd?: (e) => boolean;
   onChange?: (item?: Item, judge?: boolean) => unknown;
   onSelect?: (selectedNodes?: Item[], selectedEdges?: Item[]) => unknown;
   onDeselect?: (selectedNodes?: Item[], selectedEdges?: Item[]) => unknown;
@@ -724,9 +729,9 @@ export interface BehaviorOption {
     [key in G6Event]?: string;
   };
   getDefaultCfg?: () => object;
-  shouldBegin?: (e?: IG6GraphEvent) => boolean;
-  shouldUpdate?: (e?: IG6GraphEvent) => boolean;
-  shouldEnd?: (e?: IG6GraphEvent) => boolean;
+  shouldBegin?: (e?) => boolean;
+  shouldUpdate?: (e?) => boolean;
+  shouldEnd?: (e?) => boolean;
   bind?: (e: IAbstractGraph) => void;
   unbind?: (e: IAbstractGraph) => void;
   [key: string]: unknown;

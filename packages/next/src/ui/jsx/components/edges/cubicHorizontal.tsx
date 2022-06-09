@@ -1,6 +1,7 @@
 import { jsx } from '@antv/f-engine';
 import { isNumber } from '@antv/util';
 import { Cubic } from './cubic';
+import { Item, EdgeData, IPoint, Point, EdgeConfig } from '../../../../types';
 
 export class CubicHorizontal extends Cubic {
   curvePosition = [1 / 2, 1 / 2];

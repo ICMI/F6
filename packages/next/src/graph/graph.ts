@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { action, autorun, makeObservable, observable, reaction } from 'mobx';
 import { ComboManager } from '../combo/manager';
 import { EdgeManager } from '../edge/manager';
@@ -73,6 +74,28 @@ export class Graph {
 
   getItem(id) {
     return this.nodeManager.byId(id) || this.comboManager.byId(id);
+  }
+
+  findById(id) {
+    return this.nodeManager.byId(id) || this.comboManager.byId(id) || this.edgeManager.byId(id);
+  }
+
+  hideItem(item) {
+    let temItem = item;
+    if (typeof item === 'string' || typeof item === 'number') {
+      temItem = this.getItem(item);
+    }
+    if (isNil(temItem)) return;
+    temItem.hideItem();
+  }
+
+  showItem(item) {
+    let temItem = item;
+    if (typeof item === 'string' || typeof item === 'number') {
+      temItem = this.getItem(item);
+    }
+    if (isNil(temItem)) return;
+    temItem.showItem();
   }
 
   translate(data) {
@@ -210,8 +233,8 @@ export class Graph {
     }
   }
 
-  public findAll<T extends Item>(type: ITEM_TYPE, fn: (item: T, index?: number) => boolean): T[] {
-    const result: T[] = [];
+  public findAll(type, fn: (item, index?: number) => boolean) {
+    const result = [];
 
     each(this.getItemManager(type).items, (item, i) => {
       if (fn(item, i)) {

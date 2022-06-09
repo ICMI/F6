@@ -1,14 +1,16 @@
+//@ts-nocheck
 import { Component } from '@antv/f-engine';
 import { BaseShape } from '../base';
 import { isArray, isNil, clone } from '@antv/util';
 import Global from '../../../../global';
+import { Item, LabelStyle, NodeConfig, ModelConfig } from '../../../../types';
 
 export class BaseNode extends BaseShape {
   keyShapeRef = { current: null };
   getKeyShape() {
     return this.keyShapeRef.current || this.getRootShape();
   }
-  getRootShape() {
+  getRootShape(): any {
     return this.container.children[0];
   }
   getAnchorPoints(state) {
@@ -64,7 +66,7 @@ export class BaseNode extends BaseShape {
     return size;
   }
   // 私有方法，不希望扩展的 Combo 复写这个方法
-  getLabelStyleByPosition(cfg: NodeConfig, labelCfg: ILabelConfig): LabelStyle {
+  getLabelStyleByPosition(cfg: NodeConfig, labelCfg): LabelStyle {
     const labelPosition = labelCfg.position || this.labelPosition;
     const { style: cfgStyle } = cfg;
     let padding: number | number[] = cfg.padding || this.options.padding;
@@ -130,7 +132,7 @@ export class BaseNode extends BaseShape {
     return style;
   }
 
-  updateShape(cfg: NodeConfig, item: Item, keyShapeStyle: ShapeStyle) {
+  updateShape(cfg: NodeConfig, item: Item, keyShapeStyle) {
     const keyShape = item.get('keyShape');
     const animate = cfg.animate === undefined ? this.options.animate : cfg.animate;
     if (animate && keyShape.animate) {

@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { action, makeAutoObservable, makeObservable, observable } from 'mobx';
 import { formatPadding } from '../utils';
 
@@ -50,7 +51,7 @@ export class View {
     this.graph.zoomTo({ ratio, center: viewCenter });
   }
 
-  getViewCenter(): Point {
+  getViewCenter() {
     const padding = formatPadding(this.fitViewPadding);
     const width: number = this.width;
     const height: number = this.height;

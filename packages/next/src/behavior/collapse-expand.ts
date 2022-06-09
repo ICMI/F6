@@ -13,7 +13,7 @@ export class CollapseExpand extends BaseBehavior {
       onChange() {},
     };
   }
-  getEvents(): { [key in G6Event]?: string } {
+  getEvents() {
     let { trigger } = this.cfg;
     // 检测输入是否合法
     if (!ALLOW_EVENTS.includes(trigger)) {
@@ -23,16 +23,14 @@ export class CollapseExpand extends BaseBehavior {
     }
     return {
       [`node:${trigger}`]: 'onNodeTap',
-      // 支持移动端事件
-      touchstart: 'onNodeTap',
     };
   }
-  onNodeTap(e: IG6GraphEvent) {
+  onNodeTap(e) {
     const { item } = e;
     const { onChange } = this.cfg;
 
     // 如果节点进行过更新，model 会进行 merge，直接改 model 就不能改布局，所以需要去改源数据
-    const sourceData = this.graph.findDataById(item.get('id'));
+    const sourceData = this.graph.findDataById(item.id);
     if (!sourceData) {
       return;
     }
@@ -43,14 +41,14 @@ export class CollapseExpand extends BaseBehavior {
       return;
     }
     const collapsed = !sourceData.collapsed;
-    if (!this.shouldBegin(e, collapsed)) {
+    if (!this.shouldBegin()) {
       return;
     }
     sourceData.collapsed = collapsed;
     // this.graph.updateChild(this.graph)
     // item.getModel().collapsed = collapsed;
     // this.graph.emit('itemcollapsed', { item: e.item, collapsed });
-    if (!this.shouldUpdate(e, collapsed)) {
+    if (!this.shouldUpdate()) {
       return;
     }
     try {

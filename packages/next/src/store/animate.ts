@@ -1,5 +1,4 @@
 import { uniqueId } from '@antv/util';
-import { computed, injectTrigger } from './store';
 
 class Animate {
   state = {
@@ -10,7 +9,6 @@ class Animate {
     relationIds: {},
   };
 
-  @injectTrigger()
   addOne(data, state?) {
     const { type = 'update', relationNodeId } = data;
     const id = uniqueId();
@@ -20,7 +18,6 @@ class Animate {
     state.relationIds[relationNodeId][id] = 1;
   }
 
-  @injectTrigger()
   addMany(data, state?) {
     data?.forEach((data) => {
       const { type = 'update', relationNodeId } = data;
@@ -32,7 +29,6 @@ class Animate {
     });
   }
 
-  @injectTrigger()
   removeOne(data, state?) {
     const id = data.id;
     const entity = state.entities[id];
@@ -42,7 +38,6 @@ class Animate {
     delete state.relationIds[relationNodeId];
   }
 
-  @computed((self) => [self.state.appear])
   getAppear(id) {
     const animationIds = Object.keys(this.state.relationIds[id] || []);
     if (!animationIds) return;
@@ -54,7 +49,6 @@ class Animate {
     return this.state.entities[appears[0]];
   }
 
-  @computed((self) => [self.state.update])
   getUpdate(id) {
     const animationIds = Object.keys(this.state.relationIds[id] || []);
     if (!animationIds) return;
@@ -66,7 +60,6 @@ class Animate {
     return this.state.entities[updateIds[0]];
   }
 
-  @computed((self) => [self.state.end])
   getEnd(id) {
     const animationIds = Object.keys(this.state.relationIds[id] || []);
     if (!animationIds) return;

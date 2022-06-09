@@ -1,7 +1,7 @@
 import { jsx, Component, renderShape } from '@antv/f-engine';
 import { isArray, isNil, mix } from '@antv/util';
-// import { ILabelConfig, ShapeOptions } from '../interface/shape';
-// import { Item, LabelStyle, NodeConfig, ModelConfig } from '../types';
+import { ILabelConfig, ShapeOptions } from '../../../../interface/shape';
+import { Item, LabelStyle, NodeConfig, ModelConfig } from '../../../../types';
 import { formatPadding } from '../../../../utils/base';
 import Global from '../../../../global';
 import { BaseShape } from '../base';
@@ -22,7 +22,7 @@ export class BaseNode extends BaseShape {
     return this.keyShapeRef.current || this.getRootShape();
   }
 
-  getRootShape() {
+  getRootShape(): any {
     return this.container.children[0];
   }
 
@@ -112,12 +112,7 @@ export class BaseNode extends BaseShape {
     return style;
   }
 
-  getLabelBgStyleByPosition(
-    label: IElement,
-    cfg: ModelConfig,
-    labelCfg?: ILabelConfig,
-    group?: IGroup,
-  ) {
+  getLabelBgStyleByPosition(label, cfg: ModelConfig, labelCfg?: ILabelConfig, group?) {
     if (!label) {
       return {};
     }
@@ -322,25 +317,29 @@ export class BaseNode extends BaseShape {
   }
 
   render() {
-    const { node, animation, onFrame, states } = this.props;
+    const { node, animation, onFrame, states, onEnd } = this.props;
     return (
       <group
         style={{ x: node?.x || 0, y: node?.y || 0, draggable: true, droppable: true }}
-        // animation={{
-        //   appear: {
-        //     ...(animation.appear || {}),
-        //     onFrame,
-        //     onEnd: onFrame,
-        //   },
-        //   update: {
-        //     ...(animation.update || {}),
-        //     onFrame,
-        //   },
-        //   leave: {
-        //     duration: 1500,
-        //     onFrame,
-        //   },
-        // }}
+        animation={{
+          // appear: {
+          //   duration: 1500,
+          //   ...(animation.appear || {}),
+          //   onFrame,
+          // },
+          update: {
+            easing: 'linear',
+            duration: 450,
+            property: ['x', 'y'],
+
+            onFrame,
+            onEnd,
+          },
+          // leave: {
+          //   duration: 1500,
+          //   onFrame,
+          // },
+        }}
       >
         {this.renderShape(node, states)}
         {/* label */}

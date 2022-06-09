@@ -57,10 +57,10 @@ export default {
           id: 'SubTreeNode3.2',
           cluster: 'c2',
         },
-        {
-          id: 'SubTreeNode3.3',
-          cluster: 'c2',
-        },
+        // {
+        //   id: 'SubTreeNode3.3',
+        //   cluster: 'c2',
+        // },
       ],
     },
     // {

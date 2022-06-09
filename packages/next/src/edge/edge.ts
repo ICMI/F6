@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { v4 as uuid } from 'uuid';
 import { isNil } from '@antv/util';
 import { makeAutoObservable, observable } from 'mobx';

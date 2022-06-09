@@ -1,7 +1,17 @@
+// @ts-nocheck
 import { jsx, Component } from '@antv/f-engine';
 import { deepMix, mix, each, isNil, isNumber, isArray } from '@antv/util';
-// import { ILabelConfig, ShapeOptions } from '../interface/shape';
-// import { EdgeConfig, EdgeData, IPoint, LabelStyle, ShapeStyle, Item, ModelConfig } from '../types';
+import { ILabelConfig, ShapeOptions } from '../interface/shape';
+import {
+  EdgeConfig,
+  EdgeData,
+  IPoint,
+  LabelStyle,
+  ShapeStyle,
+  Item,
+  ModelConfig,
+  Point,
+} from '../types';
 import { getLabelPosition, getLoopCfgs } from '../../../../utils/graphic';
 import { distance, getCircleCenterByPoints } from '../../../../utils/math';
 import { getControlPoint, getSpline } from '../../../../utils/path';
@@ -35,7 +45,7 @@ export class BaseEdge extends BaseShape {
     return this.labelRef.current;
   }
 
-  getRootShape() {
+  getRootShape(): any {
     return this.container.children[0];
   }
 
@@ -97,7 +107,7 @@ export class BaseEdge extends BaseShape {
     return path;
   }
 
-  getShapeStyle(cfg: EdgeConfig): ShapeStyle {
+  getShapeStyle(cfg): ShapeStyle {
     const { style: defaultStyle } = this.options as ModelConfig;
     const strokeStyle: ShapeStyle = {
       stroke: cfg.color,
@@ -131,7 +141,7 @@ export class BaseEdge extends BaseShape {
     return styles;
   }
 
-  getLabelStyleByPosition(cfg: EdgeConfig, labelCfg: ILabelConfig): LabelStyle {
+  getLabelStyleByPosition(cfg, labelCfg: ILabelConfig): LabelStyle {
     const labelPosition = labelCfg.position || this.labelPosition; // 文本的位置用户可以传入
     const style: LabelStyle = {};
 
@@ -178,12 +188,7 @@ export class BaseEdge extends BaseShape {
     style.text = cfg.label as string;
     return style;
   }
-  getLabelBgStyleByPosition(
-    label: IElement,
-    cfg: EdgeConfig,
-    labelCfg?: ILabelConfig,
-    group?: IGroup,
-  ) {
+  getLabelBgStyleByPosition(label, cfg, labelCfg?: ILabelConfig, group?) {
     if (!label) {
       return {};
     }
@@ -280,7 +285,7 @@ export class BaseEdge extends BaseShape {
    * @param  {Object} cfg 边的配置项
    * @return {Array} 控制点的数组
    */
-  getControlPoints(cfg: EdgeConfig): IPoint[] | undefined {
+  getControlPoints(cfg): IPoint[] | undefined {
     return cfg.controlPoints;
   }
   /**
@@ -288,7 +293,7 @@ export class BaseEdge extends BaseShape {
    * @param {Object} cfg 边的配置项
    * @return {Object} 边的配置项
    */
-  getPathPoints(cfg: EdgeConfig): EdgeConfig {
+  getPathPoints(cfg) {
     return cfg;
   }
   /**
@@ -341,7 +346,19 @@ export class BaseEdge extends BaseShape {
 
     delete style.x;
     delete style.y;
-    return <path style={style} ref={this.keyShapeRef}></path>;
+    return (
+      <path
+        animation={{
+          update: {
+            easing: 'linear',
+            duration: 450,
+            property: ['points'],
+          },
+        }}
+        style={style}
+        ref={this.keyShapeRef}
+      ></path>
+    );
   }
 
   renderLabelBg(cfg) {

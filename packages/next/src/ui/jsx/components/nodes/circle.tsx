@@ -27,14 +27,14 @@ export class SimpleCircle extends BaseNode {
    * @param {Object} cfg 节点数据模型
    * @return {Object} 节点的样式
    */
-  getShapeStyle(cfg: NodeConfig): ShapeStyle {
-    const { style: defaultStyle } = this.getOptions(cfg) as NodeConfig;
+  getShapeStyle(cfg) {
+    const { style: defaultStyle } = this.getOptions(cfg);
     const strokeStyle = {
       stroke: cfg.color,
     };
     // 如果设置了color，则覆盖默认的stroke属性
     const style = deepMix({}, defaultStyle, strokeStyle);
-    const size = (this as ShapeOptions).getSize!(cfg);
+    const size = this.getSize!(cfg);
     const r = size[0] / 2;
     const styles = {
       x: 0,
@@ -47,6 +47,29 @@ export class SimpleCircle extends BaseNode {
 
   renderShape(node, states) {
     const style = this.getMixedStyle(node, states);
-    return <circle style={{ ...style, draggable: true }} ref={this.keyShapeRef} />;
+    return (
+      <circle
+        animation={{
+          // appear: {
+          //   duration: 1500,
+          //   ...(animation.appear || {}),
+          //   onFrame,
+          // },
+          update: {
+            easing: 'linear',
+            duration: 450,
+            property: ['x', 'y', 'width', 'height', 'fill'],
+            // ...(animation.update || {}),
+            // onFrame,
+          },
+          // leave: {
+          //   duration: 1500,
+          //   onFrame,
+          // },
+        }}
+        style={{ ...style, draggable: true, droppable: true }}
+        ref={this.keyShapeRef}
+      />
+    );
   }
 }

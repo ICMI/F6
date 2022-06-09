@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { IPoint, Item } from '../../types';
 
 /**

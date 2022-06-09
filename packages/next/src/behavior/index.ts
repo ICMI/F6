@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BehaviorService } from './behaviorService';
 import { DragCanvas } from './drag-canvas';
 import { DragCombo } from './drag-combo';

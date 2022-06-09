@@ -1,6 +1,7 @@
+// @ts-nocheck
 import { IGroup, IShape, IElement } from '@antv/g-base';
-// import { ShapeOptions, ILabelConfig } from '../interface/shape';
-// import { IPoint, Item, LabelStyle, ShapeStyle, ModelConfig, EdgeConfig } from '../types';
+import { ShapeOptions, ILabelConfig } from '../interface/shape';
+import { IPoint, Item, LabelStyle, ShapeStyle, ModelConfig, EdgeConfig } from '../types';
 import Global from '../../../global';
 import { deepMix, each, mix, isBoolean, isPlainObject, clone } from '@antv/util';
 import { cloneBesidesImg } from '../../../utils/graphic';

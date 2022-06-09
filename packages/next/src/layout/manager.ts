@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { clone, groupBy, isFunction, mix } from '@antv/util';
 
 import { Layout } from '@antv/layout/lib/layout/layout';

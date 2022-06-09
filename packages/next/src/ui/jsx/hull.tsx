@@ -1,13 +1,12 @@
+//@ts-nocheck
+
 import { jsx, Component, renderShape } from '@antv/f-engine';
-import { getNode } from './components/nodes';
+
 import { connect, connector } from './connector';
 
-import { IGroup } from '@antv/g-base';
 import { deepMix, isString } from '@antv/util';
 import { parsePathString } from '@antv/path-util';
 import { pathToPoints, getClosedSpline, roundedHull, paddedHull } from '../../utils/path';
-
-import { isPolygonsIntersect } from '../../utils/math';
 
 import { genConvexHull } from '../hull/convexHull';
 import { genBubbleSet } from '../hull/bubbleset';
@@ -80,7 +79,7 @@ export class Hull extends Component {
     }
   }
 
-  calcPath(members: Item[], nonMembers: Item[]) {
+  calcPath(members, nonMembers) {
     const { getNodeBBox } = this.props;
     let contour, path, hull;
     const functionalMembers = members.map((node) => {

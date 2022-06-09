@@ -1,6 +1,6 @@
+//@ts-nocheck
 import { jsx, Component } from '@antv/f-engine';
 import { isEqual } from '@antv/util';
-import { edge as edgeActions } from '../../store';
 import { getEdge } from './components/edges';
 import { connect, connector } from './connector';
 
@@ -24,10 +24,6 @@ import { connect, connector } from './connector';
 })
 export class Edge extends Component {
   edgeShapeRef = { current: null };
-
-  getType() {
-    return 'edge';
-  }
 
   willMount(): void {
     const { inject } = this.props;
@@ -68,16 +64,7 @@ export class Edge extends Component {
   };
 
   render() {
-    const {
-      updateEdgePoints,
-      edge,
-      linkCenter,
-      sourceNode,
-      targetNode,
-      getNodeBBox,
-      getNodePosition,
-      getNodeAnchorPoints,
-    } = this.props;
+    const { updateEdgePoints, edge, linkCenter } = this.props;
     const Shape = getEdge(edge?.type || 'line');
 
     if (!Shape) {
@@ -88,13 +75,9 @@ export class Edge extends Component {
     if (!edge) {
       return null;
     }
-    // const sourcebbox = getNodeBBox(sourceNode.id);
-    // const targetbbox = getNodeBBox(targetNode.id);
-    // const sourceAnchor = getNodeAnchorPoints(sourceNode.id);
-    // const targetAnchor = getNodeAnchorPoints(targetNode.id);
-    // const sourcePosition = getNodePosition(sourceNode.id);
-    // const targetPosition = getNodePosition(targetNode.id);
+
     const points = this.getPoints();
+
     if (Number.isNaN(points.startPoint.x) || Number.isNaN(points.endPoint)) {
       return null;
     }

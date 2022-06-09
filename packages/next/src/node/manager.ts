@@ -6,6 +6,7 @@ import { Node } from './node';
 
 export class NodeManager extends ItemManger {
   graph = null;
+  isEnableAnimate = true;
   constructor(graph) {
     super();
     this.graph = graph;

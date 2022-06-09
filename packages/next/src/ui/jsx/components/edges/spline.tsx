@@ -3,7 +3,7 @@ import { BaseEdge } from './base';
 import { getSpline } from '../../../../utils/path';
 
 export class Spline extends BaseEdge {
-  getPath(points: Point[]): Array<Array<string | number>> {
+  getPath(points): Array<Array<string | number>> {
     const path = getSpline(points);
     return path;
   }

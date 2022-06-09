@@ -1,4 +1,5 @@
-import { makeAutoObservable, observable, computed, makeObservable } from 'mobx';
+// @ts-nocheck
+import { makeAutoObservable, observable, computed, makeObservable, action } from 'mobx';
 import { Item } from '../item/item';
 import { ItemManger } from '../item/manager';
 import { Combo } from './combo';
@@ -13,6 +14,8 @@ export class ComboManager extends ItemManger {
     this.graph = graph;
     makeObservable(this, {
       sortedCombos: computed,
+      isAutoSize: observable,
+      setAutoSize: action,
     });
   }
 
@@ -183,5 +186,9 @@ export class ComboManager extends ItemManger {
     combo.combos?.forEach((entity) => {
       this.translate(entity.id, pos);
     });
+  }
+
+  setAutoSize(isAutoSize) {
+    this.isAutoSize = isAutoSize;
   }
 }
