@@ -40,6 +40,10 @@ export abstract class ItemManger {
     return Object.values(this.items).map((node) => node.model);
   }
 
+  get states() {
+    return Object.values(this.items).map((node) => [...node.states]);
+  }
+
   get ids() {
     return Object.keys(this.items);
   }

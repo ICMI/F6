@@ -69,6 +69,7 @@ export class ComboManager extends ItemManger {
     combosSorted.forEach(
       (combo) => (combo.children = [...(combo.nodes || []), ...(combo.combos || [])]),
     );
+    if (combosSorted.length === 0) debugger;
 
     return combosSorted;
   }

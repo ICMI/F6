@@ -348,13 +348,13 @@ export class BaseEdge extends BaseShape {
     delete style.y;
     return (
       <path
-        animation={{
-          update: {
-            easing: 'linear',
-            duration: 450,
-            property: ['points'],
-          },
-        }}
+        // animation={{
+        //   update: {
+        //     easing: 'linear',
+        //     duration: 450,
+        //     property: ['points'],
+        //   },
+        // }}
         style={style}
         ref={this.keyShapeRef}
       ></path>

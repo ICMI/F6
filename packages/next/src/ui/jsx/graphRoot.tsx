@@ -9,14 +9,19 @@ import { COMBO_Z_INDEX, EDGE_Z_INDEX, HULL_Z_INDEX, NODE_Z_INDEX } from '../../c
 
 import { calcBBox, calcCanvasBBox, calcMatrix, getMatrix, setMatrix } from '../adapter/element';
 import { Combo } from './combo';
+import { Hull } from './hull';
 
 @connect((graph, props) => {
   return {
-    nodes: graph.nodeManager.ids,
-    edgeIds: graph.edgeManager.ids,
+    nodes: graph.nodeManager.models,
+    edges: graph.edgeManager.models,
     sortedCombos: graph.comboManager.sortedCombos,
-    hullIds: graph.hullManager.ids,
+    hulls: graph.hullManager.models,
     matrix: graph.matrix,
+    nodeStates: graph.nodeManager.states,
+    edgeStates: graph.edgeManager.states,
+    comboStates: graph.comboManager.states,
+    isAutoSize: graph.comboManager.isAutoSize,
   };
 })
 export class GraphRoot extends Component {
@@ -32,7 +37,7 @@ export class GraphRoot extends Component {
   }
 
   didMount() {
-    const { initGraphData, isTreeGraph, initTreeGraph, data, layout, modes } = this.props;
+    const { data, layout, modes } = this.props;
     const { width, height, devicePixelRatio } = this.context.root.props;
 
     this.context.graph.init({ width, height, devicePixelRatio, data, layout, modes });
@@ -64,7 +69,18 @@ export class GraphRoot extends Component {
   };
 
   render() {
-    const { nodes, edgeIds, sortedCombos, hullIds } = this.props;
+    const {
+      nodes,
+      edges,
+      combos,
+      sortedCombos,
+      hulls,
+      nodeStates,
+      edgeStates,
+      comboStates,
+      isAutoSize,
+    } = this.props;
+    const graph = this.context.graph;
     if (!nodes || nodes.length === 0) return null;
     return (
       <Fragment>
@@ -73,26 +89,76 @@ export class GraphRoot extends Component {
             this.nodeRoot = instance;
           }}
         >
-          {[...nodes].map((id) => (
-            <Node id={id} key={id}></Node>
+          {[...nodes].map((node, index) => (
+            <Node
+              key={node.id}
+              node={node}
+              states={nodeStates[index]}
+              item={graph.getItem(node.id)}
+            ></Node>
           ))}
         </Fragment>
-        {/* <Fragment ref={(instance) => (this.comboRoot = instance)}>
-          {sortedCombos.map((sortedCombo) => (
-            <Combo id={sortedCombo.id} key={sortedCombo.id} sortedCombo={sortedCombo}></Combo>
-          ))}
-        </Fragment> */}
+        <Fragment ref={(instance) => (this.comboRoot = instance)}>
+          {sortedCombos.map((sortedCombo) => {
+            const item = graph.comboManager.byId(sortedCombo.id);
+            if (!item) return null;
+            return (
+              <Combo
+                id={sortedCombo.id}
+                key={sortedCombo.id}
+                combo={item.model}
+                sortedCombo={sortedCombo}
+                item={item}
+                sortedCombo={sortedCombo}
+                nodes={graph.nodeManager.models.filter((node) => {
+                  return sortedCombo.children?.some(({ id }) => id === node.id);
+                })}
+                combos={graph.comboManager.models.filter((node) => {
+                  return sortedCombo.children?.some(({ id }) => id === node.id);
+                })}
+                states={[...item.states]}
+                isAutoSize={isAutoSize}
+              ></Combo>
+            );
+          })}
+        </Fragment>
 
         <Fragment ref={(instance) => (this.edgeRoot = instance)}>
-          {edgeIds.map((id) => (
-            <Edge id={id} key={id}></Edge>
-          ))}
+          {edges.map((edge, index) => {
+            const item = graph.edgeManager.byId(edge.id);
+            if (!item) return null;
+            return (
+              <Edge
+                key={edge.id}
+                edge={edge}
+                states={nodeStates[index]}
+                item={item}
+                linkCenter={false}
+                sourceNode={item.getSource().model}
+                endNode={item.getTarget().model}
+              ></Edge>
+            );
+          })}
         </Fragment>
-        {/* <Fragment ref={(instance) => (this.hullRoot = instance)}>
-          {hullIds.map((id) => (
-            <Hull id={id} key={id} getNodeBBox={this.getNodeBBox}></Hull>
-          ))}
-        </Fragment> */}
+        <Fragment ref={(instance) => (this.hullRoot = instance)}>
+          {hulls.map((hull) => {
+            const item = graph.hullManager.byId(hull.id);
+            return (
+              <Hull
+                id={hull.id}
+                key={hull.id}
+                item={item}
+                hull={hull}
+                members={graph.nodeManager.models.filter((node) => {
+                  return hull.members?.includes(node.id);
+                })}
+                nonMembers={graph.nodeManager.models.filter((node) => {
+                  return hull.nonMembers?.includes(node.id);
+                })}
+              ></Hull>
+            );
+          })}
+        </Fragment>
       </Fragment>
     );
   }

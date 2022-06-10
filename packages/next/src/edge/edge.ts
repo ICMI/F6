@@ -14,11 +14,11 @@ export class Edge extends Item {
 
   constructor(model, graph) {
     super();
+    this.graph = graph;
     this.model = { ...model };
-    this.model.id = model.id || uuid();
+    this.model.id = `${this.getSource().id}-${this.getTarget().id}`;
     this.model.type = model.type || 'line';
     this.model.visible = true;
-    this.graph = graph;
   }
 
   get type() {
@@ -29,7 +29,7 @@ export class Edge extends Item {
     return this.graph.getItem(id).model;
   }
 
-  getSource(id) {
+  getSource() {
     const source = this.model.source;
     return this.getNodeInstance(source);
   }

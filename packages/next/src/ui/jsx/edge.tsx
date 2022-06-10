@@ -4,30 +4,12 @@ import { isEqual } from '@antv/util';
 import { getEdge } from './components/edges';
 import { connect, connector } from './connector';
 
-@connect((graph, props) => {
-  const edge = graph.edgeManager.byId(props.id);
-
-  if (!edge) {
-    return false;
-  }
-
-  return {
-    sourceNode: edge.getNodeEntity(edge.model.source),
-    targetNode: edge.getNodeEntity(edge.model.target),
-    linkCenter: false,
-    edge: edge.model,
-    inject: edge.inject.bind(edge),
-    getEndCenter: edge.getEndCenter.bind(edge),
-    getLinkPoint: edge.getLinkPoint.bind(edge),
-    getControlPointsByCenter: edge.getControlPointsByCenter.bind(edge),
-  };
-})
 export class Edge extends Component {
   edgeShapeRef = { current: null };
 
   willMount(): void {
-    const { inject } = this.props;
-    inject('getControlPoints', this.getControlPoints);
+    const { item } = this.props;
+    item.inject('getControlPoints', this.getControlPoints);
   }
 
   getShapeEdge() {
@@ -35,23 +17,17 @@ export class Edge extends Component {
   }
 
   getPoints() {
-    const {
-      updateEdgePoints,
-      edge,
-      linkCenter,
-      getEndCenter,
-      getControlPointsByCenter,
-      getLinkPoint,
-    } = this.props;
+    const { item, edge, linkCenter, getEndCenter, getControlPointsByCenter, getLinkPoint } =
+      this.props;
     if (!edge) return;
     let startPoint, endPoint;
     if (linkCenter) {
-      startPoint = getEndCenter('source', edge.id);
-      endPoint = getEndCenter('target', edge.id);
+      startPoint = item.getEndCenter('source', edge.id);
+      endPoint = item.getEndCenter('target', edge.id);
     } else {
-      const controlPoints = edge.controlPoints || getControlPointsByCenter(edge.id);
-      startPoint = getLinkPoint('source', edge, controlPoints);
-      endPoint = getLinkPoint('target', edge, controlPoints);
+      const controlPoints = edge.controlPoints || item.getControlPointsByCenter(edge.id);
+      startPoint = item.getLinkPoint('source', edge, controlPoints);
+      endPoint = item.getLinkPoint('target', edge, controlPoints);
     }
     return {
       startPoint,

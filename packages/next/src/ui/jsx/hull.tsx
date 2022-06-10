@@ -11,20 +11,6 @@ import { pathToPoints, getClosedSpline, roundedHull, paddedHull } from '../../ut
 import { genConvexHull } from '../hull/convexHull';
 import { genBubbleSet } from '../hull/bubbleset';
 
-@connect((graph, props) => {
-  const hull = graph.hullManager.byId(props.id);
-
-  return {
-    hull: hull.model,
-    members: graph.nodeManager.models.filter((node) => {
-      return hull.model.members?.includes(node.id);
-    }),
-    nonMembers: graph.nodeManager.models.filter((node) => {
-      return hull.model.nonMembers?.includes(node.id);
-    }),
-    getItem: graph.getItem.bind(graph),
-  };
-})
 export class Hull extends Component {
   nodeRef = { current: null };
   padding = 0;
@@ -55,8 +41,9 @@ export class Hull extends Component {
   }
 
   setPadding() {
-    const { getNodeBBox, members } = this.props;
-    const nodeSize = members.length && getNodeBBox(members[0].id).width / 2;
+    const { members } = this.props;
+    const nodeSize =
+      members.length && this.context.graph.findById(members[0].id).getBBox().width / 2;
     this.padding = this.cfg.padding > 0 ? this.cfg.padding + nodeSize : 10 + nodeSize;
     this.cfg.bubbleCfg = {
       nodeR0: this.padding - nodeSize,
@@ -80,14 +67,13 @@ export class Hull extends Component {
   }
 
   calcPath(members, nonMembers) {
-    const { getNodeBBox } = this.props;
     let contour, path, hull;
     const functionalMembers = members.map((node) => {
       return {
         x: node.x,
         y: node.y,
         getBBox: () => {
-          return getNodeBBox(node.id);
+          return this.context.graph.findById(node.id).getBBox();
         },
       };
     });
@@ -96,7 +82,7 @@ export class Hull extends Component {
         x: node.x,
         y: node.y,
         getBBox: () => {
-          return getNodeBBox(node.id);
+          return this.context.graph.findById(node.id).getBBox();
         },
       };
     });
@@ -134,11 +120,6 @@ export class Hull extends Component {
     return path;
   }
 
-  willMount(): void {}
-
-  didMount(): void {
-    // console.log('renderShpae: ', this, render(this, this.render(), false));
-  }
   render() {
     const { hull, members, nonMembers } = this.props;
     this.setType();

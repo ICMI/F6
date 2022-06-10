@@ -1,4 +1,4 @@
-import { jsx, Canvas as FCanvas, Component, AdapterHammer } from '@antv/f-engine';
+import { jsx, Canvas as FCanvas, Component } from '@antv/f-engine';
 import { createGlobalContext } from '../../service';
 
 import { genCanvasCfg } from '../../utils';

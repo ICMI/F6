@@ -5,22 +5,6 @@ import { calcBBox, calcMatrix, calculateBBox } from '../adapter/element';
 import { getNode } from './components/nodes';
 import { connect, connector } from './connector';
 
-@connect((graph, props, prevProps) => {
-  const node = graph.nodeManager.byId(props.id);
-  if (!node) {
-    return;
-  }
-  return {
-    item: node,
-    node: node.model,
-    inject: node.inject.bind(node),
-    // appear: animate.getAppear(props.id),
-    // update: animate.getUpdate(props.id),
-    // end: animate.getEnd(props.id),
-    states: [...node.states],
-    setPosition: node.setPosition.bind(node),
-  };
-})
 export class Node extends Component {
   nodeRef = { current: null };
   cacheBBox = null;
@@ -29,13 +13,13 @@ export class Node extends Component {
   prevPosition = {};
 
   shouldUpdate(_nextProps: any): void {
-    return !this.isAnimating;
+    return !this.isAnimating || !this.props.item;
   }
 
   willMount(): void {
-    const { inject } = this.props;
-    inject('getBBox', this.getBBox);
-    inject('getAnchorPoints', this.getAnchorPoints);
+    const { item } = this.props;
+    item.inject('getBBox', this.getBBox);
+    item.inject('getAnchorPoints', this.getAnchorPoints);
   }
 
   didMount(): void {
@@ -77,7 +61,7 @@ export class Node extends Component {
 
   onFrame = () => {
     this.isAnimating = true;
-    const { setPosition, id } = this.props;
+    const { setPosition, id, item } = this.props;
     let { x, y } = this.getNodeRoot().style;
     if (typeof x === 'string') {
       x = Number(x.replace('px', ''));
@@ -86,7 +70,7 @@ export class Node extends Component {
       y = Number(y.replace('px', ''));
     }
 
-    setPosition({ x, y });
+    item.setPosition({ x, y });
   };
 
   onEnd = () => {

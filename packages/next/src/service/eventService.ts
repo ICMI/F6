@@ -133,7 +133,6 @@ export default class EventService extends EE {
     const canvas = this.canvas;
     const { target } = evt;
     const eventType = evt.type;
-    console.log(eventType);
     // if (eventType === 'drop' || eventType === 'dragend') console.log(eventType);
     /**
      * (clientX, clientY): 相对于页面的坐标；

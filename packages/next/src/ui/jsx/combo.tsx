@@ -8,28 +8,28 @@ import { calcBBox, calcMatrix, calculateBBox } from '../adapter/element';
 import { isNumber } from '@antv/util';
 import { Global } from '../../const';
 
-@connect((graph, props) => {
-  const { sortedCombo } = props;
-  const combo = graph.comboManager.byId(sortedCombo.id);
+// @connect((graph, props) => {
+//   const { sortedCombo } = props;
+//   const combo = graph.comboManager.byId(sortedCombo.id);
 
-  return {
-    item: combo,
-    allNodes: graph.nodeManager.models,
-    combo: combo.model,
-    nodes: graph.nodeManager.models.filter((node) => {
-      return sortedCombo.children?.some(({ id }) => id === node.id);
-    }),
-    combos: graph.comboManager.models.filter((node) => {
-      return sortedCombo.children?.some(({ id }) => id === node.id);
-    }),
-    inject: combo.inject.bind(combo),
-    setPosition: combo.setPosition.bind(combo),
-    calcComboBBox: graph.comboManager.calcComboBBox.bind(graph.comboManager),
-    isAutoSize: graph.comboManager.isAutoSize,
-    states: [...combo.states],
-    syncPosition: combo.syncPosition,
-  };
-})
+//   return {
+//     item: combo,
+//     allNodes: graph.nodeManager.models,
+//     combo: combo.model,
+//     nodes: graph.nodeManager.models.filter((node) => {
+//       return sortedCombo.children?.some(({ id }) => id === node.id);
+//     }),
+//     combos: graph.comboManager.models.filter((node) => {
+//       return sortedCombo.children?.some(({ id }) => id === node.id);
+//     }),
+//     inject: combo.inject.bind(combo),
+//     setPosition: combo.setPosition.bind(combo),
+//     calcComboBBox: graph.comboManager.calcComboBBox.bind(graph.comboManager),
+//     isAutoSize: graph.comboManager.isAutoSize,
+//     states: [...combo.states],
+//     syncPosition: combo.syncPosition,
+//   };
+// })
 export class Combo extends Component {
   nodeRef = { current: null };
   cacheCombo = {};
@@ -38,20 +38,20 @@ export class Combo extends Component {
   isInited = false;
 
   willMount(): void {
-    const { inject } = this.props;
-    inject('getBBox', this.getBBox);
+    const { item } = this.props;
+    item.inject('getBBox', this.getBBox);
   }
 
   didMount(): void {
-    const { sortedCombo } = this.props;
-    this.container.parentNode.style.zIndex = sortedCombo.depth;
-    this.container.item = this.props.item;
+    const { sortedCombo, item } = this.props;
+    this.container.style.zIndex = sortedCombo.depth;
+    this.container.item = item;
     this.isInited = true;
   }
 
   didUpdate(prev): void {
     const { sortedCombo } = this.props;
-    this.container.parentNode.style.zIndex = sortedCombo.depth;
+    this.container.style.zIndex = sortedCombo.depth;
   }
 
   getBBox = () => {
@@ -61,11 +61,12 @@ export class Combo extends Component {
     return calculateBBox(calcBBox(this.getKeyShape()), matrix);
   };
 
+  calcSize() {}
+
   calcRenderRect(padding = 0) {
-    const { calcComboBBox, combo } = this.props;
+    const { combo } = this.props;
     let x, y;
-    const bbox = calcComboBBox(combo.id);
-    // merge graph的item样式与数据模型中的样式
+    const bbox = this.context.graph.comboManager.calcComboBBox(combo.id);
     const size = {
       r: Math.hypot(bbox.height, bbox.width) / 2 || Global.defaultCombo.size[0] / 2,
       width: bbox.width || Global.defaultCombo.size[0],
@@ -85,8 +86,6 @@ export class Combo extends Component {
     else if (isNaN(x)) x = Math.random() * 100;
     if (!isNaN(bbox.y)) y = bbox.y;
     else if (isNaN(y)) y = Math.random() * 100;
-    // this.set(CACHE_SIZE, size);
-    // return size;
     this.size = size;
     this.position = { x, y };
   }
@@ -104,7 +103,7 @@ export class Combo extends Component {
   }
 
   render() {
-    const { isAutoSize, combo, sortedCombo, syncPosition, states } = this.props;
+    const { isAutoSize, combo, sortedCombo, item, states } = this.props;
 
     const Shape = getCombo(combo?.type || 'circle');
 
@@ -117,12 +116,15 @@ export class Combo extends Component {
     if ((isAutoSize && sortedCombo.children.length > 0) || !this.isInited) {
       this.calcRenderRect(50);
       finalPos = this.position;
-      // console.log(combo.id, '001');
     } else {
-      // console.log(combo.id, '002', combo.x, combo.y);
       finalPos = { x: combo.x, y: combo.y };
     }
-    syncPosition(finalPos);
+
+    if (sortedCombo.children.length === 0) {
+      this.calcRenderRect(50);
+    }
+
+    item.syncPosition(finalPos);
 
     const defaultStyle = Shape?.getOptions();
     const size = this.size;
@@ -134,5 +136,9 @@ export class Combo extends Component {
     };
 
     return <Shape ref={this.nodeRef} combo={this.cacheCombo} states={states} />;
+  }
+
+  didUnmount(): void {
+    console.log('unmount');
   }
 }
