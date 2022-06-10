@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { action, makeAutoObservable, makeObservable, observable } from 'mobx';
+import { action, makeObservable } from 'mobx';
 import { Node } from '../node/node';
 
 export class Combo extends Node {

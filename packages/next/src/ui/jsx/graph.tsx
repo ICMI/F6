@@ -8,7 +8,6 @@ export class Graph extends Component {
   willMount(): void {
     const graph = new RootStore();
     graph.eventService.initEvents(this.context.root, this.context.canvas);
-
     this.context.graph = graph;
   }
 

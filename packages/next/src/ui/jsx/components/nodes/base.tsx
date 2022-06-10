@@ -321,26 +321,28 @@ export class BaseNode extends BaseShape {
     return (
       <group
         style={{ x: node?.x || 0, y: node?.y || 0, draggable: true, droppable: true }}
-        animation={
-          {
-            // appear: {
-            //   duration: 1500,
-            //   ...(animation.appear || {}),
-            //   onFrame,
-            // },
-            // update: {
-            //   easing: 'linear',
-            //   duration: 450,
-            //   property: ['x', 'y'],
-            //   onFrame,
-            //   onEnd,
-            // },
-            // leave: {
-            //   duration: 1500,
-            //   onFrame,
-            // },
-          }
-        }
+        animation={{
+          // appear: {
+          //   easing: 'linear',
+          //   duration: 300,
+          //   // ...(animation.appear || {}),
+          //   onFrame,
+          //   property: ['x', 'y'],
+          // },
+          update: {
+            easing: 'linear',
+            duration: 150,
+            property: ['x', 'y'],
+            onFrame,
+            onEnd,
+          },
+          // leave: {
+          //   easing: 'linear',
+          //   duration: 300,
+          //   onFrame,
+          //   property: ['x', 'y'],
+          // },
+        }}
       >
         {this.renderShape(node, states)}
         {/* label */}

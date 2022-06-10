@@ -133,38 +133,6 @@ export class TreeGraph extends Graph {
     }
 
     this.updateItem(current, { ...data });
-
-    // const stack = [[null, data]];
-    // const updateNodes = [];
-    // while (stack.length) {
-    //   for (let i = 0, len = stack.length; i < len; i++) {
-    //     const [parent, node] = stack.shift();
-    //     const current = this.getItem(node.id);
-
-    //     if (!current) {
-    //       this.innerAddChild(node, parent);
-    //       continue;
-    //     }
-
-    //     const currentChildren = current.model.children;
-    //     if (currentChildren) {
-    //       for (let i = currentChildren.length - 1; i > -1; i--) {
-    //         const child = currentChildren[i];
-    //         const node = this.findDataById(child.id, data);
-    //         if (!node) {
-    //           this.innerRemoveChild(child.id);
-    //         }
-    //       }
-    //     }
-    //     console.log('update: ', node.id);
-    //     this.updateItem(current, { ...node });
-
-    //     node.children &&
-    //       node.children.forEach((child) => {
-    //         stack.push([node, child]);
-    //       });
-    //   }
-    // }
   }
 
   findDataById(id: string, parent = this.originData) {

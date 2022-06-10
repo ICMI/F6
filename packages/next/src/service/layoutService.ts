@@ -10,7 +10,7 @@ import { ForceLayout, DagreLayout } from '@antv/layout/lib/layout';
 
 // 默认提供 random 布局
 registerLayout('random', RandomLayout);
-registerLayout('force', ForceLayout);
+registerLayout('force', DagreLayout);
 
 export { Layout, Layouts, registerLayout, unRegisterLayout };
 
